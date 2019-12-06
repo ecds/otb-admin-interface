@@ -29,6 +29,7 @@ export default Service.extend({
       (firstSubDir === 'admin' && pathParts.length <= 2) ||
       // Reverse pathParts without modifying it.
       (firstSubDir === 'admin' && [...pathParts].reverse()[0] === 'users') ||
+      (firstSubDir === 'admin' && [...pathParts].reverse()[0] === 'login') ||
       firstSubDir === 'tour' ||
       firstSubDir === 'tours' ||
       firstSubDir === 'login' ||

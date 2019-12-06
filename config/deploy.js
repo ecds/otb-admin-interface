@@ -26,7 +26,7 @@ module.exports = function(deployTarget) {
         username: process.env.SSH_USER,
         privateKey: process.env.SSH_KEY
       },
-      dir: '/data/opentour',
+      dir: '/data/otb-admin-interface',
       keep: 5
     };
   }

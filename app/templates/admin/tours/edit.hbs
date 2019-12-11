@@ -167,7 +167,14 @@
     {{/otb-crud/form-section}}
     </form>
   </div>
-  {{otb-crud/submit-buttons class='uk-width-1-1' save=(perform saveRecord tourLoader.data)}}
+  <div class="otb-crud-footer uk-padding-margin">
+    <div class="uk-padding">
+      {{otb-crud/submit-buttons save=(perform saveRecord tourLoader.data)}}
+    {{!-- </div>
+    <div class="uk-padding"> --}}
+      {{preview-button model=tourLoader.data}}
+    </div>
+  </div>
 </div>
 
 <div id="task-running" class='uk-flex-top'>

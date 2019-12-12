@@ -24,6 +24,10 @@ module.exports = function(defaults) {
 
     'ember-uikit': {
       useIcons: false
+    },
+
+    fingerprint: {
+      exclude: ['images/otb-themes']
     }
   });
 

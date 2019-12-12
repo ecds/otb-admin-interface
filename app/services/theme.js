@@ -10,7 +10,7 @@ export default Service.extend({
   theme: 'dark',
 
   init() {
-    this.store.findAll('theme');
+    this.set('themes', this.store.findAll('theme'));
   },
 
   // the property used as a reference for styles

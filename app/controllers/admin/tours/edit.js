@@ -147,7 +147,6 @@ export default Controller.extend(CrudActionsMixin, {
     },
 
     cancelChanges(model) {
-      console.log("TCL: cancelChanges -> model", model)
       if (model.hasOwnProperty('_belongsToState')) {
         model.then(m => {
           this.send('cancelChanges', m);
@@ -161,9 +160,12 @@ export default Controller.extend(CrudActionsMixin, {
         changes = model.changedAttributes;
       }
       for (const changed in changes) {
-        if (model.editors && model.editors[changed] && model.changedAttributes()[changed]) {
-          console.log("TCL: cancelChanges -> model.changedAttributes()[changed]", model.changedAttributes()[changed])
-          const oldValue = model.changedAttributes()[changed][0];
+        if (
+          model.editors &&
+          model.editors[changed] &&
+          model.changedAttributes()[changed]
+        ) {
+          const oldValue = changes[changed][0];
           model.editors[changed].setEditorValue(oldValue);
         }
         model.rollbackAttributes();

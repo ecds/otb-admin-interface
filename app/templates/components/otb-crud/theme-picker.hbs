@@ -3,15 +3,11 @@
     <div class="uk-transition-toggle">
       <div class="uk-card uk-card-default uk-card-small uk-transition-scale-up uk-transition-opaque">
         <label for={{theme.title}}>
-          <img
-            src="/admin/assets/images/otb-themes/{{theme.title}}.png"
-            alt="Theme {{theme.title}} preview"
-            style="max-height: 200px;"
-            class="">
+          <img src="/admin/assets/images/otb-themes/{{theme.title}}.png" alt="Theme {{theme.title}} preview"
+            style="max-height: 200px;" class="">
         </label>
         <br>
-        <input type="radio" name="theme" id={{theme.title}}
-          checked={{eq model.theme.id theme.id}}
+        <input type="radio" name="theme" id={{theme.title}} checked={{eq model.theme.id theme.id}}
           onchange={{action 'setTheme' theme}}>
       </div>
     </div>

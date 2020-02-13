@@ -35,6 +35,15 @@ export default Controller.extend(CrudActionsMixin, {
     return checkExist;
   }),
 
+  saveTour: task(function*(tour) {
+    yield this.get('saveRecord').perform(tour);
+    tour.stops.forEach(stop => {
+      if (stop.hasDirtyAttributes) {
+        stop.save();
+      }
+    });
+  }),
+
   showTaskMessage: task(function*(message) {
     this.set('taskMessage', message);
     return yield this.get('screenBlocker').show();
@@ -130,6 +139,37 @@ export default Controller.extend(CrudActionsMixin, {
   }),
 
   actions: {
+    cancelChangesTour(tour) {
+      this.send('cancelChanges', tour);
+      tour.stops.forEach(stop => {
+        this.send('cancelChanges', stop);
+      });
+    },
+
+    cancelChanges(model) {
+      console.log("TCL: cancelChanges -> model", model)
+      if (model.hasOwnProperty('_belongsToState')) {
+        model.then(m => {
+          this.send('cancelChanges', m);
+        });
+      }
+      if (!model.get('hasDirtyAttributes')) return;
+      let changes = null;
+      if (typeof model.changedAttributes == 'function') {
+        changes = model.changedAttributes();
+      } else {
+        changes = model.changedAttributes;
+      }
+      for (const changed in changes) {
+        if (model.editors && model.editors[changed] && model.changedAttributes()[changed]) {
+          console.log("TCL: cancelChanges -> model.changedAttributes()[changed]", model.changedAttributes()[changed])
+          const oldValue = model.changedAttributes()[changed][0];
+          model.editors[changed].setEditorValue(oldValue);
+        }
+        model.rollbackAttributes();
+      }
+    },
+
     doNothing() {
       return true;
     },
@@ -142,10 +182,8 @@ export default Controller.extend(CrudActionsMixin, {
 
     addRemoveMode(options, event) {
       if (event.target.checked) {
-        this.get()
+        this.get();
       }
-    console.log("TCL: addRemoveMode -> event", event)
-    console.log("TCL: addRemoveMode -> options", options)
     }
   }
 });

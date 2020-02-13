@@ -115,18 +115,22 @@
                         class="otb-handle" as |item|}}
                         {{#item.content}}
                           <div class="uk-card uk-card-default uk-card-body uk-card-small">
-                            {{otb-crud/common-form model=stop.stop modelTitle="Stop"}}
-                            {{otb-crud/map model=stop.stop}}
+                            {{#if stop.stop}}
+                              {{otb-crud/common-form model=(get stop "stop") modelTitle="Stop"}}
+                              {{otb-crud/map model=stop.stop}}
 
-                            <h3 class="uk-heading">Manage Media</h3>
-                            {{otb-crud/video model=stop.stop save=addVideo}}
-                            <h4>Upload Images</h4>
-                            {{otb-crud/medium-upload uploadTask=uploadFile model=stop.stop modelName="stop"}}
-                            {{otb-crud/media model=stop.stop reorder=reorder save=saveRecord delete=deleteHasMany}}
-                            {{#uk-button color="primary" on-click=(perform saveRecord stop.stop)}}save{{/uk-button}}
-                            {{#uk-button on-click=cancel}}Cancel{{/uk-button}}
-                            {{#uk-button color="link" on-click=(perform deleteHasMany (hash parentObj=tourLoader.data relationType="stop" childObj=stop.stop reorder=true))}}Delete
-                              from tour{{/uk-button}}
+                              <h3 class="uk-heading">Manage Media</h3>
+                              {{otb-crud/video model=stop.stop save=addVideo}}
+                              <h4>Upload Images</h4>
+                              {{otb-crud/medium-upload uploadTask=uploadFile model=stop.stop modelName="stop"}}
+                              {{otb-crud/media model=stop.stop reorder=reorder save=saveRecord delete=deleteHasMany}}
+                              {{#uk-button color="primary" on-click=(perform saveRecord stop.stop)}}save{{/uk-button}}
+                              {{#uk-button on-click=(action "cancelChanges" stop.stop)}}Cancel{{/uk-button}}
+                              {{#uk-button color="link" on-click=(perform deleteHasMany (hash parentObj=tourLoader.data relationType="stop" childObj=stop.stop reorder=true))}}Delete
+                                from tour{{/uk-button}}
+                            {{else}}
+                              Loading stop....
+                            {{/if}}
                           </div>
                         {{/item.content}}
                       {{/accordion.item}}
@@ -182,7 +186,10 @@
       </div>
       <div class="otb-crud-footer uk-padding-margin">
         <div class="uk-padding">
-          {{otb-crud/submit-buttons save=(perform saveRecord tourLoader.data)}}
+          {{otb-crud/submit-buttons
+            save=(perform saveTour tourLoader.data)
+            cancel=(action "cancelChangesTour" tourLoader.data)
+          }}
           {{!-- </div>
     <div class="uk-padding"> --}}
           {{preview-button model=tourLoader.data}}

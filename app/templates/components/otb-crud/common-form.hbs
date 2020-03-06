@@ -3,7 +3,7 @@
 {{/otb-crud/form-section}}
 
 {{#if (eq modelTitle "Tour")}}
-  {{#otb-crud/form-section label="Publish" as |inputId|}}
+  {{#otb-crud/form-section label="Publish" as |inputId|}} <button class="uk-button uk-button-default" uk-tooltip="Check this box to make the tour publicly available."><span uk-icon="icon: question"></span></button>
     {{input
       type="checkbox"
       id=inputId
@@ -25,6 +25,6 @@
 {{#otb-crud/form-section
   label=(concat modelTitle " Meta Description")
 as |inputId|
-}}
+}} <button class="uk-button uk-button-default" uk-tooltip="The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters."><span uk-icon="icon: question"></span></button>
   {{textarea id=inputId rows=6 class="uk-textarea" value=model.meta_description}}
 {{/otb-crud/form-section}}

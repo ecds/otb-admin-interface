@@ -1,7 +1,7 @@
 <div class='uk-grid-match uk-grid-medium uk-child-width-expand@s' uk-grid>
   <div class='uk-width-1-3@m uk-width-1-1@s uk-margin-bottom'>
 
-    <h3 class='uk-heading'>Stop</h3>
+    <h3 class='uk-heading'>Stop </h3><button class="uk-button uk-button-default" uk-tooltip="You can update the stop location by Stop Address or Latitude and Longitude and the other will update automatically. Once you enter your location by either means, click Locate Address. You can also click and drag the point on the map to update the location. If you enter Latitude and Logitude, you MUST enter BOTH fields or you will get a map error."><span uk-icon="icon: question"></span></button>
     {{#otb-crud/form-section label='Stop Address' as |inputId|}}
         {{input class='uk-input uk-margin-bottom' id=inputId value=model.address}}
         {{#uk-button size='small' color='secondary' on-click=(action 'locateAddress' model=model)}}
@@ -17,7 +17,7 @@
       {{input class='uk-input' type='number' step='0.0001000000000' id=inputId value=model.lng}}
     {{/otb-crud/form-section}}
 
-    <button class='uk-button uk-button-small' uk-toggle target='.parking-location'>Add parking location</button>
+    <button class='uk-button uk-button-small' uk-toggle target='.parking-location'>Add parking location</button> <button class="uk-button uk-button-default" uk-tooltip="You can add a separate parking location by address or Latitude and Longitude and it will show separately on the map for the stop."><span uk-icon="icon: question"></span></button>
     <div class='parking-location' hidden>
       <h3 class='uk-heading' >Parking</h3>
       {{#otb-crud/form-section label='Parking Address' as |inputId|}}
@@ -57,7 +57,7 @@
   {{/if}}
   </div>
   <div class='uk-width-1-1'>
-    {{#otb-crud/form-section label='Direction Notes' as |inputId|}}
+    {{#otb-crud/form-section label='Direction Notes' as |inputId|}}<button class="uk-button uk-button-default" uk-tooltip="Directions are created through Google maps. Under Direction Notes you can add any specific details that Google maps would not be able to provide (e.g. turn right at the big tree). This field will not show on the tour if you leave it blank."><span uk-icon="icon: question"></span></button>
       {{ember-jodit value=(if model.direction_notes model.direction_notes '') onChange=(action (mut model.direction_notes))}}
     {{/otb-crud/form-section}}
   </div>

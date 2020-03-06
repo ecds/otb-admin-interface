@@ -7,20 +7,21 @@
         {{fa-icon 'facebook-f' prefix='fab'}}
       </button>
     </div>
-    
+
     <div>
       <button class="uk-tile red" onclick={{action 'authenticateWithGoogle'}}>
         {{fa-icon 'google' prefix='fab'}}
       </button>
     </div>
   </div>
-  
+
   <hr />
-  
+
   <section class='fine-print'>
     Creating an account means you're okay wth Emory Center for Digital Scholarship's <a href='http://digitalscholarship.emory.edu/about/center/privacy-policy.html' target='_blank'>Terms of Service and Privacy Policy</a>.
+    <br />Logging in with Google or Facebook creates your OpenTour account. Be sure to log into OpenTour with the same Google or Facebook account each time.
   </section>
-  
+
   {{#if errorMessage}}
     <div class="alert alert-danger">
       <section>

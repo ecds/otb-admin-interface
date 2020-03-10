@@ -43,8 +43,12 @@ module.exports = {
         'server/**/*.js'
       ],
       parserOptions: {
+<<<<<<< HEAD
         sourceType: 'script',
         ecmaVersion: 2016
+=======
+        sourceType: 'script'
+>>>>>>> 43f88b38... message
       },
       env: {
         browser: false,

@@ -10,6 +10,7 @@ export default Service.extend({
   theme: 'dark',
 
   init() {
+    this._super(...arguments);
     this.set('themes', this.store.findAll('theme'));
   },
 

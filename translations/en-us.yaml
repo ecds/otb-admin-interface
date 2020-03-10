@@ -10,7 +10,10 @@ buttons:
 
 default: 'default'
 deleteFromTour: 'Delete from tour'
+dragAndDrop: 'Drag and drop images onto this area to upload them or'
+dropToUpload: 'Drop to upload'
 enable: 'Enable'
+invalid: 'Invalid'
 
 loading:
   loading: 'Loading...'
@@ -31,4 +34,5 @@ tooltip:
   metaDescription: 'The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters.'
   reorderImages: 'You can click and drag to reorder the images and videos. You can add as many images or videos as you want. Keep the file size small.'
 
+uploadImage: 'Upload an Image'
 uploadImages: 'Upload Images'

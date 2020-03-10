@@ -1,5 +1,5 @@
 import DS from 'ember-data';
-import { get, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 
 const { Model, attr, hasMany } = DS;
@@ -18,5 +18,5 @@ export default Model.extend({
   }),
   safeContent: computed('content', function safeContent() {
     return new htmlSafe(this.content);
-  }).property('content')
+  })
 });

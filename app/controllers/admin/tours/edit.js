@@ -36,7 +36,7 @@ export default Controller.extend(CrudActionsMixin, {
   }),
 
   saveTour: task(function*(tour) {
-    yield this.get('saveRecord').perform(tour);
+    yield this.saveRecord.perform(tour);
     tour.stops.forEach(stop => {
       if (stop.hasDirtyAttributes) {
         stop.save();
@@ -46,16 +46,16 @@ export default Controller.extend(CrudActionsMixin, {
 
   showTaskMessage: task(function*(message) {
     this.set('taskMessage', message);
-    return yield this.get('screenBlocker').show();
+    return yield this.screenBlocker.show();
   }),
 
   clearTaskMessage: task(function*() {
     this.set('taskMessage', null);
-    return yield this.get('screenBlocker').hide();
+    return yield this.screenBlocker.hide();
   }),
 
   newStop: task(function*(tour) {
-    yield this.get('showTaskMessage').perform({
+    yield this.showTaskMessage.perform({
       message: 'Creating new stop...',
       type: 'success'
     });
@@ -68,15 +68,15 @@ export default Controller.extend(CrudActionsMixin, {
         message: 'Adding new stop to tour...',
         type: 'success'
       });
-      let newStop = yield this.get('createHasMany').perform({
+      let newStop = yield this.createHasMany.perform({
         relationType: 'stop',
         parentObj: tour
       });
       newStop.setProperties({
         title: new Date().getTime().toString()
       });
-      yield this.get('clearTaskMessage').perform();
-      yield this.get('waitForElement').perform(
+      yield this.clearTaskMessage.perform();
+      yield this.waitForElement.perform(
         `${newStop.slug}-${newStop.id}`,
         accordion
       );
@@ -84,11 +84,11 @@ export default Controller.extend(CrudActionsMixin, {
       this.set('taskMessage', `ERROR: ${error.message}`);
     }
     // Destroy the modal but leave the element for next time.
-    this.get('screenBlocker').$destroy;
+    this.screenBlocker.$destroy;
   }),
 
   newPage: task(function*(tour) {
-    yield this.get('showTaskMessage').perform({
+    yield this.showTaskMessage.perform({
       message: 'Creating new page...',
       type: 'success'
     });
@@ -103,25 +103,25 @@ export default Controller.extend(CrudActionsMixin, {
         message: 'Adding new page to tour...',
         type: 'success'
       });
-      let newPage = yield this.get('createHasMany').perform({
+      let newPage = yield this.createHasMany.perform({
         relationType: 'flat_page',
         parentObj: tour
       });
       newPage.setProperties({
         title: ''
       });
-      yield this.get('clearTaskMessage').perform();
-      yield this.get('waitForElement').perform(`page-${newPage.id}`, accordion);
+      yield this.clearTaskMessage.perform();
+      yield this.waitForElement.perform(`page-${newPage.id}`, accordion);
     } catch (error) {
       this.set('taskMessage', `ERROR: ${error.message}`);
     }
     // Destroy the modal but leave the element for next time.
-    this.get('screenBlocker').$destroy;
+    this.screenBlocker.$destroy;
   }),
 
   addVideo: task(function*(videoCode, parentObj) {
     this.set('taskMessage', { message: 'Adding video...', type: 'success' });
-    const modal = this.get('screenBlocker');
+    const modal = this.screenBlocker;
     modal.show();
     if (parentObj.hasOwnProperty('content')) {
       parentObj = parentObj.content;
@@ -133,7 +133,7 @@ export default Controller.extend(CrudActionsMixin, {
         video: videoCode
       }
     };
-    yield this.get('createHasMany').perform(options);
+    yield this.createHasMany.perform(options);
     modal.hide();
     modal.$destroy;
   }),

@@ -14,6 +14,7 @@ bower_components/
 *node_modules*
 
 # misc
+<<<<<<< HEAD
 */.sass-cache
 */connect.lock
 */coverage/
@@ -21,6 +22,16 @@ bower_components/
 */npm-debug.log*
 */testem.log
 */yarn-error.log
+=======
+/.env*
+/.sass-cache
+/connect.lock
+/coverage/
+/libpeerconnection.log
+/npm-debug.log*
+/testem.log
+/yarn-error.log
+>>>>>>> b35e46ad... message
 
 # ember-try
 */.node_modules.ember-try/

@@ -8,7 +8,7 @@ export default Component.extend({
   icon: null,
 
   didInsertElement() {
-    const mode = get(this, 'mode');
+    const mode = this.mode;
     if (mode === 'BICYCLING') {
       set(this, 'icon', 'bicycle');
     } else if (mode === 'DRIVING') {

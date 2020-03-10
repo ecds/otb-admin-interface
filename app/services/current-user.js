@@ -11,7 +11,7 @@ export default Service.extend({
 
   load() {
     if (this.get('session.isAuthenticated')) {
-      return this.get('store')
+      return this.store
         .queryRecord('user', { me: true })
         .then(user => {
           this.set('user', user);
@@ -21,16 +21,16 @@ export default Service.extend({
   },
 
   reLoad() {
-    this.get('store')
+    this.store
       .queryRecord('user', { me: true })
       .then(user => {
-        get(this, 'store').unloadRecord(user);
+        this.store.unloadRecord(user);
         this.load();
       });
   },
 
   update() {
-    const user = get(this, 'store').peekRecord('user', get(this, 'user.id'));
+    const user = this.store.peekRecord('user', get(this, 'user.id'));
     user.save();
   }
 });

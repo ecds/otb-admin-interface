@@ -58,7 +58,7 @@ export default Component.extend({
    */
   updateDimension() {
     console.log('dimension');
-    if (this.get('isDestroyed') || this.get('isDestroying')) {
+    if (this.isDestroyed || this.isDestroying) {
       return false;
     }
   },
@@ -100,7 +100,7 @@ export default Component.extend({
       '_ukSticky',
       UIkit.sticky(this.element, {
         offset: 80,
-        bottom: get(this, 'bottom')
+        bottom: this.bottom
       })
     );
   },
@@ -113,7 +113,7 @@ export default Component.extend({
     // this.initResizeEventListener();
     schedule('afterRender', () => {
       // get(this, '_ukSticky').update();
-      get(this, '_ukSticky').$emit((event = 'update'));
+      this._ukSticky.$emit((event = 'update'));
     });
   }
 });

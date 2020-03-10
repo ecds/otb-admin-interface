@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import { get, set } from '@ember/object';
+import { set } from '@ember/object';
 import layout from '../templates/components/select-travel-mode';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
@@ -33,21 +33,13 @@ export default Component.extend(ChildMixin, {
 
   didInsertParent() {
     this._super(...arguments);
-    if (this.get('isFastBoot')) {
+    if (this.isFastBoot) {
       return;
     }
     this.element.index = 1;
-    const map = get(this, 'parentComponent').feature;
+    const map = this.parentComponent.feature;
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.element);
   },
-
-  // willDestroyParent() {
-  //   this.change = null;
-  // },
-
-  // change(event) {
-  //   set(this, 'travelMode', event.target.value);
-  // },
 
   actions: {
     setMode(tour, mode) {

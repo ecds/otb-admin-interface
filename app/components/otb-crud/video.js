@@ -11,13 +11,13 @@ export default Component.extend({
 
   actions: {
     getVideo(code) {
-      this.get('videoProviders').getEmbed(code);
+      this.videoProviders.getEmbed(code);
     },
 
     addVideo() {
       this.save.perform(this.videoCode, this.model);
       this.set('videoCode', null);
-      this.get('videoProviders').clear();
+      this.videoProviders.clear();
     }
   }
 });

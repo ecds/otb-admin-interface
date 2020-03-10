@@ -12,7 +12,7 @@ export default Torii.extend({
   tenant: service(),
 
   authenticate() {
-    const ajax = this.get('ajax');
+    const ajax = this.ajax;
 
     return this._super(...arguments).then(data => {
       let grantType = 'password';
@@ -36,14 +36,14 @@ export default Torii.extend({
             access_token: response.access_token,
             provider: data.provider
           };
-          get(this, 'currentUser').load();
+          this.currentUser.load();
           return authData;
         });
     });
   },
 
   logOut() {
-    const ajax = get(this, 'ajax');
+    const ajax = this.ajax;
 
     return this._super(
       ...arguments.then(function dip() {

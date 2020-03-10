@@ -12,12 +12,12 @@ export default Component.extend({
   actions: {
     authenticateWithFacebook() {
       this.set('authenticating', true);
-      this.get('session')
+      this.session
         .authenticate('authenticator:torii', 'facebook-oauth2')
         .then(
           () => {
             this.set('authenticating', false);
-            this.get('currentUser').load();
+            this.currentUser.load();
           },
           e => {
             this.set('authenticating', false);
@@ -28,12 +28,12 @@ export default Component.extend({
 
     authenticateWithGoogle() {
       this.set('authenticating', true);
-      this.get('session')
+      this.session
         .authenticate('authenticator:torii', 'google-oauth2-bearer-v2')
         .then(
           () => {
             this.set('authenticating', false);
-            this.get('currentUser').load();
+            this.currentUser.load();
           },
           e => {
             this.set('authenticating', false);

@@ -16,7 +16,7 @@ export default Component.extend(ChildMixin, {
     this._super(...arguments);
 
     this.element.index = 1;
-    const map = get(this, 'parentComponent').feature;
+    const map = this.parentComponent.feature;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(this.element);
   },
 

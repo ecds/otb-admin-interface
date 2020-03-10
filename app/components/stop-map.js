@@ -18,7 +18,7 @@ export default Component.extend({
 
   willDestroy() {
     // console.log('destroy!!!!');
-    this.get('geoLocation').clearLocation();
+    this.geoLocation.clearLocation();
   },
 
   allowsLocation: computed('', function() {
@@ -43,7 +43,7 @@ export default Component.extend({
         `${get(this, 'model.tour.slug')}-Allowed`,
         'yup'
       );
-      this.get('geoLocation').getClientPosition();
+      this.geoLocation.getClientPosition();
       set(this, 'allowsLocation', true);
     },
 

@@ -25,16 +25,15 @@ export default Mixin.create({
   }),
 
   createHasMany: task(function*(options) {
-    console.log(options)
     let attrs = isEmpty(options.attrs) ? {} : options.attrs;
     let childObj = isEmpty(options.childObj)
       ? this.store.createRecord(options.relationType, attrs)
       : options.childObj;
-    yield childObj.save();
+    // yield childObj.save();
     options.parentObj
       .get(`${pluralize(options.relationType)}`)
       .pushObject(childObj);
-    let newImage = yield this.get('saveRecord').perform(childObj);
+    let newImage = yield this.saveRecord.perform(childObj);
     yield options.parentObj.save();
     // yield waitForProperty(newImage, 'mobile', v => v !== null);
 
@@ -42,7 +41,7 @@ export default Mixin.create({
   }),
 
   deleteHasMany: task(function*(options) {
-    let didConfirm = yield this.get('confirmDelete').perform(
+    let didConfirm = yield this.confirmDelete.perform(
       options.childObj.get('title')
     );
     let parentObj = options.parentObj.hasOwnProperty('isFulfilled')
@@ -63,7 +62,7 @@ export default Mixin.create({
       } finally {
         if (options.reorder) {
           yield timeout(300);
-          yield this.get('reorder').perform(`${options.relationType}List`);
+          yield this.reorder.perform(`${options.relationType}List`);
         }
       }
       return true;
@@ -77,14 +76,14 @@ export default Mixin.create({
     //   childObj: child
     // };
     if (event.target.checked) {
-      return yield this.get('createHasMany').perform(options);
+      return yield this.createHasMany.perform(options);
     } else {
-      return yield this.get('deleteHasMany').perform(options);
+      return yield this.deleteHasMany.perform(options);
     }
   }),
 
   deleteRecord: task(function*(obj) {
-    let didConfirm = yield this.get('confirmDelete').perform();
+    let didConfirm = yield this.confirmDelete.perform();
     if (didConfirm) {
       obj.deleteRecord();
       return yield obj.save();
@@ -118,7 +117,7 @@ export default Mixin.create({
       type: 'success'
     });
 
-    const modal = this.get('screenBlocker');
+    const modal = this.screenBlocker;
     modal.show();
     let index = 1;
     let modelToReorder = '';
@@ -150,11 +149,11 @@ export default Mixin.create({
       message: 'Saving...',
       type: 'success'
     });
-    const modal = this.get('screenBlocker');
+    const modal = this.screenBlocker;
     if (modal) modal.show();
     obj = obj.hasOwnProperty('isFulfilled') ? obj.content : obj;
     if (!obj.hasOwnProperty('store')) {
-      console.error('You must pass a store object to saveRecord.');
+      // console.error('You must pass a store object to saveRecord.');
       return false;
     }
     try {
@@ -182,12 +181,12 @@ export default Mixin.create({
       message: 'Uploading medium...',
       type: 'success'
     });
-    const modal = this.get('screenBlocker');
+    const modal = this.screenBlocker;
     modal.show();
     if (parentObj.hasOwnProperty('content')) {
       parentObj = parentObj.content;
     }
-    let newImage = yield this.get('createHasMany').perform({
+    let newImage = yield this.createHasMany.perform({
       relationType: 'medium',
       parentObj: parentObj,
       attrs: {
@@ -208,6 +207,6 @@ export default Mixin.create({
 
   setDefaultMode: task(function*(tour, mode) {
     tour.setProperties({ mode: mode });
-    yield this.get('saveRecord').perform(tour);
+    yield this.saveRecord.perform(tour);
   })
 });

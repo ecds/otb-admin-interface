@@ -10,9 +10,9 @@ export default Controller.extend(CrudActionsMixin, {
         childObj: child
       };
       if (event.target.checked) {
-        this.get('createHasMany').perform(options);
+        this.createHasMany.perform(options);
       } else {
-        this.get('deleteHasMany').perform(options);
+        this.deleteHasMany.perform(options);
       }
     }
   }

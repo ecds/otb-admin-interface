@@ -7,7 +7,7 @@ export default Component.extend({
 
   actions: {
     logOut() {
-      get(this, 'session').invalidate();
+      this.session.invalidate();
     }
   }
 });

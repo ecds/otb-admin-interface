@@ -13,21 +13,21 @@ export default Service.extend({
   },
 
   read(content) {
-    let _utterance = get(this, 'utterance');
+    let _utterance = this.utterance;
     _utterance.text = content;
     _utterance.lang = navigator.language;
-    get(this, 'synth').speak(_utterance);
+    this.synth.speak(_utterance);
   },
 
   resume() {
-    get(this, 'synth').resume();
+    this.synth.resume();
   },
 
   pause() {
-    get(this, 'synth').pause();
+    this.synth.pause();
   },
 
   cancel() {
-    get(this, 'synth').cancel();
+    this.synth.cancel();
   }
 });

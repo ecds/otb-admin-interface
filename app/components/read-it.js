@@ -11,13 +11,13 @@ export default Component.extend({
 
   didInsertElement() {
     if ('speechSynthesis' in window) {
-      let utterance = new SpeechSynthesisUtterance(get(this, 'content'));
+      let utterance = new SpeechSynthesisUtterance(this.content);
       utterance.onend = () => {
         set(this, 'speaking', false);
       };
 
       set(this, 'supported', true);
-      let readerService = get(this, 'reader');
+      let readerService = this.reader;
       readerService.setProperties({
         synth: window.speechSynthesis,
         utterance
@@ -32,7 +32,7 @@ export default Component.extend({
   },
 
   willDestroy() {
-    const reader = get(this, 'reader');
+    const reader = this.reader;
     if (get(reader, 'synth') !== null) {
       reader.cancel();
       reader.resume();
@@ -41,8 +41,8 @@ export default Component.extend({
 
   actions: {
     sayIt() {
-      const content = get(this, 'content');
-      let reader = get(this, 'reader');
+      const content = this.content;
+      let reader = this.reader;
       // set(reader, 'voice', window.speechSynthesis.getVoices()[32]);
       if (!reader.synth.speaking) {
         set(this, 'speaking', true);

@@ -1,14 +1,15 @@
-import { test } from 'qunit';
-import moduleForAcceptance from 'open-tour-builder/tests/helpers/module-for-acceptance';
+import { currentURL, visit } from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupApplicationTest } from 'ember-qunit';
 
-moduleForAcceptance('Acceptance | show stop');
+module('Acceptance | show stop', function(hooks) {
+  setupApplicationTest(hooks);
 
-test('visiting /tour/1/stop', assert => {
-  let tour = server.create('tours');
-  let stop = server.create('tour_stop', {tour});
-  visit(`/tour/${tour.id}/stop/${stop.id}`);
+  test('visiting /tour/1/stop', async assert => {
+    let tour = server.create('tours');
+    let stop = server.create('tour_stop', {tour});
+    await visit(`/tour/${tour.id}/stop/${stop.id}`);
 
-  andThen(function() {
     assert.equal(currentURL(), `/tour/${tour.id}/stop/${stop.id}`);
   });
 });

@@ -15,8 +15,8 @@ export default Service.extend({
 
   // the property used as a reference for styles
   name: computed('base', function() {
-    const base = this.get('base');
-    const theme = this.get('theme');
+    const base = this.base;
+    const theme = this.theme;
     return `${base}-${theme}`;
   }),
 

@@ -10,6 +10,6 @@ export default Route.extend(AuthenticatedRouteMixin, {
 
   sessionAuthenticated() {
     this._super(...arguments);
-    return this.get('currentUser').load();
+    return this.currentUser.load();
   }
 });

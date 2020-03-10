@@ -7,7 +7,7 @@ export default Component.extend({
   actions: {
     setTheme(theme) {
       this.model.setProperties({ theme: theme });
-      this.get('save').perform(this.model);
+      this.save.perform(this.model);
     }
   }
 });

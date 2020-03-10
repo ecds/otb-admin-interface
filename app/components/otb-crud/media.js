@@ -1,6 +1,5 @@
 import Component from '@ember/component';
-import { A } from '@ember/array';
-import { computed, get, set } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { debug } from '@ember/debug';
 import { inject as service } from '@ember/service';
 import { task } from 'ember-concurrency';
@@ -99,7 +98,7 @@ export default Component.extend({
 
   actions: {
     saveModel(item) {
-      let medium = this.get('store').peekRecord('medium', item.get('id'));
+      let medium = this.store.peekRecord('medium', item.get('id'));
       medium.save().then(() => {
         UIkit.notification(
           {

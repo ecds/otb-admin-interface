@@ -25,12 +25,12 @@ export default Component.extend({
 
   getAddress() {
     let stopLatLng = {
-        lat: get(this, 'model.lat'),
-        lng: get(this, 'model.lng')
+        lat: parseFloat(get(this, 'model.lat')),
+        lng: parseFloat(get(this, 'model.lng'))
       },
       parkingLatLng = {
-        lat: get(this, 'model.parking_lat'),
-        lng: get(this, 'model.parking_lng')
+        lat: parseFloat(get(this, 'model.parking_lat')),
+        lng: parseFloat(get(this, 'model.parking_lng'))
       };
 
     if (stopLatLng) {
@@ -40,7 +40,7 @@ export default Component.extend({
         },
         (results, status) => {
           if (status === 'OK') {
-            get(this, 'model').setProperties({
+            this.model.setProperties({
               address: results[0].formatted_address
             });
           } else {
@@ -87,7 +87,7 @@ export default Component.extend({
             if (status === 'OK') {
               let location = result[0].geometry.location;
               // console.log(location);
-              get(this, 'model').setProperties({
+              this.model.setProperties({
                 lat: location.lat(),
                 lng: location.lng()
               });
@@ -106,7 +106,7 @@ export default Component.extend({
           (result, status) => {
             if (status === 'OK') {
               let location = result[0].geometry.location;
-              get(this, 'model').setProperties({
+              this.model.setProperties({
                 parking_lat: location.lat(),
                 parking_lng: location.lng()
               });
@@ -119,7 +119,7 @@ export default Component.extend({
     },
 
     reLocate(newLat, newLng) {
-      get(this, 'model').setProperties({
+      this.model.setProperties({
         lat: newLat,
         lng: newLng
       });
@@ -127,7 +127,7 @@ export default Component.extend({
     },
 
     reLocateParking(newLat, newLng) {
-      get(this, 'model').setProperties({
+      this.model.setProperties({
         parking_lat: newLat,
         parking_lng: newLng
       });

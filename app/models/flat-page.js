@@ -17,6 +17,6 @@ export default Model.extend({
     async: true
   }),
   safeContent: computed('content', function safeContent() {
-    return new htmlSafe(get(this, 'content'));
+    return new htmlSafe(this.content);
   }).property('content')
 });

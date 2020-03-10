@@ -31,7 +31,7 @@ export default Route.extend({
 
   getTourSets: task(function*() {
     if (!this.currentUser.user.tour_sets && !this.currentUser.user.super) {
-      return yield this.get('getTours').perform();
+      return yield this.getTours.perform();
     }
     return yield this.store.findAll('tour-set');
   })

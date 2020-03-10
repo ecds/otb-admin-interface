@@ -52,7 +52,7 @@ export default Model.extend({
   authors: hasMany('user'),
   safeDescription: computed('description', function safeDescription() {
     return new htmlSafe(this.description);
-  }).property('description'),
+  }),
 
   splashBackground: computed('splash', {
     get() {

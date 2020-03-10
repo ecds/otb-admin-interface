@@ -29,15 +29,17 @@ export default Mixin.create({
     let childObj = isEmpty(options.childObj)
       ? this.store.createRecord(options.relationType, attrs)
       : options.childObj;
-    // yield childObj.save();
+    // if (childObj.hasDirtyAttributes) {
+    //   yield childObj.save();
+    // }
     options.parentObj
       .get(`${pluralize(options.relationType)}`)
       .pushObject(childObj);
-    let newImage = yield this.saveRecord.perform(childObj);
+    let newChild = yield this.saveRecord.perform(childObj);
     yield options.parentObj.save();
     // yield waitForProperty(newImage, 'mobile', v => v !== null);
 
-    return newImage;
+    return newChild;
   }),
 
   deleteHasMany: task(function*(options) {

@@ -70,7 +70,8 @@ export default Controller.extend(CrudActionsMixin, {
       });
       let newStop = yield this.createHasMany.perform({
         relationType: 'stop',
-        parentObj: tour
+        parentObj: tour,
+        childObj: this.store.createRecord('stop', {})
       });
       newStop.setProperties({
         title: new Date().getTime().toString()

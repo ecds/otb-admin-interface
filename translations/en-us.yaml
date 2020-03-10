@@ -1,0 +1,34 @@
+atlanta: "Atlanta"
+
+buttons:
+  cancel: 'cancel'
+  confirmVideo: 'yes! add this video'
+  delete: 'Delete'
+  edit: 'Edit'
+  newStop: "NewStop"
+  save: 'Save'
+
+default: 'default'
+deleteFromTour: 'Delete from tour'
+enable: 'Enable'
+
+loading:
+  loading: 'Loading...'
+  tour: 'Loading Tour...'
+  users: 'Loading Users...'
+
+manageAuthors: 'Manage Tour Authors'
+manageMedia: 'Manage Media'
+mediaCount: 'Media Count'
+mode: 'Mode'
+newPage: 'New Page'
+
+tooltip:
+  addVideo: 'You can add a link to a video hosted on YouTube or Vimeo here. Other hosting will not currently work. The video should appear below automatically if the url is correct. If the video does not appear, double check the url. Once the video appears you can add it with the "Yes Add this Video" button.'
+  newPage: 'Create a new page. You can add an About page to describe the project, copyright information, or other data or images using html and the wysiwyg editor. The pages will show up in the menu.'
+  newStop: 'Create a new stop. Each stop MUST have a unique name for your entire Tour Site. Each stop MUST have a location. You can reuse locations.'
+  published: 'Check this box to make the tour publicly available.'
+  metaDescription: 'The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters.'
+  reorderImages: 'You can click and drag to reorder the images and videos. You can add as many images or videos as you want. Keep the file size small.'
+
+uploadImages: 'Upload Images'

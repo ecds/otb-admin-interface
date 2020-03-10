@@ -3,13 +3,15 @@
 {{/otb-crud/form-section}}
 
 {{#if (eq modelTitle "Tour")}}
-  {{#otb-crud/form-section label="Publish" as |inputId|}} <button class="uk-button uk-button-default" uk-tooltip="Check this box to make the tour publicly available."><span uk-icon="icon: question"></span></button>
-    {{input
-      type="checkbox"
-      id=inputId
-      name=model.published
-      checked=model.published
-    }}
+  {{#otb-crud/form-section label=(concat modelTitle "Published?") as |inputId|}}
+    {{#otb-tooltip tooltipContent=(t "tooltip.published")}}
+      <input
+        type="checkbox"
+        id={{inputId}}
+        name={{model.published}}
+        checked={{model.published}}
+      >
+    {{/otb-tooltip}}
   {{/otb-crud/form-section}}
 {{/if}}
 
@@ -25,6 +27,16 @@
 {{#otb-crud/form-section
   label=(concat modelTitle " Meta Description")
 as |inputId|
-}} <button class="uk-button uk-button-default" uk-tooltip="The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters."><span uk-icon="icon: question"></span></button>
+}}
+  <span
+    role="tooltip"
+    tabindex="0"
+    uk-tooltip={{concat "title: " (t "tooltip.metaDescription")}}
+    aria-describedby={{concat inputId "-aria-describedby"}}
+  >
+    {{fa-icon "question-circle"}}
+  </span>
+  <span class="otb-aria-describedby" id={{concat inputId "-aria-describedby"}}>{{t "tooltip.metaDescription"}}</span>
+
   {{textarea id=inputId rows=6 class="uk-textarea" value=model.meta_description}}
 {{/otb-crud/form-section}}

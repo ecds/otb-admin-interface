@@ -22,7 +22,7 @@ export default Model.extend({
   }),
   sanitized_description: attr('string'),
   sanitized_direction_notes: attr('string'),
-  metadescription: attr('string'),
+  meta_description: attr('string'),
   article_link: attr('string'),
   video_embed: attr('string'),
   video_poster: attr('string'),

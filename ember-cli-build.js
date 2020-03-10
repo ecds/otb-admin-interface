@@ -31,7 +31,6 @@ module.exports = function(defaults) {
     }
   });
 
-  app.import('node_modules/scrollama/build/scrollama.min.js');
   app.import('node_modules/jodit/build/jodit.min.js');
 
   return app.toTree();

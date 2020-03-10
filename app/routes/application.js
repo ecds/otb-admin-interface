@@ -7,21 +7,18 @@ export default Route.extend(ApplicationRouteMixin, {
   currentUser: service(),
   tenant: service(),
   media: service(),
-  orientation: service(),
+  intl: service(),
 
   beforeModel(transisition) {
+    this._super(...arguments);
     this.__setTenant(transisition);
+    this.intl.setLocale(['en-us']);
     return this.get('currentUser').load();
   },
 
   actions: {
     willTransition(transisition) {
       this.__setTenant(transisition);
-    },
-
-    didTransition() {
-      // console.log('did trans application');
-      this.get('orientation').set('windowHeight', window.innerHeight);
     }
   },
 

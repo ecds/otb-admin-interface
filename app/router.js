@@ -1,6 +1,5 @@
 import EmberRouter from '@ember/routing/router';
 import { computed } from '@ember/object';
-import config from './config/environment';
 
 const Router = EmberRouter.extend({
   location: 'trailingHistory',

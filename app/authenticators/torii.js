@@ -13,7 +13,7 @@ export default Torii.extend({
 
   authenticate(/*provider, options*/) {
     return this._super(...arguments).then(data => {
-      return this.get('setAuthData').perform(data);
+      return this.setAuthData.perform(data);
     });
   },
 

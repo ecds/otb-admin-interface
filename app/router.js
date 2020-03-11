@@ -21,39 +21,6 @@ const Router = EmberRouter.extend({
 });
 
 Router.map(function() {
-  // this.route('index', {
-  //   path: '/'
-  // });
-  // this.route(
-  //   'tour',
-  //   {
-  //     path: '/:tour_slug'
-  //   },
-  //   function() {
-  //     this.route(
-  //       'overview',
-  //       {
-  //         path: '/'
-  //       },
-  //       function() {
-  //         this.route('stops');
-  //         this.route('map');
-  //       }
-  //     );
-  //     this.route(
-  //       'stop',
-  //       {
-  //         path: ':stop_slug'
-  //       },
-  //       function() {
-  //         this.route('map');
-  //       }
-  //     );
-  //     this.route('flat-page', {
-  //       path: 'page/:page_id'
-  //     });
-  //   }
-  // );
   this.route(
     'admin',
     {

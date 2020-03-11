@@ -43,7 +43,7 @@
         <feature.marker @draggable={{true}} @onDrag={{action "reLocate"}} @lat={{model.lat}} @lng={{model.lng}} as |marker|>
         </feature.marker>
         {{#if (and model.parking_lat model.parking_lng)}}
-          <feature.marker @icon={{parking-icon }} @draggable={{true}} @onDrag={{action "reLocateParking"}} @lat={{model.parking_lat}} @lng={{model.parking_lng}} as |marker|>
+          <feature.marker @icon=<ParkingIcon /> @draggable={{true}} @onDrag={{action "reLocateParking"}} @lat={{model.parking_lat}} @lng={{model.parking_lng}} as |marker|>
         </feature.marker>
         {{/if}}
       </GMap>

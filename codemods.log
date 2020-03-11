@@ -14,3 +14,15 @@
 2020-03-11T16:50:23.349Z [warn] WARNING: {{pipe}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/users/user.hbs
 2020-03-11T16:50:23.355Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-crud/theme-picker.hbs
 2020-03-11T16:50:23.352Z [warn] WARNING: {{includes}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/users/user.hbs
+2020-03-11T17:22:50.862Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-crud/theme-picker.hbs
+2020-03-11T17:22:51.754Z [warn] WARNING: {{toggle}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-embed.hbs
+2020-03-11T17:22:51.821Z [warn] WARNING: {{toggle}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-media.hbs
+2020-03-11T17:22:51.837Z [warn] WARNING: {{toggle}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-media.hbs
+2020-03-11T17:22:51.988Z [warn] WARNING: {{toggle}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/stop-directions.hbs
+2020-03-11T17:22:52.081Z [warn] WARNING: {{pipe}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/users/user.hbs
+2020-03-11T17:22:52.084Z [warn] WARNING: {{includes}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/users/user.hbs
+2020-03-11T17:22:52.096Z [warn] WARNING: {{toggle}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/components/otb-crud/media.hbs
+2020-03-11T17:22:52.450Z [warn] WARNING: {{includes}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/tours/edit.hbs
+2020-03-11T17:22:52.453Z [warn] WARNING: {{titleize}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/tours/edit.hbs
+2020-03-11T17:22:52.453Z [warn] WARNING: {{contains}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/tours/edit.hbs
+2020-03-11T17:22:52.454Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/admin/tours/edit.hbs

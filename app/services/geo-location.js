@@ -1,9 +1,8 @@
 import { reads } from '@ember/object/computed';
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
 import { computed, get, set } from '@ember/object';
 import { isPresent } from '@ember/utils';
 import { debug } from '@ember/debug';
-import { inject as service } from '@ember/service';
 import { task, timeout } from 'ember-concurrency';
 
 export default Service.extend({

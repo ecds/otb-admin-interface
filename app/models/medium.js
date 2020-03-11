@@ -1,11 +1,8 @@
-import DS from 'ember-data';
-import { hasMany } from 'ember-data/relationships';
+import Model, { hasMany, attr } from '@ember-data/model';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
-
-const { Model, attr } = DS;
 
 export default Model.extend({
   tenant: service(),

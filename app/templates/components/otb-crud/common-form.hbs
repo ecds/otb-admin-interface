@@ -1,33 +1,25 @@
-{{#otb-crud/form-section label=(concat modelTitle " Title") as |inputId|}}
-  {{input class="uk-input" id=inputId value=model.title}}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label={{concat modelTitle " Title"}} as |inputId|>
+  <Input class="uk-input" @id={{inputId}} @value={{model.title}} />
+</OtbCrud::FormSection>
 
 {{#if (eq modelTitle "Tour")}}
-  {{#otb-crud/form-section label=(concat modelTitle "Published?") as |inputId|}}
-    {{#otb-tooltip tooltipContent=(t "tooltip.published")}}
+  <OtbCrud::FormSection @label={{concat modelTitle "Published?"}} as |inputId|>
+    <OtbTooltip @tooltipContent={{t "tooltip.published"}}>
       <input
         type="checkbox"
         id={{inputId}}
         name={{model.published}}
         checked={{model.published}}
       >
-    {{/otb-tooltip}}
-  {{/otb-crud/form-section}}
+    </OtbTooltip>
+  </OtbCrud::FormSection>
 {{/if}}
 
-{{#otb-crud/form-section label=(concat modelTitle " Description")}}
-  {{ember-jodit
-    value=(if model.description model.description "")
-    model=model
-    modelAttr = "description"
-    onChange=(action (mut model.description))
-  }}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label={{concat modelTitle " Description"}}>
+  <EmberJodit @value={{if model.description model.description ""}} @model={{model}} @modelAttr="description" @onChange={{action (mut model.description)}} />
+</OtbCrud::FormSection>
 
-{{#otb-crud/form-section
-  label=(concat modelTitle " Meta Description")
-as |inputId|
-}}
+<OtbCrud::FormSection @label={{concat modelTitle " Meta Description"}} as |inputId|>
   <span
     role="tooltip"
     tabindex="0"
@@ -38,5 +30,5 @@ as |inputId|
   </span>
   <span class="otb-aria-describedby" id={{concat inputId "-aria-describedby"}}>{{t "tooltip.metaDescription"}}</span>
 
-  {{textarea id=inputId rows=6 class="uk-textarea" value=model.meta_description}}
-{{/otb-crud/form-section}}
+  <Textarea @id={{inputId}} @rows={{6}} class="uk-textarea" @value={{model.meta_description}} />
+</OtbCrud::FormSection>

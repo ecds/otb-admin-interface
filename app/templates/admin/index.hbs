@@ -1,30 +1,30 @@
 {{#if currentUser.user.super}}
   <h2 class='uk-heading-bullet'>Tour Sites</h2>
-  {{#uk-modal modalName='newSite' on-show=(action 'newSite') as |modal|}}
-    {{#modal.open class='uk-button uk-button-primary' tagName='div'}}
+  <UkModal @modalName="newSite" @on-show={{action "newSite"}} as |modal|>
+    <modal.open @class="uk-button uk-button-primary" @tagName="div">
       New Site
-    {{/modal.open}}
-    {{#modal.dialog}}
-      {{#modal.body}}
-        {{#otb-crud/form-section label='Site Title' as |inputId|}}
-          {{input autofocus='autofocus' class='uk-input' id=inputId value=newSite.name}}
-        {{/otb-crud/form-section}}
-      {{/modal.body}}
-      {{#modal.footer}}
-        {{#otb-crud/new-button class='uk-modal-close' click=(perform createSite)}}New Site{{/otb-crud/new-button}}
-        {{#uk-button color='link' class='uk-modal-close'}}Cancel{{/uk-button}}
-      {{/modal.footer}}
-    {{/modal.dialog}}
-  {{/uk-modal}}
+    </modal.open>
+    <modal.dialog>
+      <modal.body>
+        <OtbCrud::FormSection @label="Site Title" as |inputId|>
+          <Input @autofocus="autofocus" class="uk-input" @id={{inputId}} @value={{newSite.name}} />
+        </OtbCrud::FormSection>
+      </modal.body>
+      <modal.footer>
+        <OtbCrud::NewButton @class="uk-modal-close" @click={{perform createSite}}>New Site</OtbCrud::NewButton>
+        <UkButton @color="link" @class="uk-modal-close">Cancel</UkButton>
+      </modal.footer>
+    </modal.dialog>
+  </UkModal>
 {{/if}}
 
-  {{#data-loader queryType='all' modelName='tourSet' as |siteLoader|}}
+  <DataLoader @queryType="all" @modelName="tourSet" as |siteLoader|>
   {{#if siteLoader.fetchingAll}}
   <div>
   Loading Tour Sites...
   </div>
   {{else}}
-  {{#uk-table-striped}}
+  <UkTableStriped>
   <thead>
   <tr>
   <th class='uk-table-expand'>Site Name <button class="uk-button uk-button-default" uk-tooltip="Each Tour Site can contain multiple tours. Click the name of your Tour Site below to see your tours."><span uk-icon="icon: info"></span></button></th>
@@ -42,22 +42,22 @@
   </td>
 
   <td class='uk-table-link'>
-  {{#uk-button color='link' class='uk-align-center' on-click=(perform deleteRecord tourSet)}}
+  <UkButton @color="link" @class="uk-align-center" @on-click={{perform deleteRecord tourSet}}>
   {{fa-icon 'trash'}}
-  {{/uk-button}}
+  </UkButton>
   </td>
   </tr>
   {{else}}
-  {{#data-loader queryType='all' modelName='tour' as |tourLoader|}}
+  <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
   <ul>
     {{#each tourLoader as |tour|}}
     <li>{{tour.title}}</li>
     {{/each}}
   </ul>
-  {{/data-loader}}
+  </DataLoader>
   {{/each}}
   </tbody>
-  {{/uk-table-striped}}
+  </UkTableStriped>
   {{/if}}
-{{/data-loader}}
+</DataLoader>
 <div class='uk-section'></div>

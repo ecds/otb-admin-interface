@@ -1,11 +1,5 @@
 
-{{#uk-sortable
-  on-added=(action "addExisting" model)
-  on-stop=(perform reorder)
-  group="media"
-  tagName="ul"
-  class="uk-grid uk-grid-small uk-child-width-auto uk-text-center"
-}}
+<UkSortable @on-added={{action "addExisting" model}} @on-stop={{perform reorder}} @group="media" @tagName="ul" @class="uk-grid uk-grid-small uk-child-width-auto uk-text-center">
   {{#each model.sortedMedia as |modelMedium|}}
     <li
       class="uk-tile uk-inline-clip uk-transition-toggle"
@@ -33,66 +27,43 @@
         class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default"
       >
         {{!-- Edit button and modal --}}
-        {{#uk-modal
-          modalName=(concat "edit-" model.slug modelMedium.id)
-          on-show=(toggle "loadEmbed" modelMedium.medium)
-        as |modal|
-        }}
-          {{#modal.open
-            class="otb-media-button uk-button uk-button-primary"
-            tagName="button"
-            modal=modal
-          }}
+        <UkModal @modalName={{concat "edit-" model.slug modelMedium.id}} @on-show={{toggle "loadEmbed" modelMedium.medium}} as |modal|>
+          <modal.open @class="otb-media-button uk-button uk-button-primary" @tagName="button" @modal={{modal}}>
             {{fa-icon "pencil"}} {{t "buttons.edit"}}
-          {{/modal.open}}
-          {{#modal.dialog}}
-            {{#modal.body}}
+          </modal.open>
+          <modal.dialog>
+            <modal.body>
               <section class="uk-section uk-text-center">
                 {{#if modelMedium.medium.video}}
                   {{#if modelMedium.medium.loadEmbed}}
                     {{modelMedium.medium.safeEmbed}}
                   {{/if}}
                 {{else}}
-                  {{uk-img
-                    dataSrc=(concat modelMedium.medium.baseUrl modelMedium.medium.tablet)
-                    alt=(concat "Picture of " modelMedium.medium.title ". " modelMedium.medium.caption)
-                  }}
+                  <UkImg @dataSrc={{concat modelMedium.medium.baseUrl modelMedium.medium.tablet}} @alt={{concat "Picture of " modelMedium.medium.title ". " modelMedium.medium.caption}} />
                 {{/if}}
               </section>
-              {{#otb-crud/form-section label="Medium Title" as |inputId|}}
-                {{input
-                  class="uk-input"
-                  id=inputId
-                  placeholder="Medium title..."
-                  value=modelMedium.medium.title
-                }}
-              {{/otb-crud/form-section}}
-              {{#otb-crud/form-section label="Caption" as |inputId|}}
-                {{textarea class="uk-input" id=inputId value=modelMedium.medium.caption}}
-              {{/otb-crud/form-section}}
-            {{/modal.body}}
-            {{#modal.footer}}
-              {{#uk-button
-                class="uk-modal-close"
-                on-click=(perform save modelMedium.medium)
-                color="primary"
-              }}
+              <OtbCrud::FormSection @label="Medium Title" as |inputId|>
+                <Input class="uk-input" @id={{inputId}} placeholder="Medium title..." @value={{modelMedium.medium.title}} />
+              </OtbCrud::FormSection>
+              <OtbCrud::FormSection @label="Caption" as |inputId|>
+                <Textarea class="uk-input" @id={{inputId}} @value={{modelMedium.medium.caption}} />
+              </OtbCrud::FormSection>
+            </modal.body>
+            <modal.footer>
+              <UkButton @class="uk-modal-close" @on-click={{perform save modelMedium.medium}} @color="primary">
                 {{t "buttons.save"}}
-              {{/uk-button}}
-              {{#uk-button color="link" class="uk-modal-close uk-margin"}}
+              </UkButton>
+              <UkButton @color="link" @class="uk-modal-close uk-margin">
                 {{t "buttons.cancel"}}
-              {{/uk-button}}
-            {{/modal.footer}}
-          {{/modal.dialog}}
-        {{/uk-modal}}
+              </UkButton>
+            </modal.footer>
+          </modal.dialog>
+        </UkModal>
         {{!-- Delete button --}}
-        {{#uk-button
-          color="secondary"
-          on-click=(perform delete (hash parentObj=model childObj=modelMedium.medium relationType="media"))
-        }}
+        <UkButton @color="secondary" @on-click={{perform delete (hash parentObj=model childObj=modelMedium.medium relationType="media")}}>
           {{fa-icon "trash"}} {{t "buttons.delete"}}
-        {{/uk-button}}
+        </UkButton>
       </div>
     </li>
   {{/each}}
-{{/uk-sortable}}
+</UkSortable>

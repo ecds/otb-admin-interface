@@ -5,16 +5,11 @@
     </div>
     {{#if currentUser.user.super}}
       <div>
-        {{input
-          id='super'
-          name='super'
-          type='checkbox'
-          checked=model.super
-          change=(pipe (toggle 'super' model ) (perform saveRecord model) )}}
+        <Input @id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform saveRecord model)}} />
         <label for='super'>Super User</label>
       </div>
       <div>
-        {{#data-loader queryType='all' modelName='tour-set' as |loader|}}
+        <DataLoader @queryType="all" @modelName="tour-set" as |loader|>
           <h2>Admin for Site:</h2>
           {{#if loader.isRunning}}
           <p>Loading Tour Sets...</p>
@@ -22,18 +17,13 @@
             <div class='uk-margin uk-grid-small uk-child-width-1-1 uk-grid'>
               {{#each loader.data as |tourSet|}}
                 <div>
-                  {{input
-                    id=tourSet.subdir
-                    type='checkbox'
-                    name='tour_set'
-                    change=(action 'addRemoveSet' model tourSet)
-                    checked=(includes model.tour_sets tourSet)}}
+                  <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tour_sets tourSet}} />
                   <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
                 </div>
               {{/each}}
             </div>
           {{/if}}
-        {{/data-loader}}
+        </DataLoader>
       </div>
 
       <div>

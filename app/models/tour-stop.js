@@ -1,8 +1,5 @@
-import DS from 'ember-data';
+import Model, { belongsTo, attr } from '@ember-data/model';
 import { computed, get } from '@ember/object';
-/* globals google */
-
-const { Model, attr, belongsTo } = DS;
 
 export default Model.extend({
   tour: belongsTo('tour'),

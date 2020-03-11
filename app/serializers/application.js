@@ -1,9 +1,7 @@
 // app/serializers/application.js
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+
 import { underscore } from '@ember/string';
-
-import DS from 'ember-data';
-
-const { JSONAPISerializer } = DS;
 
 export default JSONAPISerializer.extend({
   keyForAttribute: function removeDashes(attr) {

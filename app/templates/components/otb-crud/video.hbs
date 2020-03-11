@@ -1,12 +1,6 @@
-{{#otb-crud/form-section label="Video" as |inputId|}}
-  {{input
-    id=inputId
-    class="uk-input uk-margin-bottom"
-    placeholder="Add video code..."
-    value=videoCode
-    input=(action "getVideo" videoCode)
-  }}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label="Video" as |inputId|>
+  <Input @id={{inputId}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{videoCode}} @input={{action "getVideo" videoCode}} />
+</OtbCrud::FormSection>
   <span
     role="tooltip"
     tabindex="0"
@@ -48,9 +42,9 @@
     </section>
   </div>
 
-  {{#uk-button color="primary" on-click=(action "addVideo")}}
+  <UkButton @color="primary" @on-click={{action "addVideo"}}>
     {{t "buttons.confirmVideo"}}
-  {{/uk-button}}
+  </UkButton>
 {{else}}
   {{videoProviders.videoPreview.error}}
 {{/if}}

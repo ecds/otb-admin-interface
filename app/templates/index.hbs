@@ -11,30 +11,30 @@
   {{#if (eq sortedTours.length 1)}}
     {{#each sortedTours as |tour|}}
       <div style={{tour.splashBackground}} class="tour-list-single">
-        {{#link-to "tour" tour.slug}}
+        <LinkTo @route="tour" @model={{tour.slug}}>
           <div class="uk-overlay uk-overlay-primary">
             <div class="uk-position-center">
               <h1 class="uk-heading-primary uk-text-center">{{tour.title}}</h1>
               <p class="uk-text-meta uk-text-center">{{tour.stop_count}} Stops</p>
-              {{#uk-button color="secondary" class="uk-align-center uk-width-1-2"}}start tour{{/uk-button}}
+              <UkButton @color="secondary" @class="uk-align-center uk-width-1-2">start tour</UkButton>
             </div>
           </div>
-        {{/link-to}}
+        </LinkTo>
       </div>
     {{/each}}
   {{else if (gt sortedTours.length 3)}}
     <div class="uk-child-width-1-3 uk-grid-small" uk-grid masonry="true">
       {{#each sortedTours as |tour|}}
         <div style={{tour.splashBackground}} class="tour-list-single">
-          {{#link-to "tour" tour.slug}}
+          <LinkTo @route="tour" @model={{tour.slug}}>
             <div class="uk-overlay-primary uk-position-cover">
               <div class="uk-position-center">
                 <h1 class="uk-heading-primary uk-text-center">{{tour.title}}</h1>
                 <p class="uk-text-meta uk-text-center">{{tour.stop_count}}Stops</p>
-                {{#uk-button color="secondary" class="uk-align-center uk-width-1-2"}}start tour{{/uk-button}}
+                <UkButton @color="secondary" @class="uk-align-center uk-width-1-2">start tour</UkButton>
               </div>
             </div>
-          {{/link-to}}
+          </LinkTo>
         </div>
       {{/each}}
     </div>
@@ -43,16 +43,16 @@
       {{#each sortedTours as |tour|}}
         <div style={{tour.splashBackground}} class="tour-list-single">
           <div class="uk-cover-container uk-transition-toggle" style="height: 100vh;">
-            {{#link-to "tour" tour.slug}}
+            <LinkTo @route="tour" @model={{tour.slug}}>
               <img src={{concat baseUrl tour.splash.original_image.url}} alt={{concat "Cover image for the " tour.title " tour. The image is titled " tour.splash.title " and captioned: " tour.splash.caption}} class="otb-cover-image uk-transition-scale-up uk-transition-opaque">
                 <div class="uk-overlay-primary uk-position-cover">
                   <div class="uk-position-center uk-width-3-4">
                   <h1 class="uk-heading-primary uk-text-center">{{tour.title}}</h1>
                   <p class="uk-text-meta uk-text-center">{{tour.stop_count}} Stops</p>
-                  {{#uk-button color="secondary" class="uk-align-center uk-width-1-2"}}start tour{{/uk-button}}
+                  <UkButton @color="secondary" @class="uk-align-center uk-width-1-2">start tour</UkButton>
                 </div>
               </div>
-            {{/link-to}}
+            </LinkTo>
           </div>
         </div>
       {{/each}}
@@ -60,7 +60,7 @@
   {{/if}}
 {{else}}
   {{#each sortedTours as |tour|}}
-    {{#link-to "tour" tour.slug}}
+    <LinkTo @route="tour" @model={{tour.slug}}>
       <div class="uk-card uk-card-default uk-card-small {{if tour.show "uk-animation-slide-bottom"}}">
         <div class="uk-card-media-top">
           <img src="{{baseUrl}}{{tour.splash.original_image.tablet.url}}" alt="" style="width: 100vw;">
@@ -70,6 +70,6 @@
           {{tour.stops.length}} Stops
         </div>
       </div>
-    {{/link-to}}
+    </LinkTo>
   {{/each}}
 {{/if}}

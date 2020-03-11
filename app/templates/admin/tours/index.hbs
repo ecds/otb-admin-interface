@@ -1,17 +1,17 @@
 <div uk-grid class="uk-child-width-auto">
   <div>
-    {{#uk-button color="primary" size="large" on-click=(perform createTour)}}
+    <UkButton @color="primary" @size="large" @on-click={{perform createTour}}>
       New Tour
-    {{/uk-button}}
+    </UkButton>
   </div>
   <div>
-    {{#uk-modal modalName="tour-authors" as |modal|}}
-      {{#modal.open class="" tagName="div"}}
+    <UkModal @modalName="tour-authors" as |modal|>
+      <modal.open @class="" @tagName="div">
         Manage Site Admins
-      {{/modal.open}}
-      {{#modal.dialog}}
-        {{#modal.body}}
-          {{#data-loader queryType="search" modelName="user" as |userLoader|}}
+      </modal.open>
+      <modal.dialog>
+        <modal.body>
+          <DataLoader @queryType="search" @modelName="user" as |userLoader|>
             {{#if (lte userLoader.data.length 1)}}
               <p>Loading Users...</p>
             {{else}}
@@ -20,31 +20,25 @@
                 {{#each userLoader.data as |user|}}
                   {{#unless user.super}}
                     <div>
-                      {{input
-                        id=(concat "user" user.id)
-                        type="checkbox"
-                        name="tour_set"
-                        change=(perform toggleHasMany (hash relationType="admins" parentObj=this.model childObj=user))
-                        checked=user.currentTenantAdmin
-                      }}
+                      <Input @id={{concat "user" user.id}} @type="checkbox" @name="tour_set" @change={{perform toggleHasMany (hash relationType="admins" parentObj=this.model childObj=user)}} @checked={{user.currentTenantAdmin}} />
                       <label for={{tourSet.subdir}}>{{if user.display_name user.display_name user.login.identification}}</label>
                     </div>
                   {{/unless}}
                 {{/each}}
               </div>
             {{/if}}
-          {{/data-loader}}
-        {{/modal.body}}
-      {{/modal.dialog}}
-    {{/uk-modal}}
+          </DataLoader>
+        </modal.body>
+      </modal.dialog>
+    </UkModal>
   </div>
 </div>
 
-{{#data-loader queryType="all" modelName="tour" as |toursLoader|}}
+<DataLoader @queryType="all" @modelName="tour" as |toursLoader|>
   {{#if toursLoader.fetchingAll}}
     <p>Loading Tours...</p>
   {{else}}
-    {{#uk-table-striped}}
+    <UkTableStriped>
       <thead>
         <tr>
           <th>Tour</th>
@@ -63,21 +57,21 @@
               {{!-- {{/link-to}} --}}
             </td>
             <td>
-              {{#uk-button color="link" on-click=(action "togglePublish" tour) class="uk-align-center"}}
+              <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
                 {{fa-icon (if tour.published "check" "times") aria-hidden="true"}}
                 <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
-              {{/uk-button}}
+              </UkButton>
             </td>
             <td>
-              {{#uk-button color="link" on-click=(action "deleteTour" tour) class="uk-align-center"}}
+              <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
                 {{fa-icon "trash" aria-hidden="true"}}
                 <span class="sr-only">Delete {{tour.title}}</span>
-              {{/uk-button}}
+              </UkButton>
             </td>
           </tr>
         {{/each}}
       </tbody>
-    {{/uk-table-striped}}
+    </UkTableStriped>
   {{/if}}
-{{/data-loader}}
+</DataLoader>
 <div class="uk-section"></div>

@@ -1,9 +1,7 @@
-import DS from 'ember-data';
+import Model, { hasMany, attr } from '@ember-data/model';
 import { sort } from '@ember/object/computed';
 import { computed, get } from '@ember/object';
 import ENV from '../config/environment';
-
-const { Model, attr, hasMany } = DS;
 
 export default Model.extend({
   title: attr('string'),

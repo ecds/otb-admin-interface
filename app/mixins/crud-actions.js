@@ -147,6 +147,7 @@ export default Mixin.create({
   }),
 
   saveRecord: task(function*(obj) {
+    this.tenant.setTenant();
     this.set('taskMessage', {
       message: 'Saving...',
       type: 'success'

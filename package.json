@@ -1,6 +1,7 @@
 {
   "name": "open-tour-builder",
   "version": "3.0.0rc",
+  "private": true,
   "description": "Admin user interface for OpenTourBuilder",
   "repository": "",
   "license": "MIT",
@@ -27,11 +28,12 @@
     "jodit": "^3.2.45"
   },
   "devDependencies": {
-    "@ember/optional-features": "^1.1.0",
+    "@ember/optional-features": "^1.3.0",
     "@fortawesome/ember-fontawesome": "^0.1.1",
     "@fortawesome/free-brands-svg-icons": "^5.1.1",
     "@fortawesome/free-solid-svg-icons": "^5.1.1",
     "@glimmer/component": "^1.0.0",
+    "@glimmer/tracking": "^1.0.0",
     "babel-eslint": "^10.0.3",
     "broccoli-asset-rev": "^3.0.0",
     "ecds-ember-responsive-embed": "git://github.com/ecds/ecds-ember-responsive-embed.git#develop",
@@ -94,7 +96,6 @@
   "ember": {
     "edition": "octane"
   },
-  "private": true,
   "ember-addon": {
     "paths": [
       "lib/ember-jodit",

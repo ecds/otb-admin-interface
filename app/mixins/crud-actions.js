@@ -29,9 +29,9 @@ export default Mixin.create({
     let childObj = isEmpty(options.childObj)
       ? this.store.createRecord(options.relationType, attrs)
       : options.childObj;
-    // if (childObj.hasDirtyAttributes) {
-    //   yield childObj.save();
-    // }
+    if (childObj.hasDirtyAttributes) {
+      yield this.saveRecord.perform(childObj);
+    }
     options.parentObj
       .get(`${pluralize(options.relationType)}`)
       .pushObject(childObj);
@@ -167,6 +167,7 @@ export default Mixin.create({
       });
       yield timeout(1000);
     } catch (error) {
+      console.log("saveRecord:task -> error", error)
       this.set('taskMessage', {
         message: `ERROR: ${error}`,
         type: 'danger'
@@ -180,6 +181,9 @@ export default Mixin.create({
   }).drop(),
 
   uploadFile: task(function*(parentObj, file) {
+    const reader = new FileReader();
+    let encodedFile = yield file.readAsDataURL();
+    console.log("uploadFile:task -> encodedFile", encodedFile)
     this.set('taskMessage', {
       message: 'Uploading medium...',
       type: 'success'
@@ -189,20 +193,27 @@ export default Mixin.create({
     if (parentObj.hasOwnProperty('content')) {
       parentObj = parentObj.content;
     }
-    let newImage = yield this.createHasMany.perform({
-      relationType: 'medium',
-      parentObj: parentObj,
-      attrs: {
-        original_image: file.blob,
-        title: file.name
-      }
-    });
-    this.set('taskMessage', {
-      message: 'Loading new image...',
-      type: 'success'
-    });
-    let savedImage = yield this.store.findRecord('medium', newImage.id);
-    yield waitForProperty(savedImage, 'mobile', v => v !== null);
+    try {
+      let newImage = yield this.createHasMany.perform({
+        relationType: 'medium',
+        parentObj: parentObj,
+        attrs: {
+          original_image: encodedFile,
+          title: file.name
+        }
+      });
+      this.set('taskMessage', {
+        message: 'Loading new image...',
+        type: 'success'
+      });
+      let savedImage = yield this.store.findRecord('medium', newImage.id);
+      yield waitForProperty(savedImage, 'mobile', v => v !== null);
+    } catch {
+      this.set('taskMessage', {
+        message: 'Upload failed :(',
+        type: 'danger'
+      })
+    }
 
     modal.hide();
     modal.$destroy;

@@ -10,7 +10,7 @@ export default Model.extend({
   title: attr('string'),
   caption: attr('string'),
   video: attr('string'),
-  original_image: attr('file'),
+  original_image: attr(),
   embed: attr('string'),
   desktop: attr('string'),
   tablet: attr('string'),

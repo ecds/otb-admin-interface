@@ -17,6 +17,7 @@ export default Model.extend({
   mobile: attr('string'),
   srcset: attr('string'),
   srcset_sizes: attr('string'),
+  base64: attr('string'),
   // stop: attr(),
   tours: hasMany('tour', { async: true }),
   stops: hasMany('stop', { async: true }),
@@ -29,5 +30,9 @@ export default Model.extend({
 
   safeEmbed: computed('embed', function() {
     return htmlSafe(this.embed);
+  }),
+
+  remote_original_image_url: computed('', function() {
+    return this.original_image.url
   })
 });

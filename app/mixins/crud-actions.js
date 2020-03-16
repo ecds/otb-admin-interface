@@ -183,7 +183,6 @@ export default Mixin.create({
   uploadFile: task(function*(parentObj, file) {
     const reader = new FileReader();
     let encodedFile = yield file.readAsDataURL();
-    console.log("uploadFile:task -> encodedFile", encodedFile)
     this.set('taskMessage', {
       message: 'Uploading medium...',
       type: 'success'

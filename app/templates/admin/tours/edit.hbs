@@ -1,5 +1,9 @@
 {{outlet}}
-<DataLoader @queryType="fetchRecord" @modelName="tour" @param={{model.modelId}} as |tourLoader|>
+<DataLoader
+  @queryType="fetchRecord"
+  @modelName="tour"
+  @param={{model.modelId}} as |tourLoader|
+>
   {{#if tourLoader.fetchingRecord}}
     <p>{{t "loading.tour"}}</p>
   {{else}}

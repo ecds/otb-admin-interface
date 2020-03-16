@@ -1,5 +1,8 @@
+import classic from 'ember-classic-decorator';
 import Model, { attr } from '@ember-data/model';
 
-export default Model.extend({
-  name: attr('string')
-});
+@classic
+export default class TourCollection extends Model {
+  @attr('string')
+  name;
+}

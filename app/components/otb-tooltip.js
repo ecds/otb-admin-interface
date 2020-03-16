@@ -1,14 +1,18 @@
-import Component from '@ember/component';
+import classic from 'ember-classic-decorator';
+import { tagName } from '@ember-decorators/component';
 import { computed } from '@ember/object';
+import Component from '@ember/component';
 
-export default Component.extend({
-  tagName: 'span',
-
-  ukTooltip: computed('', function() {
+@classic
+@tagName('span')
+export default class OtbTooltip extends Component {
+  @computed('')
+  get ukTooltip() {
     return `title: ${this.tooltipContent}`;
-  }),
+  }
 
-  ariaDescribedBy: computed('', function() {
+  @computed('')
+  get ariaDescribedBy() {
     return `aria-describedby-${this.elementId}`;
-  })
-});
+  }
+}

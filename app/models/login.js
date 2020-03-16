@@ -1,7 +1,14 @@
+import classic from 'ember-classic-decorator';
 import Model, { attr } from '@ember-data/model';
 
-export default Model.extend({
-  identification: attr('string'),
-  password: attr('string'),
-  password_confirmation: attr('string')
-});
+@classic
+export default class Login extends Model {
+  @attr('string')
+  identification;
+
+  @attr('string')
+  password;
+
+  @attr('string')
+  password_confirmation;
+}

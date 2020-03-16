@@ -1,16 +1,23 @@
+import classic from 'ember-classic-decorator';
 import Service, { inject as service } from '@ember/service';
-import { computed, get } from '@ember/object';
+import { get, computed } from '@ember/object';
 
-export default Service.extend({
-  cookies: service(),
-  geoLocation: service(),
-  tour: null,
+@classic
+export default class LocationServiceService extends Service {
+  @service
+  cookies;
+
+  @service
+  geoLocation;
+
+  tour = null;
 
   init() {
-    this._super(...arguments);
-  },
+    super.init(...arguments);
+  }
 
-  allowed: computed('Declined', 'Acknowledged', function() {
+  @computed('Declined', 'Acknowledged')
+  get allowed() {
     let cookie = get(this, 'cookies').read(`${get(this, 'tour')}-Allowed`);
     if (cookie === 'yup') {
       get(this, 'geoLocation').getLocation();
@@ -19,9 +26,9 @@ export default Service.extend({
       return false;
     }
     return undefined;
-  }),
+  }
 
   setAllowed(title) {
     get(this, 'cookies').write(`${title}-Allowed`, 'yup');
   }
-});
+}

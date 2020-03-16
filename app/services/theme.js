@@ -1,36 +1,41 @@
-import Service, { inject as service } from '@ember/service';
+import classic from 'ember-classic-decorator';
 import { computed /* observer */ } from '@ember/object';
+import Service, { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
 
-export default Service.extend({
-  store: service(),
-  tour: null,
-  base: 'default',
-  theme: 'dark',
+@classic
+export default class ThemeService extends Service {
+  @service
+  store;
+
+  tour = null;
+  base = 'default';
+  theme = 'dark';
 
   init() {
-    this._super(...arguments);
+    super.init(...arguments);
     this.set('themes', this.store.findAll('theme'));
-  },
+  }
 
   // the property used as a reference for styles
-  name: computed('base', function() {
+  @computed('base')
+  get name() {
     const base = this.base;
     const theme = this.theme;
     return `${base}-${theme}`;
-  }),
+  }
 
   // set the base theme for the application
-  setBase: function(base) {
+  setBase(base) {
     this.set('base', isEmpty(base) ? 'default' : base);
-  },
+  }
 
   // set theme to use within base theme
-  setTheme: function(theme) {
+  setTheme(theme) {
     this.set('theme', isEmpty(theme) ? 'first' : theme);
-  },
+  }
 
-  setTour: function(tour) {
+  setTour(tour) {
     this.set('tour', tour);
   }
-});
+}

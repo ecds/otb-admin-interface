@@ -1,7 +1,14 @@
+import classic from 'ember-classic-decorator';
 import Model, { belongsTo, attr } from '@ember-data/model';
 
-export default Model.extend({
-  tour: belongsTo('tour'),
-  flat_page: belongsTo('flat-page'),
-  position: attr('number')
-});
+@classic
+export default class TourFlatPage extends Model {
+  @belongsTo('tour')
+  tour;
+
+  @belongsTo('flat-page')
+  flat_page;
+
+  @attr('number')
+  position;
+}

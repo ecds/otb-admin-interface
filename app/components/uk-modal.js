@@ -1,24 +1,28 @@
+import classic from 'ember-classic-decorator';
+import { tagName, layout as templateLayout } from '@ember-decorators/component';
 import Component from '@ember/component';
 import layout from '../templates/components/uk-modal';
 
 const noop = () => {};
 
-export default Component.extend({
-  layout,
-  tagName: '',
-  modalName: 'uk-dialog',
+@classic
+@templateLayout(layout)
+@tagName('')
+export default class UkModal extends Component {
+  modalName = 'uk-dialog';
 
   // Component Options
-  escClose: true,
-  bgClose: true,
-  stack: false,
-  container: false,
-  clsPage: null,
-  clsPanel: null,
-  selClose: null,
-  center: false,
-  full: false,
-  overflowAuto: false,
+  escClose = true;
+
+  bgClose = true;
+  stack = false;
+  container = false;
+  clsPage = null;
+  clsPanel = null;
+  selClose = null;
+  center = false;
+  full = false;
+  overflowAuto = false;
 
   collectEvents() {
     return {
@@ -30,4 +34,4 @@ export default Component.extend({
       hidden: this.getWithDefault('on-hidden', noop)
     };
   }
-});
+}

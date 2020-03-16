@@ -1,6 +1,11 @@
+import classic from 'ember-classic-decorator';
 import Model, { belongsTo } from '@ember-data/model';
 
-export default Model.extend({
-  tour_id: belongsTo('tour'),
-  mode_id: belongsTo('mode')
-});
+@classic
+export default class TourMode extends Model {
+  @belongsTo('tour')
+  tour_id;
+
+  @belongsTo('mode')
+  mode_id;
+}

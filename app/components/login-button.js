@@ -1,13 +1,15 @@
-import Component from '@ember/component';
+import classic from 'ember-classic-decorator';
 import { inject as service } from '@ember/service';
-import { get } from '@ember/object';
+import Component from '@ember/component';
+import { get, action } from '@ember/object';
 
-export default Component.extend({
-  session: service(),
+@classic
+export default class LoginButton extends Component {
+  @service
+  session;
 
-  actions: {
-    logOut() {
-      this.session.invalidate();
-    }
+  @action
+  logOut() {
+    this.session.invalidate();
   }
-});
+}

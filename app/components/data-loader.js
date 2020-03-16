@@ -1,14 +1,19 @@
+import classic from 'ember-classic-decorator';
+import { tagName } from '@ember-decorators/component';
+import { inject as service } from '@ember/service';
 import Component from '@ember/component';
 import { task } from 'ember-concurrency';
-import { inject as service } from '@ember/service';
 
-export default Component.extend({
-  tagName: '',
-  store: service(),
+@classic
+@tagName('')
+export default class DataLoader extends Component {
+  @service
+  store;
+
   init() {
-    this._super(...arguments);
+    super.init(...arguments);
     this.data = [];
-  },
+  }
 
   didReceiveAttrs() {
     switch (this.queryType) {
@@ -24,24 +29,27 @@ export default Component.extend({
       default:
         return true;
     }
-  },
+  }
 
-  fetchAll: task(function*(modelName) {
+  @(task(function*(modelName) {
     let records = yield this.store.findAll(modelName);
     return this.set('data', records);
-  }).restartable(),
+  }).restartable())
+  fetchAll;
 
-  fetchRecord: task(function*(modelName, param) {
+  @(task(function*(modelName, param) {
     let record = yield this.store.findRecord(modelName, param);
     let model = this.set('data', record);
     this.set('model', model);
     return model;
-  }).restartable(),
+  }).restartable())
+  fetchRecord;
 
-  searchRecords: task(function*(modelName, param) {
+  @task(function*(modelName, param) {
     let records = yield this.store.findAll(modelName, {
       search: param
     });
     return this.set('data', records);
   })
-});
+  searchRecords;
+}

@@ -1,15 +1,19 @@
-import Route from '@ember/routing/route';
-// import { get } from '@ember/object';
+import classic from 'ember-classic-decorator';
 import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
 
 import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
 
-export default Route.extend(AuthenticatedRouteMixin, {
-  session: service(),
-  currentUser: service(),
+@classic
+export default class AdminRoute extends Route.extend(AuthenticatedRouteMixin) {
+  @service
+  session;
+
+  @service
+  currentUser;
 
   sessionAuthenticated() {
-    this._super(...arguments);
+    undefined;
     return this.currentUser.load();
   }
-});
+}

@@ -1,11 +1,14 @@
+import classic from 'ember-classic-decorator';
+import { tagName, layout as templateLayout } from '@ember-decorators/component';
 import Component from '@ember/component';
 import layout from '../templates/components/mode-icon';
 import { get, set } from '@ember/object';
 
-export default Component.extend({
-  layout,
-  tagName: '',
-  icon: null,
+@classic
+@templateLayout(layout)
+@tagName('')
+export default class ModeIcon extends Component {
+  icon = null;
 
   didInsertElement() {
     const mode = this.mode;
@@ -17,4 +20,4 @@ export default Component.extend({
       set(this, 'icon', 'bus');
     }
   }
-});
+}

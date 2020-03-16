@@ -1,8 +1,11 @@
+import classic from 'ember-classic-decorator';
+import { action } from '@ember/object';
 import Route from '@ember/routing/route';
 import { task } from 'ember-concurrency';
 // import { inject as service } from '@ember/service';
 
-export default Route.extend({
+@classic
+export default class EditRoute extends Route {
   // tenant: service(),
 
   // beforeModel() {
@@ -15,19 +18,19 @@ export default Route.extend({
     return {
       modelId: params.tour_id
     };
-  },
+  }
 
-  getModel: task(function*(params) {
+  @task(function*(params) {
     try {
       return yield this.store.findRecord('tour', params.tour_id);
     } catch (nah) {
       return nah;
     }
-  }),
+  })
+  getModel;
 
-  actions: {
-    doNothing() {
-      return true;
-    }
+  @action
+  doNothing() {
+    return true;
   }
-});
+}

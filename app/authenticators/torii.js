@@ -1,23 +1,32 @@
-import { get } from '@ember/object';
+import classic from 'ember-classic-decorator';
 import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
 import Torii from 'ember-simple-auth/authenticators/torii';
 import ENV from '../config/environment';
 import fetch from 'fetch';
 import { task } from 'ember-concurrency';
 
-export default Torii.extend({
-  torii: service(),
-  session: service(),
-  currentUser: service(),
-  tenant: service(),
+@classic
+export default class _Torii extends Torii {
+  @service
+  torii;
 
-  authenticate(/*provider, options*/) {
-    return this._super(...arguments).then(data => {
+  @service
+  session;
+
+  @service
+  currentUser;
+
+  @service
+  tenant;
+
+  authenticate/*provider, options*/() {
+    return super.authenticate/*provider, options*/(...arguments).then(data => {
       return this.setAuthData.perform(data);
     });
-  },
+  }
 
-  setAuthData: task(function * (data) {
+  @task(function * (data) {
     let response = yield fetch(`${ENV.APP.API_HOST}/${this.get('tenant.tenant')}/token`, {
       method: 'POST',
       headers: {
@@ -44,7 +53,8 @@ export default Torii.extend({
       access_token: responseData.access_token,
       provider: data.provider
     }
-  }),
+  })
+  setAuthData;
 
   // authenticate() {
 
@@ -85,20 +95,6 @@ export default Torii.extend({
 
   logOut() {
 
-    return this._super(...arguments.then(function dip() {
-        return fetch(
-          `${ENV.APP.API_HOST}/${this.get('tenant.tenant')}/revoke`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: {
-              token: get(this, 'session.content.authenticated.access_token')
-            }
-          }
-        );
-      })
-    );
+    return undefined;
   }
-});
+}

@@ -1,11 +1,13 @@
+import classic from 'ember-classic-decorator';
 import Service from '@ember/service';
 
-export default Service.extend({
-  orientationClass: 'portrait',
-  windowHeight: null,
+@classic
+export default class OrientationService extends Service {
+  orientationClass = 'portrait';
+  windowHeight = null;
 
   init() {
-    this._super(...arguments);
+    super.init(...arguments);
     this.windowOrientation();
     // console.log('orientation', this.get('orientationClass'));
     if (typeof ScreenOrientation !== 'undefined') {
@@ -15,7 +17,7 @@ export default Service.extend({
     window.addEventListener('resize', () => {
       this.windowOrientation();
     });
-  },
+  }
 
   windowOrientation() {
     this.set('windowHeight', window.innerHeight);
@@ -24,7 +26,7 @@ export default Service.extend({
     } else {
       this.setProperties({ orientationClass: 'landscape' });
     }
-  },
+  }
 
   setOrientation() {
     this.set('windowHeight', window.innerHeight);
@@ -42,4 +44,4 @@ export default Service.extend({
   // isLandscape() {
 
   // }
-});
+}

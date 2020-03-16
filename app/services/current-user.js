@@ -1,13 +1,18 @@
+import classic from 'ember-classic-decorator';
 import { get } from '@ember/object';
 import Service, { inject as service } from '@ember/service';
 
-export default Service.extend({
-  session: service('session'),
-  store: service(),
+@classic
+export default class CurrentUserService extends Service {
+  @service('session')
+  session;
+
+  @service
+  store;
 
   init() {
-    this._super(...arguments);
-  },
+    super.init(...arguments);
+  }
 
   load() {
     if (this.get('session.isAuthenticated')) {
@@ -18,7 +23,7 @@ export default Service.extend({
         });
     }
     return false;
-  },
+  }
 
   reLoad() {
     this.store
@@ -27,10 +32,10 @@ export default Service.extend({
         this.store.unloadRecord(user);
         this.load();
       });
-  },
+  }
 
   update() {
     const user = this.store.peekRecord('user', get(this, 'user.id'));
     user.save();
   }
-});
+}

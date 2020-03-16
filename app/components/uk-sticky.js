@@ -1,10 +1,12 @@
+import classic from 'ember-classic-decorator';
 import Component from '@ember/component';
 import UIkit from 'uikit';
 import { get, set } from '@ember/object';
 // import { later, cancel, debounce } from '@ember/runloop';
 import { schedule } from '@ember/runloop';
 
-export default Component.extend({
+@classic
+export default class UkSticky extends Component {
   // attributeBindings: [
   // //   'animation',
   //   'bottom',
@@ -34,7 +36,7 @@ export default Component.extend({
   initResizeEventListener() {
     this._resizeListener = () => this.debouncedUpdateDimension();
     window.addEventListener('resize', this._resizeListener, false);
-  },
+  }
 
   /**
    * @method removeResizeEventListener
@@ -42,7 +44,7 @@ export default Component.extend({
    */
   removeResizeEventListener() {
     window.removeEventListener('resize', this._resizeListener, false);
-  },
+  }
 
   /**
    * @method debouncedUpdateDimension
@@ -50,7 +52,7 @@ export default Component.extend({
    */
   debouncedUpdateDimension() {
     debounce(this, this.updateDimension, 30);
-  },
+  }
 
   /**
    * @method updateDimension
@@ -61,7 +63,7 @@ export default Component.extend({
     if (this.isDestroyed || this.isDestroying) {
       return false;
     }
-  },
+  }
 
   // _pollTask() {
   //   this.updatePosition();
@@ -92,7 +94,7 @@ export default Component.extend({
     //   offset: this.get('offset'),
     //   bottom: this.get('bottom')
     // });
-  },
+  }
 
   didInsertElement() {
     set(
@@ -103,10 +105,10 @@ export default Component.extend({
         bottom: this.bottom
       })
     );
-  },
+  }
 
   didRender() {
-    this._super(...arguments);
+    super.didRender(...arguments);
     console.log(this.elementId);
     // this.updateDimension();
     // scheduleOnce('afterRender', this, this.updateDimension);
@@ -116,4 +118,4 @@ export default Component.extend({
       this._ukSticky.$emit((event = 'update'));
     });
   }
-});
+}

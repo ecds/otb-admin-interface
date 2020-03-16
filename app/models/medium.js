@@ -1,38 +1,70 @@
-import Model, { hasMany, attr } from '@ember-data/model';
+import classic from 'ember-classic-decorator';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
-export default Model.extend({
-  tenant: service(),
+@classic
+export default class Medium extends Model {
+  @service
+  tenant;
 
-  title: attr('string'),
-  caption: attr('string'),
-  video: attr('string'),
-  original_image: attr(),
-  embed: attr('string'),
-  desktop: attr('string'),
-  tablet: attr('string'),
-  mobile: attr('string'),
-  srcset: attr('string'),
-  srcset_sizes: attr('string'),
-  base64: attr('string'),
+  @attr('string')
+  title;
+
+  @attr('string')
+  caption;
+
+  @attr('string')
+  video;
+
+  @attr()
+  original_image;
+
+  @attr('string')
+  embed;
+
+  @attr('string')
+  desktop;
+
+  @attr('string')
+  tablet;
+
+  @attr('string')
+  mobile;
+
+  @attr('string')
+  srcset;
+
+  @attr('string')
+  srcset_sizes;
+
+  @attr('string')
+  base64;
+
   // stop: attr(),
-  tours: hasMany('tour', { async: true }),
-  stops: hasMany('stop', { async: true }),
+  @hasMany('tour', { async: true })
+  tours;
 
-  loadEmbed: attr('boolean', { defaultValue: false }),
+  @hasMany('stop', { async: true })
+  stops;
 
-  baseUrl: computed('original_image', function() {
+  @attr('boolean', { defaultValue: false })
+  loadEmbed;
+
+  @computed('original_image')
+  get baseUrl() {
     return `${ENV.APP.API_HOST}`;
-  }),
+  }
 
-  safeEmbed: computed('embed', function() {
+  @computed('embed')
+  get safeEmbed() {
     return htmlSafe(this.embed);
-  }),
+  }
 
-  remote_original_image_url: computed('', function() {
+  @computed('')
+  get remote_original_image_url() {
     return this.original_image.url
-  })
-});
+  }
+}

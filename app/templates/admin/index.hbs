@@ -7,7 +7,8 @@
     <modal.dialog>
       <modal.body>
         <OtbCrud::FormSection @label="Site Title" as |inputId|>
-          <Input @autofocus="autofocus" class="uk-input" @id={{inputId}} @value={{newSite.name}} />
+          <label class="uk-form-label" for={{concat inputId '-description'}}>{{modelTitle}} Description</label>
+          <Input @autofocus="autofocus" class="uk-input" @id={{concat inputId '-description'}} @value={{newSite.name}} />
         </OtbCrud::FormSection>
       </modal.body>
       <modal.footer>
@@ -19,45 +20,47 @@
 {{/if}}
 
   <DataLoader @queryType="all" @modelName="tourSet" as |siteLoader|>
-  {{#if siteLoader.fetchingAll}}
-  <div>
-  Loading Tour Sites...
-  </div>
-  {{else}}
-  <UkTableStriped>
-  <thead>
-  <tr>
-  <th class='uk-table-expand'>Site Name <button class="uk-button uk-button-default" uk-tooltip="Each Tour Site can contain multiple tours. Click the name of your Tour Site below to see your tours."><span uk-icon="icon: info"></span></button></th>
-  <th class='uk-width-small'>Delete</th>
-  </tr>
-  </thead>
-  <tbody>
-  {{#each siteLoader.data as |tourSet|}}
-  <tr>
-  <td class='uk-table-link'>
-  {{!-- {{#link-to 'admin.tours.index' tourSet.subdir}} --}}
-  <a href={{concat tourSet.subdir "/"}}>
-  {{tourSet.name}}
-  </a>
-  </td>
+    {{#if siteLoader.fetchingAll}}
+      <div>
+        Loading Tour Sites...
+      </div>
+    {{else}}
+      <UkTableStriped>
+        <thead>
+          <tr>
+            <th class='uk-table-expand'>
+              Site Name
+              <OtbTooltip @tooltipContent="Each Tour Site can contain multiple tours. Click the name of your Tour Site below to see your tours." @ariaDescribedBy="site-name-aria-describedby" />
+            </th>
+            <th class='uk-width-small uk-text-center'>Delete</th>
+          </tr>
+        </thead>
+      <tbody>
+      {{#each siteLoader.data as |tourSet|}}
+        <tr>
+          <td class='uk-table-link'>
+            <a href={{concat tourSet.subdir "/"}}>
+              {{tourSet.name}}
+            </a>
+          </td>
 
-  <td class='uk-table-link'>
-  <UkButton @color="link" @class="uk-align-center" @on-click={{perform deleteRecord tourSet}}>
-  {{fa-icon 'trash'}}
-  </UkButton>
-  </td>
-  </tr>
-  {{else}}
-  <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
-  <ul>
-    {{#each tourLoader as |tour|}}
-    <li>{{tour.title}}</li>
-    {{/each}}
-  </ul>
-  </DataLoader>
-  {{/each}}
-  </tbody>
-  </UkTableStriped>
+          <td class='uk-table-link'>
+            <UkButton @color="link" @class="uk-align-center" @on-click={{perform deleteRecord tourSet}}>
+              <FaIcon @icon='trash' />
+            </UkButton>
+          </td>
+        </tr>
+      {{else}}
+      <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
+      <ul>
+        {{#each tourLoader as |tour|}}
+          <li>{{tour.title}}</li>
+        {{/each}}
+      </ul>
+      </DataLoader>
+      {{/each}}
+        </tbody>
+      </UkTableStriped>
   {{/if}}
 </DataLoader>
 <div class='uk-section'></div>

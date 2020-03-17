@@ -25,7 +25,7 @@
                       {{#each userLoader.data as |user|}}
                         {{#unless user.super}}
                           <div>
-                            <Input @id={{concat "user" user.id}} @type="checkbox" @name="tour_set" @change={{perform toggleHasMany (hash relationType="author" parentObj=tourLoader.data childObj=user)}} @checked={{includes user.tours model}} />
+                            <Input @id={{concat "user" user.id}} class="uk-checkbox" @type="checkbox" @name="tour_set" @change={{perform toggleHasMany (hash relationType="author" parentObj=tourLoader.data childObj=user)}} @checked={{includes user.tours model}} />
                             <label for={{tourSet.subdir}}>{{user.display_name}}</label>
                           </div>
                         {{/unless}}
@@ -44,8 +44,9 @@
           {{action "doNothing" on="submit"}}
         >
           <OtbCrud::CommonForm @model={{tourLoader.data}} @modelTitle="Tour" />
-          <OtbCrud::FormSection @label="Travel Modes">
-            <DataLoader @queryType="all" @modelName="mode" as |modeLoader|>
+          <section>
+              <legend class="uk-legend">Travel Modes</legend>
+              <DataLoader @queryType="all" @modelName="mode" as |modeLoader|>
               <div class="uk-width-medium" uk-grid>
                 <div class="uk-width-1-2">
                   {{t "mode"}}
@@ -61,10 +62,11 @@
                     {{titleize mode.title}}
                   </div>
                   <div class="uk-width-1-4">
-                    <Input @type="checkbox" @checked={{contains mode tourLoader.data.modes}} @change={{perform toggleHasMany (hash parentObj=tourLoader.data relationType="mode" childObj=mode)}} />
+                    <Input @type="checkbox" class="uk-checkbox" @checked={{contains mode tourLoader.data.modes}} @change={{perform toggleHasMany (hash parentObj=tourLoader.data relationType="mode" childObj=mode)}} />
                   </div>
                   <div class="uk-width-1-4">
                     <input
+                      class="uk-radio"
                       type="radio"
                       name="default"
                       value={{mode}}
@@ -75,12 +77,13 @@
                 {{/each}}
               </div>
             </DataLoader>
-          </OtbCrud::FormSection>
+          </section>
 
-          <OtbCrud::FormSection @label="Map Type">
+          <section>
+            <legend class="uk-legend">{{modelTitle}}Map Type</legend>
             <div class="uk-form-controls uk-child-width-1-2" uk-grid>
               <div>
-                <PowerSelect @options={{mapTypes}} @searchEnabled={{false}} @selected={{tourLoader.data.map_type}} @onchange={{action (mut tourLoader.data.map_type)}} as |type|>
+                <PowerSelect @id={{concat inputId '-map-type'}} @options={{mapTypes}} @searchEnabled={{false}} @selected={{tourLoader.data.map_type}} @onchange={{action (mut tourLoader.data.map_type)}} as |type|>
                   {{type}}
                 </PowerSelect>
               </div>
@@ -92,31 +95,23 @@
                 >
               </div>
             </div>
-          </OtbCrud::FormSection>
-          <OtbCrud::Video @model={{tourLoader.data}} @save={{addVideo}} />
-          <OtbCrud::MediumUpload @uploadTask={{uploadFile}} @model={{tourLoader.data}} @modelName="tour" />
-          {{t "mediaCount"}}: {{tourLoader.data.tour_media.length}}
-          <span
-            class="uk-button uk-button-default"
-            uk-tooltip={{t "tooltip.reorderImages"}}
-            aria-describedby="reorder-tour-images"
-          >
-            {{fa-icon "question-circle"}}
-          </span>
-          <span class="otb-aria-describedby" id="reorder-tour-images">{{t "tooltip.reorderImages"}}</span>
-          <OtbCrud::Media @model={{tourLoader.data}} @reorder={{reorder}} @save={{saveRecord}} @delete={{deleteHasMany}} />
+          </section>
+          <section>
+            <legend class="uk-legend">Media</legend>
+            <OtbCrud::Video @model={{tourLoader.data}} @save={{addVideo}} />
+            <OtbCrud::MediumUpload @uploadTask={{uploadFile}} @model={{tourLoader.data}} @modelName="tour" />
+            <OtbCrud::Media @model={{tourLoader.data}} @reorder={{reorder}} @save={{saveRecord}} @delete={{deleteHasMany}} />
+          </section>
 
-          <OtbCrud::FormSection @classNames="crud-stop-list" @label="Stops">
+          <section>
+            <legend class="uk-legend">Stops</legend>
             <div class="uk-form-controls">
+            <OtbTooltip @tooltipContent={{t "tooltip.newStop"}} @ariaDescribedBy="new-stop-aria-describedby">
               <OtbCrud::NewButton @class="uk-margin" @click={{perform newStop tourLoader.data}}>
                 {{t "buttons.newStop"}}
               </OtbCrud::NewButton>
-              <button
-                class="uk-button uk-button-default"
-                uk-tooltip={{t "tooltip.newStop"}}
-              >
-                <span uk-icon="icon: warning"></span>
-              </button>
+            </OtbTooltip>
+
 
               <UkAccordion @id="stopList" @tagName="div" @on-shown={{action "scrollElementToTop"}} @targets="> div > div > *" as |accordion|>
                 <UkSortable @handle=".uk-accordion-title" @on-stop={{perform reorder}} @on-remove={{perform reorder}}>
@@ -135,16 +130,6 @@
                             <OtbCrud::Map @model={{stop.stop}} />
                             <h3 class="uk-heading">{{t "manageMedia"}}</h3>
                             <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
-                            <h4>{{t "uploadImages"}}</h4>
-                            <span
-                              class="uk-button uk-button-default"
-                              uk-tooltip={{t "reorderImages"}}
-                              role="tooltip"
-                              aria-describedby="reorder-images-tip"
-                            >
-                              {{fa-icon "question"}}
-                            </span>
-                            <span class="otb-aria-describedby" id="reorder-images-tip">{{t "reorderImages"}}</span>
                             <OtbCrud::MediumUpload @uploadTask={{uploadFile}} @model={{stop.stop}} @modelName="stop" />
                             <OtbCrud::Media @model={{stop.stop}} @reorder={{reorder}} @save={{saveRecord}} @delete={{deleteHasMany}} />
                             <UkButton @color="primary" @on-click={{perform saveRecord stop.stop}}>
@@ -168,7 +153,7 @@
                 </UkSortable>
               </UkAccordion>
             </div>
-          </OtbCrud::FormSection>
+          </section>
 
           <OtbCrud::FormSection @classNames="crud-page-list" @label="Pages">
             <div class="uk-form-controls">
@@ -223,7 +208,12 @@
           </OtbCrud::FormSection>
         </form>
       </div>
-      <OtbCrud::SubmitButtons @class="uk-width-1-1" @save={{perform saveTour tourLoader.data}} />
+      <div class="otb-crud-footer uk-padding-margin">
+        <div class="uk-padding">
+          <OtbCrud::SubmitButtons @class="uk-width-1-1" @save={{perform saveTour tourLoader.data}} />
+          <PreviewButton @model=tourLoader.data></PreviewButton>
+        </div>
+      </div>
     </div>
 
     <div id="task-running" class="uk-flex-top">

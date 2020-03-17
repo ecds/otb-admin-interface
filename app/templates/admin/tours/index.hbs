@@ -42,8 +42,12 @@
       <thead>
         <tr>
           <th>Tour</th>
-          <th class="uk-table-shrink">Published <button class="uk-button uk-button-default" uk-tooltip="Until published the site can only be viewed when logged into OpenTour."><span uk-icon="icon: info"></span></button></th>
-          <th class="uk-table-shrink">Delete</th>
+          <th class="uk-table-shrink uk-text-center">
+            <OtbTooltip @tooltipContent="Until published the site can only be viewed when logged into OpenTour." @ariaDescribedBy="tour-published-aria-describedby">
+              Published
+            </OtbTooltip>
+          </th>
+          <th class="uk-table-shrink uk-text-center">Delete</th>
         </tr>
       </thead>
       <tbody>

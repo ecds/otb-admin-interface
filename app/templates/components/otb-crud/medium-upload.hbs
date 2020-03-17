@@ -1,5 +1,10 @@
+<OtbCrud::FormSection @label="images">
+  <OtbTooltip @tooltipContent={{t "tooltip.reorderImages"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+    <label class="uk-form-label">Images</label>
+  </OtbTooltip>
+</OtbCrud::FormSection>
 <section class="uk-form-control">
-  <FileDropzone @class="js-upload uk-placeholder uk-text-center uk-inline" @name={{concat "upload-" modelName "-" model.id}} as |dropzone queue|>
+  <FileDropzone @class="js-upload uk-placeholder uk-text-center uk-text-large uk-inline" @name={{concat "upload-" modelName "-" model.id}} as |dropzone queue|>
     {{#if dropzone.active}}
       {{#if dropzone.valid}}
         {{t "dropToUpload"}}

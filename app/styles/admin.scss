@@ -71,6 +71,46 @@ a.uk-accordion-title::after {
   }
 }
 
-.otb-aria-describedby{
+.otb-aria-describedby {
   opacity: 0;
+  position: absolute;
+}
+
+.jodit_tooltip {
+  background-color: transparent !important;
+}
+
+.fa-question-circle {
+  color: royalblue;
+}
+
+.uk-checkbox,
+.uk-radio {
+  height: 2rem;
+  width: 2rem;
+}
+
+.uk-legend {
+  margin: 3rem 0;
+}
+
+.uk-tooltip.uk-active {
+  font-size: 1.25rem;
+  max-width: 25vw;
+}
+
+.ember-power-select-option,
+.ember-power-select-selected-item {
+  text-transform: capitalize;
+}
+
+.js-upload.uk-placeholder {
+  background-color: lightgray;
+  border-color: #454545;
+  border-width: 3px;
+}
+
+.uk-table-shrink {
+  max-width: 1px;
+  width: auto;
 }

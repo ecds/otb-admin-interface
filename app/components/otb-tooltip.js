@@ -4,7 +4,7 @@ import { computed } from '@ember/object';
 import Component from '@ember/component';
 
 @classic
-@tagName('span')
+@tagName('')
 export default class OtbTooltip extends Component {
   @computed('')
   get ukTooltip() {

@@ -11,8 +11,16 @@ export default class OtbTooltip extends Component {
     return `title: ${this.tooltipContent}`;
   }
 
+  set ukTooltip(v) {
+    return v;
+  }
+
   @computed('')
   get ariaDescribedBy() {
     return `aria-describedby-${this.elementId}`;
+  }
+
+  set ariaDescribedBy(v) {
+    return v;
   }
 }

@@ -25,6 +25,10 @@ export default class ThemeService extends Service {
     return `${base}-${theme}`;
   }
 
+  set name(v) {
+    return v;
+  }
+
   // set the base theme for the application
   setBase(base) {
     this.set('base', isEmpty(base) ? 'default' : base);

@@ -19,6 +19,10 @@ export default class UploadForm extends Component {
     return `https://${this.get('tenant.domain')}.${ENV.APP.API_HOST}/media`;
   }
 
+  set endpoint(v) {
+    return v;
+  }
+
   @action
   setStop(stop) {
     this.set('stop', stop);

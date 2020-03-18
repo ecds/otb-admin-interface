@@ -21,6 +21,10 @@ export default class Media extends Component {
     });
   }
 
+  set otherMedia(v) {
+    return v;
+  }
+
   // uploadMedium: task(function*(file) {
   //   let medium = get(this, 'store').createRecord('medium', {
   //     [`${get(this, '_modelName')}s`]: A([this.model]),

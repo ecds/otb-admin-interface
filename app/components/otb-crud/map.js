@@ -80,6 +80,10 @@ export default class Map extends Component {
     };
   }
 
+  set parkingIcon(v) {
+    return v;
+  }
+
   @action
   locateAddress() {
     if (this.get('model.address')) {

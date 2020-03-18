@@ -107,11 +107,19 @@ export default class Tour extends Model {
     return new htmlSafe(this.description);
   }
 
+  set safeDescription(v) {
+    return v;
+  }
+
   @computed('splash')
   get splashBackground() {
     return new htmlSafe(
       `background: url(${ENV.APP.API_HOST}/${this.splash.original_image.desktop.url}); background-size: cover;`
     );
+  }
+
+  set splashBackground(v) {
+    return v;
   }
 
   @sort('tour_stops', '_positionSort')

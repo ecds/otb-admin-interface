@@ -88,6 +88,10 @@ export default class Stop extends Model {
     }${get(this, 'splash.original_image.mobile_list_thumb.url')}`;
   }
 
+  set mobileThumbUrl(v) {
+    return v;
+  }
+
   @sort('stop_media', '_mediumPositionSort')
   sortedMedia;
 

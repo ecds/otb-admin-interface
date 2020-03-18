@@ -30,4 +30,8 @@ export default class FlatPage extends Model {
   get safeContent() {
     return new htmlSafe(this.content);
   }
+
+  set safeContent(v) {
+    return v;
+  }
 }

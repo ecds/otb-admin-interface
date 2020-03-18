@@ -28,6 +28,10 @@ export default class LocationServiceService extends Service {
     return undefined;
   }
 
+  set allowed(v) {
+    return v;
+  }
+
   setAllowed(title) {
     get(this, 'cookies').write(`${title}-Allowed`, 'yup');
   }

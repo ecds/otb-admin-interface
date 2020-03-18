@@ -16,6 +16,10 @@ export default class PreviewButton extends Component {
     return `${loc.origin}/${this.tenant.tenant}/${this.model.slug}`;
   }
 
+  set previewUrl(v) {
+    return v;
+  }
+
   @action
   previewMobile() {
     this.set(

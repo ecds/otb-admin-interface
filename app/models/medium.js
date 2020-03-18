@@ -58,13 +58,25 @@ export default class Medium extends Model {
     return `${ENV.APP.API_HOST}`;
   }
 
+  set baseUrl(v) {
+    return v;
+  }
+
   @computed('embed')
   get safeEmbed() {
     return htmlSafe(this.embed);
   }
 
+  set safeEmbed(v) {
+    return v;
+  }
+
   @computed('')
   get remote_original_image_url() {
     return this.original_image.url
+  }
+
+  set remote_original_image_url(v) {
+    return v;
   }
 }

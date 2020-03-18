@@ -18,4 +18,8 @@ export default class FormSection extends Component {
   get inputId() {
     return `${this.elementId}-${dasherize(get(this, 'label'))}`;
   }
+
+  set inputId(v) {
+    return v;
+  }
 }

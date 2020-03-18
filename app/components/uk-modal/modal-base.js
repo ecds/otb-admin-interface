@@ -28,6 +28,10 @@ export default class ModalBase extends Component {
     return get(this, 'parent.modalName');
   }
 
+  set modalName(v) {
+    return v;
+  }
+
   setEvents() {
     let events = get(this, 'parent').collectEvents();
     for (let event in events) {

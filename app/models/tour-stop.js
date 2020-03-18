@@ -46,6 +46,10 @@ export default class TourStop extends Model {
     }
   }
 
+  set labelContent(v) {
+    return v;
+  }
+
   @computed('color')
   get icon() {
     return {
@@ -57,6 +61,10 @@ export default class TourStop extends Model {
     };
   }
 
+  set icon(v) {
+    return v;
+  }
+
   @computed('color')
   get activeIcon() {
     return {
@@ -64,6 +72,10 @@ export default class TourStop extends Model {
       labelOrigin: new google.maps.Point(36, 28),
       url: '/assets/icons/map-marker.svg'
     };
+  }
+
+  set activeIcon(v) {
+    return v;
   }
 
   @computed('active')
@@ -74,11 +86,19 @@ export default class TourStop extends Model {
     };
   }
 
+  set label(v) {
+    return v;
+  }
+
   @computed('active')
   get activeLabel() {
     let label = get(this, 'label');
     label.fontSize = '2.75em';
     // label.color = 'deeppink';
     return label;
+  }
+
+  set activeLabel(v) {
+    return v;
   }
 }

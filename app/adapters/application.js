@@ -13,7 +13,7 @@ export default class Application extends JSONAPIAdapter.extend(DataAdapterMixin)
   @service
   tenant;
 
-  @(computed('').volatile())
+  // @(computed('').volatile())
   get host() {
     return `${ENV.APP.API_HOST}/${this.tenant.tenant}`;
   }
@@ -24,5 +24,9 @@ export default class Application extends JSONAPIAdapter.extend(DataAdapterMixin)
     return {
       'Authorization': `Bearer ${access_token}`
     }
+  }
+
+  set headers(v) {
+    return v
   }
 }

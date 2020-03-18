@@ -1,26 +1,35 @@
+import classic from 'ember-classic-decorator';
+import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
 import { isEmpty, isPresent } from '@ember/utils';
-import { inject as service } from '@ember/service';
 import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mixin';
 
-export default Route.extend(ApplicationRouteMixin, {
-  currentUser: service(),
-  tenant: service(),
-  media: service(),
-  intl: service(),
+@classic
+export default class ApplicationRoute extends Route.extend(ApplicationRouteMixin) {
+  @service
+  currentUser;
+
+  @service
+  tenant;
+
+  @service
+  media;
+
+  @service
+  intl;
 
   beforeModel(transisition) {
-    this._super(...arguments);
+    super.beforeModel(...arguments);
     this.__setTenant(transisition);
     this.intl.setLocale(['en-us']);
-    return this.get('currentUser').load();
-  },
+    return this.currentUser.load();
+  }
 
-  actions: {
-    willTransition(transisition) {
-      this.__setTenant(transisition);
-    }
-  },
+  @action
+  willTransition(transisition) {
+    this.__setTenant(transisition);
+  }
 
   __setTenant(transisition) {
     // The admin routes are the only ones where we will be switching tenants.
@@ -32,23 +41,23 @@ export default Route.extend(ApplicationRouteMixin, {
           isPresent(transisition.intent.contexts)
         ) {
           // Link from TourSet List
-          this.get('tenant').setTenantFromContext(transisition.intent.contexts);
+          this.tenant.setTenantFromContext(transisition.intent.contexts);
         } else if (isEmpty(transisition.intent)) {
-          this.get('tenant').setTenant();
+          this.tenant.setTenant();
         } else if (transisition.intent.hasOwnProperty('name')) {
-          this.get('tenant').setTenant(
+          this.tenant.setTenant(
             transisition.intent.name.replace(/\./g, '/')
           );
         } else if (transisition.intent.hasOwnProperty('url')) {
           // Direct to admin.tour.index route
-          this.get('tenant').setTenant(transisition.intent.url);
+          this.tenant.setTenant(transisition.intent.url);
         } else {
-          this.get('tenant').setTenant();
+          this.tenant.setTenant();
         }
       }
       // Most likely public UI
     } else {
-      this.get('tenant').setTenant();
+      this.tenant.setTenant();
     }
   }
-});
+}

@@ -1,9 +1,9 @@
 
-{{otb-crud/common-form model=stop modelTitle='Stop'}}
-{{otb-crud/map model=stop}}
+<OtbCrud::CommonForm @model={{stop}} @modelTitle="Stop" />
+<OtbCrud::Map @model={{stop}} />
 {{#if stop.id}}
-  {{otb-crud/media model=stop reorder=reordered}}
+  <OtbCrud::Media @model={{stop}} @reorder={{reordered}} />
 {{else}}
   <p>You must save the stop before adding media.</p>
 {{/if}}
-{{#uk-button color='primary' on-click=save}}save{{/uk-button}} {{#uk-button on-click=cancel}}Cancel{{/uk-button}}
+<UkButton @color="primary" @on-click={{save}}>save</UkButton> <UkButton @on-click={{cancel}}>Cancel</UkButton>

@@ -1,10 +1,15 @@
+import classic from 'ember-classic-decorator';
+import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
 import { task } from 'ember-concurrency';
-import { inject as service } from '@ember/service';
 
-export default Route.extend({
-  currentUser: service(),
-  tenant: service(),
+@classic
+export default class IndexRoute extends Route {
+  @service
+  currentUser;
+
+  @service
+  tenant;
 
   // beforeModel() {
   //   // this.get('tenant').setTenant();
@@ -24,15 +29,17 @@ export default Route.extend({
   //   }
   // },
 
-  getTours: task(function*() {
+  @task(function*() {
     // if (!this.currentUser.user.current_tenant_admin) return;
     return yield this.store.findAll('tour');
-  }),
+  })
+  getTours;
 
-  getTourSets: task(function*() {
+  @task(function*() {
     if (!this.currentUser.user.tour_sets && !this.currentUser.user.super) {
-      return yield this.get('getTours').perform();
+      return yield this.getTours.perform();
     }
     return yield this.store.findAll('tour-set');
   })
-});
+  getTourSets;
+}

@@ -1,9 +1,14 @@
-import DS from 'ember-data';
+import classic from 'ember-classic-decorator';
+import Model, { attr } from '@ember-data/model';
 
-const { Model, attr } = DS;
+@classic
+export default class Login extends Model {
+  @attr('string')
+  identification;
 
-export default Model.extend({
-  identification: attr('string'),
-  password: attr('string'),
-  password_confirmation: attr('string')
-});
+  @attr('string')
+  password;
+
+  @attr('string')
+  password_confirmation;
+}

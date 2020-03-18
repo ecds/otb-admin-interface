@@ -1,6 +1,9 @@
+import classic from 'ember-classic-decorator';
+import { tagName } from '@ember-decorators/component';
 import Component from '@ember/component';
 
-export default Component.extend({
-  tagName: 'li',
-  title: null
-});
+@classic
+@tagName('li')
+export default class Item extends Component {
+  title = null;
+}

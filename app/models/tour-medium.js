@@ -1,9 +1,14 @@
-import DS from 'ember-data';
+import classic from 'ember-classic-decorator';
+import Model, { belongsTo, attr } from '@ember-data/model';
 
-const { Model, attr, belongsTo } = DS;
+@classic
+export default class TourMedium extends Model {
+  @belongsTo('tour')
+  tour;
 
-export default Model.extend({
-  tour: belongsTo('tour'),
-  medium: belongsTo('medium'),
-  position: attr('number')
-});
+  @belongsTo('medium')
+  medium;
+
+  @attr('number')
+  position;
+}

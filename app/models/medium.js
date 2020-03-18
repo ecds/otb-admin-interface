@@ -1,36 +1,82 @@
-import DS from 'ember-data';
-import { hasMany } from 'ember-data/relationships';
+import classic from 'ember-classic-decorator';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
-const { Model, attr } = DS;
+@classic
+export default class Medium extends Model {
+  @service
+  tenant;
 
-export default Model.extend({
-  tenant: service(),
+  @attr('string')
+  title;
 
-  title: attr('string'),
-  caption: attr('string'),
-  video: attr('string'),
-  original_image: attr('file'),
-  embed: attr('string'),
-  desktop: attr('string'),
-  tablet: attr('string'),
-  mobile: attr('string'),
-  srcset: attr('string'),
-  srcset_sizes: attr('string'),
+  @attr('string')
+  caption;
+
+  @attr('string')
+  video;
+
+  @attr()
+  original_image;
+
+  @attr('string')
+  embed;
+
+  @attr('string')
+  desktop;
+
+  @attr('string')
+  tablet;
+
+  @attr('string')
+  mobile;
+
+  @attr('string')
+  srcset;
+
+  @attr('string')
+  srcset_sizes;
+
+  @attr('string')
+  base64;
+
   // stop: attr(),
-  tours: hasMany('tour', { async: true }),
-  stops: hasMany('stop', { async: true }),
+  @hasMany('tour', { async: true })
+  tours;
 
-  loadEmbed: attr('boolean', { defaultValue: false }),
+  @hasMany('stop', { async: true })
+  stops;
 
-  baseUrl: computed('original_image', function() {
+  @attr('boolean', { defaultValue: false })
+  loadEmbed;
+
+  @computed('original_image')
+  get baseUrl() {
     return `${ENV.APP.API_HOST}`;
-  }),
+  }
 
-  safeEmbed: computed('embed', function() {
+  set baseUrl(v) {
+    return v;
+  }
+
+  @computed('embed')
+  get safeEmbed() {
     return htmlSafe(this.embed);
-  })
-});
+  }
+
+  set safeEmbed(v) {
+    return v;
+  }
+
+  @computed('')
+  get remote_original_image_url() {
+    return this.original_image.url
+  }
+
+  set remote_original_image_url(v) {
+    return v;
+  }
+}

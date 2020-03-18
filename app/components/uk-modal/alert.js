@@ -2,4 +2,4 @@ import classic from 'ember-classic-decorator';
 import Component from '@ember/component';
 
 @classic
-export default class Location extends Component {}
+export default class Alert extends Component {}

@@ -1,12 +1,23 @@
-import DS from 'ember-data';
+import classic from 'ember-classic-decorator';
+import Model, { hasMany, attr } from '@ember-data/model';
 
-const { Model, attr, hasMany } = DS;
+@classic
+export default class User extends Model {
+  @attr('string')
+  display_name;
 
-export default Model.extend({
-  display_name: attr('string'),
-  currentTenantAdmin: attr('boolean'),
-  tour_sets: hasMany('tour-set'),
-  tours: hasMany('tour'),
-  super: attr(),
-  login: attr()
-});
+  @attr('boolean')
+  currentTenantAdmin;
+
+  @hasMany('tour-set')
+  tour_sets;
+
+  @hasMany('tour')
+  tours;
+
+  @attr()
+  super;
+
+  @attr()
+  login;
+}

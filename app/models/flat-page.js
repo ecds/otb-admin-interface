@@ -1,22 +1,37 @@
-import DS from 'ember-data';
-import { get, computed } from '@ember/object';
+import classic from 'ember-classic-decorator';
+import { computed } from '@ember/object';
+import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
 
-const { Model, attr, hasMany } = DS;
+@classic
+export default class FlatPage extends Model {
+  @attr('string')
+  title;
 
-export default Model.extend({
-  title: attr('string'),
-  slug: attr('string'),
-  content: attr('string', {
+  @attr('string')
+  slug;
+
+  @attr('string', {
     defaultValue: ''
-  }),
-  tour: hasMany('tour', {
+  })
+  content;
+
+  @hasMany('tour', {
     async: true
-  }),
-  tour_flat_pages: hasMany('tour-flat-pages', {
+  })
+  tour;
+
+  @hasMany('tour-flat-pages', {
     async: true
-  }),
-  safeContent: computed('content', function safeContent() {
-    return new htmlSafe(get(this, 'content'));
-  }).property('content')
-});
+  })
+  tour_flat_pages;
+
+  @computed('content')
+  get safeContent() {
+    return new htmlSafe(this.content);
+  }
+
+  set safeContent(v) {
+    return v;
+  }
+}

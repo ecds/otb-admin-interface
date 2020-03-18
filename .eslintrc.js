@@ -1,53 +1,51 @@
-/* eslint-env node */
+'use strict';
 
 module.exports = {
-  globals: {
-    server: true
-  },
+  root: true,
+  parser: 'babel-eslint',
   parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module'
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    ecmaFeatures: {
+      legacyDecorators: true
+    }
   },
-  extends: ['eslint:recommended', 'plugin:ember-best-practices/recommended' ],
+  extends: ['eslint:recommended', 'plugin:ember-best-practices/recommended', 'ember' ],
   plugins: ['prettier'],
   env: {
     browser: true
   },
   rules: {
-    'prettier/prettier': 'error',
-    indent: [2, 2, { SwitchCase: 1 }],
-    'comma-dangle': ['error', 'never'],
-    quotes: [2, 'single', 'avoid-escape'],
-    'no-use-before-define': [2, 'nofunc'],
-    'prefer-rest-params': 0,
-    'import/no-unresolved': 0,
-    'import/extensions': 0,
-    'no-underscore-dangle': 0,
-    'space-before-function-paren': ['error', 'never'],
-    camelcase: 0,
-    'no-restricted-syntax': [0, 'ForInStatements'],
-    'import/no-extraneous-dependencies': 0,
-    'no-console': 1
+    'ember/no-jquery': 'error'
   },
   overrides: [
     // node files
     {
       files: [
+        '.eslintrc.js',
         '.template-lintrc.js',
         'ember-cli-build.js',
         'testem.js',
         'blueprints/*/index.js',
         'config/**/*.js',
-        'lib/*/index.js'
+        'lib/*/index.js',
+        'server/**/*.js'
       ],
       parserOptions: {
-        sourceType: 'script',
-        ecmaVersion: 2016
+        sourceType: 'script'
       },
       env: {
         browser: false,
         node: true
-      }
+      },
+      plugins: ['node'],
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        // add your custom rules and overrides for node files here
+
+        // this can be removed once the following is fixed
+        // https://github.com/mysticatea/eslint-plugin-node/issues/77
+        'node/no-unpublished-require': 'off'
+      })
     }
   ]
 };

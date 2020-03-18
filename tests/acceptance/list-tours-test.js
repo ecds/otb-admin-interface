@@ -1,16 +1,17 @@
-import { test } from 'qunit';
-import moduleForAcceptance from 'open-tour-builder/tests/helpers/module-for-acceptance';
+import { findAll, currentURL, visit } from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupApplicationTest } from 'ember-qunit';
 
-moduleForAcceptance('Acceptance | list tours');
+module('Acceptance | list tours', function(hooks) {
+  setupApplicationTest(hooks);
 
-test('visiting /', function(assert) {
-  server.createList('tour', 10);
-  visit('/');
+  test('visiting /', async function(assert) {
+    server.createList('tour', 10);
+    await visit('/');
 
-  andThen(function() {
     // return pauseTest();
     assert.equal(currentURL(), '/');
-    assert.equal( find('li').length, 10 );
+    assert.dom('li').exists({ count: 10 });
     // assert.equal( find('p').length, 10);
   });
 });

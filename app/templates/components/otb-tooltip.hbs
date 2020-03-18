@@ -1,11 +1,12 @@
 {{yield}}
 <span
+  class="uk-margin-small-left"
   uk-tooltip="title: {{tooltipContent}}"
   tabindex="0"
   role="tooltip"
   aria-describedby={{ariaDescribedBy}}
 >
-  {{fa-icon "question-circle"}}
+  <FaIcon @icon="question-circle"></FaIcon>
 </span>
 <span class="otb-aria-describedby" id={{ariaDescribedBy}}>
   {{tooltipContent}}

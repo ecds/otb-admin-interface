@@ -1,3 +1,5 @@
+add: "add"
+address: 'Address'
 atlanta: "Atlanta"
 
 buttons:
@@ -5,30 +7,44 @@ buttons:
   confirmVideo: 'yes! add this video'
   delete: 'Delete'
   edit: 'Edit'
-  newStop: "NewStop"
+  newStop: "New Stop"
   save: 'Save'
 
 default: 'default'
 deleteFromTour: 'Delete from tour'
+direction: 'direction'
+dropToUpload: 'Drop to upload'
 enable: 'Enable'
+invalid: 'Invalid'
 
 loading:
   loading: 'Loading...'
   tour: 'Loading Tour...'
   users: 'Loading Users...'
 
+latitude: 'Latitude'
+locate: "Locate"
+longitude: 'Longitude'
 manageAuthors: 'Manage Tour Authors'
 manageMedia: 'Manage Media'
 mediaCount: 'Media Count'
 mode: 'Mode'
+notes: 'notes'
+parking: 'parking'
 newPage: 'New Page'
+stop: 'stop'
 
 tooltip:
   addVideo: 'You can add a link to a video hosted on YouTube or Vimeo here. Other hosting will not currently work. The video should appear below automatically if the url is correct. If the video does not appear, double check the url. Once the video appears you can add it with the "Yes Add this Video" button.'
+  directionNotes: 'Directions are created through Google maps. Under Direction Notes you can add any specific details that Google maps would not be able to provide (e.g. turn right at the big tree). This field will not show on the tour if you leave it blank.'
+  dragAndDrop: 'Drag and drop images onto this area to upload them or'
+  location: 'You can update the stop location by Stop Address or Latitude and Longitude and the other will update automatically. Once you enter your location by either means, click Locate Address. You can also click and drag the point on the map to update the location. If you enter Latitude and Logitude, you MUST enter BOTH fields or you will get a map error.'
   newPage: 'Create a new page. You can add an About page to describe the project, copyright information, or other data or images using html and the wysiwyg editor. The pages will show up in the menu.'
   newStop: 'Create a new stop. Each stop MUST have a unique name for your entire Tour Site. Each stop MUST have a location. You can reuse locations.'
+  parking: 'You can add a separate parking location by address or Latitude and Longitude and it will show separately on the map for the stop.'
   published: 'Check this box to make the tour publicly available.'
   metaDescription: 'The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters.'
   reorderImages: 'You can click and drag to reorder the images and videos. You can add as many images or videos as you want. Keep the file size small.'
 
+uploadImage: 'Upload an Image'
 uploadImages: 'Upload Images'

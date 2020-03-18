@@ -1,14 +1,14 @@
-import DS from 'ember-data';
-import { get, computed } from '@ember/object';
-import { htmlSafe } from '@ember/string';
+import classic from 'ember-classic-decorator';
+import Model, { hasMany, attr } from '@ember-data/model';
 
-const { Model, attr, hasMany } = DS;
+@classic
+export default class Mode extends Model {
+  @attr('string')
+  title;
 
-export default Model.extend({
-  title: attr('string'),
-  icon: attr('string'),
-  safeIcon: computed('icon', function safeIcon() {
-    return new htmlSafe(get(this, 'icon'));
-  }).property('icon'),
-  tours: hasMany('tour')
-});
+  @attr('string')
+  icon;
+
+  @hasMany('tour')
+  tours;
+}

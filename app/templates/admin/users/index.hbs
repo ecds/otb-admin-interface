@@ -15,9 +15,9 @@
               {{#if user.super}}{{fa-icon 'chess-queen'}}{{/if}} {{user.display_name}}
             </td>
             <td>
-                {{#link-to 'admin.users.user' user}}
+                <LinkTo @route="admin.users.user" @model={{user}}>
                     {{user.login.identification}}
-                {{/link-to}}
+                </LinkTo>
             </td>
             <td>
               {{user.tour_sets.length}}

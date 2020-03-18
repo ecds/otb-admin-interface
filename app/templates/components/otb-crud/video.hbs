@@ -1,22 +1,13 @@
-{{#otb-crud/form-section label="Video" as |inputId|}}
-  {{input
-    id=inputId
-    class="uk-input uk-margin-bottom"
-    placeholder="Add video code..."
-    value=videoCode
-    input=(action "getVideo" videoCode)
-  }}
-{{/otb-crud/form-section}}
-  <span
-    role="tooltip"
-    tabindex="0"
-    uk-tooltip={{concat "title: " (t "tooltip.addVideo")}}
-    aria-describedby={{concat inputId "-aria-describedby"}}
-  >
-    {{fa-icon "question-circle"}}
-  </span>
-  <span class="otb-aria-describedby" id={{concat inputId "-aria-describedby"}}>{{t "tooltip.addVideo"}}</span>
-
+<OtbCrud::FormSection @label="Video" as |inputId|>
+  <label class="uk-form-label" for={{concat inputId '-video'}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+      Video
+    </OtbTooltip>
+  </label>
+  <section class="uk-width-1-1">
+    <Input @id={{concat inputId '-video'}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{videoCode}} @input={{action "getVideo" videoCode}} />
+  </section>
+</OtbCrud::FormSection>
 {{#if
   (and
     (xor videoProviders.videoPreview videoProviders.videoPreview.error)
@@ -48,9 +39,9 @@
     </section>
   </div>
 
-  {{#uk-button color="primary" on-click=(action "addVideo")}}
+  <UkButton @color="primary" @on-click={{action "addVideo"}}>
     {{t "buttons.confirmVideo"}}
-  {{/uk-button}}
+  </UkButton>
 {{else}}
   {{videoProviders.videoPreview.error}}
 {{/if}}

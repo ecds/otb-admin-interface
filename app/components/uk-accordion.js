@@ -1,34 +1,36 @@
+import classic from 'ember-classic-decorator';
+import { attributeBindings, tagName } from '@ember-decorators/component';
 import Component from '@ember/component';
 import UIkit from 'uikit';
 
 // empty function as default event handler
 const noop = () => {};
 
-export default Component.extend({
-  tagName: 'ul',
-  attributeBindings: [
-    'ukAccordion:uk-accordion',
-    'active',
-    'animation',
-    'collapsible',
-    'content',
-    'duration',
-    'multiple',
-    'targets',
-    'toggle',
-    'transition'
-  ],
-
-  ukAccordion: true,
-  active: false,
-  animation: true,
-  collapsible: true,
-  content: '> .uk-accordion-content',
-  duration: 200,
-  multiple: false,
-  targets: '> *',
-  toggle: '> .uk-accordion-title',
-  transition: 'ease',
+@classic
+@tagName('ul')
+@attributeBindings(
+  'ukAccordion:uk-accordion',
+  'active',
+  'animation',
+  'collapsible',
+  'content',
+  'duration',
+  'multiple',
+  'targets',
+  'toggle',
+  'transition'
+)
+export default class UkAccordion extends Component {
+  ukAccordion = true;
+  active = false;
+  animation = true;
+  collapsible = true;
+  content = '> .uk-accordion-content';
+  duration = 200;
+  multiple = false;
+  targets = '> *';
+  toggle = '> .uk-accordion-title';
+  transition = 'ease';
 
   setEvents() {
     let events = {
@@ -43,10 +45,10 @@ export default Component.extend({
     for (let event in events) {
       UIkit.util.on(this.element, event, events[event]);
     }
-  },
+  }
 
   didInsertElement() {
-    this._super(...arguments);
+    super.didInsertElement(...arguments);
     this.setEvents();
   }
-});
+}

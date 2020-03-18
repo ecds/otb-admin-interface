@@ -1,8 +1,10 @@
+import classic from 'ember-classic-decorator';
 import ApplicationSerializer from './application';
 
-export default ApplicationSerializer.extend({
+@classic
+export default class Medium extends ApplicationSerializer {
   serialize() {
-    let payload = this._super(...arguments);
+    let payload = super.serialize(...arguments);
     if (payload.data.attributes.original_image) {
       if (payload.data.attributes.original_image.url) {
         delete payload.data.attributes.original_image.tablet.url;
@@ -17,4 +19,4 @@ export default ApplicationSerializer.extend({
     }
     return payload;
   }
-});
+}

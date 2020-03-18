@@ -26,7 +26,7 @@ export default Controller.extend(CrudActionsMixin, {
     this.modelsToUnload.forEach(model => {
       this.store.unloadAll(model);
     });
-    this.get('currentUser').load();
+    this.currentUser.load();
     return this.transitionToRoute('admin.tours.index', newSite.subdir);
   }),
 

@@ -1,13 +1,16 @@
-import Component from '@ember/component';
+import classic from 'ember-classic-decorator';
+import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 
-export default Component.extend({
-  theme: service(),
+@classic
+export default class ThemePicker extends Component {
+  @service
+  theme;
 
-  actions: {
-    setTheme(theme) {
-      this.model.setProperties({ theme: theme });
-      this.get('save').perform(this.model);
-    }
+  @action
+  setTheme(theme) {
+    this.model.setProperties({ theme: theme });
+    this.save.perform(this.model);
   }
-});
+}

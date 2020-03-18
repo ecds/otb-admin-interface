@@ -1,45 +1,52 @@
-import Component from '@ember/component';
+import classic from 'ember-classic-decorator';
+import { action } from '@ember/object';
+import { classNames, tagName } from '@ember-decorators/component';
 import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 
-export default Component.extend({
-  tagName: '',
-  session: service(),
-  currentUser: service(),
-  classNames: ['login-form'],
+@classic
+@tagName('')
+@classNames('login-form')
+export default class LoginForm extends Component {
+  @service
+  session;
 
-  authenticating: false,
+  @service
+  currentUser;
 
-  actions: {
-    authenticateWithFacebook() {
-      this.set('authenticating', true);
-      this.get('session')
-        .authenticate('authenticator:torii', 'facebook-oauth2')
-        .then(
-          () => {
-            this.set('authenticating', false);
-            this.get('currentUser').load();
-          },
-          e => {
-            this.set('authenticating', false);
-            this.set('errorMessage', e.error || e);
-          }
-        );
-    },
+  authenticating = false;
 
-    authenticateWithGoogle() {
-      this.set('authenticating', true);
-      this.get('session')
-        .authenticate('authenticator:torii', 'google-oauth2-bearer-v2')
-        .then(
-          () => {
-            this.set('authenticating', false);
-            this.get('currentUser').load();
-          },
-          e => {
-            this.set('authenticating', false);
-            this.set('errorMessage', e.error || e);
-          }
-        );
-    }
+  @action
+  authenticateWithFacebook() {
+    this.set('authenticating', true);
+    this.session
+      .authenticate('authenticator:torii', 'facebook-oauth2')
+      .then(
+        () => {
+          this.set('authenticating', false);
+          this.currentUser.load();
+        },
+        e => {
+          this.set('authenticating', false);
+          this.set('errorMessage', e.error || e);
+        }
+      );
   }
-});
+
+  @action
+  authenticateWithGoogle() {
+    this.set('authenticating', true);
+    this.session
+      .authenticate('authenticator:torii', 'google-oauth2-bearer-v2')
+      .then(
+        () => {
+          this.set('authenticating', false);
+          this.currentUser.load();
+        },
+        e => {
+          this.set('authenticating', false);
+          this.set('errorMessage', e.error || e);
+        }
+      );
+  }
+}

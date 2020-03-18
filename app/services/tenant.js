@@ -1,10 +1,14 @@
+import classic from 'ember-classic-decorator';
 import Service, { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
 import ENV from '../config/environment';
 
-export default Service.extend({
-  fastboot: service(),
-  tenant: 'public',
+@classic
+export default class TenantService extends Service {
+  @service
+  fastboot;
+
+  tenant = 'public';
 
   setTenant(path = window.location.pathname) {
     if (ENV.APP.TENANT) {
@@ -49,7 +53,7 @@ export default Service.extend({
         tenant: firstSubDir
       });
     }
-  },
+  }
 
   setTenantFromContext(context) {
     if (isEmpty(context)) {
@@ -70,4 +74,4 @@ export default Service.extend({
       this.setTenant();
     }
   }
-});
+}

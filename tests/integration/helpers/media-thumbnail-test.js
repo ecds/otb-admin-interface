@@ -1,3 +1,4 @@
+import { find } from '@ember/test-helpers';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
@@ -21,7 +22,7 @@ describe('Integration | Helper | media-thumbnail', function() {
 
     this.render(hbs`{{media-thumbnail inputValue}}`);
 
-    expect(this.$().text().trim()).to.equal('1234');
+    expect(find('*').textContent.trim()).to.equal('1234');
   });
 });
 

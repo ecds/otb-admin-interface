@@ -1,9 +1,8 @@
 import { reads } from '@ember/object/computed';
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
 import { computed, get, set } from '@ember/object';
 import { isPresent } from '@ember/utils';
 import { debug } from '@ember/debug';
-import { inject as service } from '@ember/service';
 import { task, timeout } from 'ember-concurrency';
 
 export default Service.extend({
@@ -54,7 +53,7 @@ export default Service.extend({
    */
   init() {
     this._super(...arguments);
-    if (this.get('isFastBoot')) {
+    if (this.isFastBoot) {
       return;
     }
   },
@@ -64,7 +63,7 @@ export default Service.extend({
     'clientLng',
     'clientPositionError',
     function() {
-      if (this.get('isFastBoot')) {
+      if (this.isFastBoot) {
         return;
       }
       return {
@@ -96,7 +95,7 @@ export default Service.extend({
           'watcherId',
           navigator.geolocation.watchPosition(
             location => {
-              this.get('updateLocation').perform(location);
+              this.updateLocation.perform(location);
             },
             error => {
               // TODO add "try again" button if it times out?

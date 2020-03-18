@@ -11,7 +11,7 @@ tmp/
 
 # dependencies
 bower_components/
-node_modules/
+*node_modules*
 
 # misc
 */.sass-cache
@@ -21,9 +21,19 @@ node_modules/
 */npm-debug.log*
 */testem.log
 */yarn-error.log
+/.env*
+/.pnp*
+/.sass-cache
+/connect.lock
+/coverage/
+/libpeerconnection.log
+/npm-debug.log*
+/testem.log
+/yarn-error.log
 
 # ember-try
 */.node_modules.ember-try/
 */bower.json.ember-try
 */package.json.ember-try
+*.log
 

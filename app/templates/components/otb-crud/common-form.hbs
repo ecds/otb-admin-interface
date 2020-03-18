@@ -1,42 +1,46 @@
-{{#otb-crud/form-section label=(concat modelTitle " Title") as |inputId|}}
-  {{input class="uk-input" id=inputId value=model.title}}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label="title" as |inputId|>
+  <label class="uk-form-label" for={{concat inputId '-title'}}>{{modelTitle}} Title</label>
+  <section class="uk-width-1-1">
+    <Input class="uk-input" @id={{concat inputId '-title'}} @value={{model.title}} />
+  </section>
+</OtbCrud::FormSection>
 
 {{#if (eq modelTitle "Tour")}}
-  {{#otb-crud/form-section label=(concat modelTitle "Published?") as |inputId|}}
-    {{#otb-tooltip tooltipContent=(t "tooltip.published")}}
+  <OtbCrud::FormSection @label={{concat modelTitle "Published?"}} as |inputId|>
+    <label class="uk-form-label" for={{concat inputId '-published'}}>
+      <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+          Published
+      </OtbTooltip>
+    </label>
+    <section class="uk-width-1-1">
       <input
         type="checkbox"
-        id={{inputId}}
+        id={{concat inputId '-published'}}
         name={{model.published}}
         checked={{model.published}}
+        class="uk-checkbox"
       >
-    {{/otb-tooltip}}
-  {{/otb-crud/form-section}}
+    </section>
+  </OtbCrud::FormSection>
+
 {{/if}}
 
-{{#otb-crud/form-section label=(concat modelTitle " Description")}}
-  {{ember-jodit
-    value=(if model.description model.description "")
-    model=model
-    modelAttr = "description"
-    onChange=(action (mut model.description))
-  }}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label='description' as |inputId|>
+  <label class="uk-form-label" for={{concat inputId '-' modelTitle '-description'}}>{{modelTitle}} Description</label>
+  <section class="uk-width-1-1">
+    <EmberJodit @id={{concat inputId '-' modelTitle '-description'}} @value={{if model.description model.description ""}} @model={{model}} @modelAttr="description" @onChange={{action (mut model.description)}} />
+  </section>
+</OtbCrud::FormSection>
 
-{{#otb-crud/form-section
-  label=(concat modelTitle " Meta Description")
-as |inputId|
-}}
-  <span
-    role="tooltip"
-    tabindex="0"
-    uk-tooltip={{concat "title: " (t "tooltip.metaDescription")}}
-    aria-describedby={{concat inputId "-aria-describedby"}}
-  >
-    {{fa-icon "question-circle"}}
-  </span>
-  <span class="otb-aria-describedby" id={{concat inputId "-aria-describedby"}}>{{t "tooltip.metaDescription"}}</span>
+<hr>
 
-  {{textarea id=inputId rows=6 class="uk-textarea" value=model.meta_description}}
-{{/otb-crud/form-section}}
+<OtbCrud::FormSection @label='meta description' as |inputId|>
+  <label class="uk-form-label" for={{concat inputId '-' modelTitle '-meta-description'}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+      {{modelTitle}} Meta Description
+    </OtbTooltip>
+  </label>
+  <section class="uk-width-1-1">
+    <Textarea @id={{concat inputId '-' modelTitle '-meta-description'}} @rows={{6}} class="uk-textarea" @value={{model.meta_description}} />
+  </section>
+</OtbCrud::FormSection>

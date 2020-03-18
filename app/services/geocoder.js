@@ -1,8 +1,10 @@
+import classic from 'ember-classic-decorator';
 import Service from '@ember/service';
 import { debug } from '@ember/debug';
 /* global google */
 
-export default Service.extend({
+@classic
+export default class GeocoderService extends Service {
   locateAddress(address) {
     let locator = new google.maps.Geocoder();
     let location = locator.geocode(
@@ -19,4 +21,4 @@ export default Service.extend({
     );
     return location;
   }
-});
+}

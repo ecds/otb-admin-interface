@@ -88,10 +88,16 @@ a.uk-accordion-title::after {
 .uk-radio {
   height: 2rem;
   width: 2rem;
+
+  &:focus {
+    border-color: royalblue;
+    border-width: thick;
+  }
 }
 
 .uk-legend {
-  margin: 3rem 0;
+  margin: 2rem 0;
+  text-transform: capitalize;
 }
 
 .uk-tooltip.uk-active {
@@ -100,7 +106,8 @@ a.uk-accordion-title::after {
 }
 
 .ember-power-select-option,
-.ember-power-select-selected-item {
+.ember-power-select-selected-item,
+.uk-form-label {
   text-transform: capitalize;
 }
 

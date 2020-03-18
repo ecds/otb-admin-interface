@@ -5,13 +5,13 @@
   </section>
 </OtbCrud::FormSection>
 
-<hr>
-
 {{#if (eq modelTitle "Tour")}}
   <OtbCrud::FormSection @label={{concat modelTitle "Published?"}} as |inputId|>
-    <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
-      <label class="uk-form-label" for={{concat inputId '-published'}}>Published</label>
-    </OtbTooltip>
+    <label class="uk-form-label" for={{concat inputId '-published'}}>
+      <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+          Published
+      </OtbTooltip>
+    </label>
     <section class="uk-width-1-1">
       <input
         type="checkbox"
@@ -23,7 +23,6 @@
     </section>
   </OtbCrud::FormSection>
 
-  <hr>
 {{/if}}
 
 <OtbCrud::FormSection @label='description' as |inputId|>
@@ -36,9 +35,11 @@
 <hr>
 
 <OtbCrud::FormSection @label='meta description' as |inputId|>
-  <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
-    <label class="uk-form-label" for={{concat inputId '-' modelTitle '-meta-description'}}>{{modelTitle}} Meta Description</label>
-  </OtbTooltip>
+  <label class="uk-form-label" for={{concat inputId '-' modelTitle '-meta-description'}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+      {{modelTitle}} Meta Description
+    </OtbTooltip>
+  </label>
   <section class="uk-width-1-1">
     <Textarea @id={{concat inputId '-' modelTitle '-meta-description'}} @rows={{6}} class="uk-textarea" @value={{model.meta_description}} />
   </section>

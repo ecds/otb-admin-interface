@@ -1,7 +1,7 @@
 import classic from 'ember-classic-decorator';
 import { tagName } from '@ember-decorators/component';
 import Component from '@ember/component';
-import { get, set, action } from '@ember/object';
+import { get, set, action, computed } from '@ember/object';
 import { debug } from '@ember/debug';
 /* global google */
 
@@ -69,7 +69,8 @@ export default class Map extends Component {
     }
   }
 
-  parkingIcon() {
+  @computed('this.model.parking_lat')
+  get parkingIcon() {
     return {
       url: '/admin/assets/icons/parking.svg',
       size: new google.maps.Size(90, 90),
@@ -81,10 +82,10 @@ export default class Map extends Component {
 
   @action
   locateAddress() {
-    if (get(this, 'model.address')) {
+    if (this.get('model.address')) {
       locator.geocode(
         {
-          address: get(this, 'model.address')
+          address: this.get('model.address')
         },
         (result, status) => {
           if (status === 'OK') {

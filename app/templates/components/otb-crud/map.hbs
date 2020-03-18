@@ -1,57 +1,98 @@
-<div class='uk-grid-match uk-grid-medium uk-child-width-expand@s' uk-grid>
-  <div class='uk-width-1-3@m uk-width-1-1@s uk-margin-bottom'>
+<div class="uk-grid-match uk-grid-medium uk-child-width-expand@s" uk-grid>
+  <div class="uk-width-1-3@m uk-width-1-1@s uk-margin-bottom">
 
-    <h3 class='uk-heading'>Stop </h3><button class="uk-button uk-button-default" uk-tooltip="You can update the stop location by Stop Address or Latitude and Longitude and the other will update automatically. Once you enter your location by either means, click Locate Address. You can also click and drag the point on the map to update the location. If you enter Latitude and Logitude, you MUST enter BOTH fields or you will get a map error."><span uk-icon="icon: question"></span></button>
     <OtbCrud::FormSection @label="Stop Address" as |inputId|>
-        <Input class="uk-input uk-margin-bottom" @id={{inputId}} @value={{model.address}} />
-        <UkButton @size="small" @color="secondary" @on-click={{action 'locateAddress' model=model}}>
-          {{fa-icon 'location-arrow'}} Locate Address
-        </UkButton>
+      <label class="uk-form-label" for={{concat inputId "-stop-address"}}>
+        <OtbTooltip @tooltipContent={{t "tooltip.location"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+            {{t "stop"}} {{t "address"}}
+        </OtbTooltip>
+      </label>
+      <section class="uk-width-1-1">
+        <Input class="uk-input uk-margin-bottom" @id={{concat inputId "-stop-address"}} @value={{this.model.address}} />
+      </section>
+      <UkButton @size="small" @color="secondary" @on-click={{fn this.locateAddress model=this.model}}>
+        <FaIcon @icon="location-arrow" /> {{t "locate"}} {{t "address"}}
+      </UkButton>
     </OtbCrud::FormSection>
 
     <OtbCrud::FormSection @label="Latitude" as |inputId|>
-      <Input class="uk-input" @type="number" @step="0.0001000000000" @id={{inputId}} @value={{model.lat}} />
+      <label class="uk-form-label" for={{concat inputId "-stop-lat"}}>
+        {{t "latitude"}}
+      </label>
+      <section class="uk-width-1-1">
+        <Input class="uk-input" @type="number" @step="any" @id={{concat inputId "-stop-lat"}} @value={{this.model.lat}} />
+      </section>
     </OtbCrud::FormSection>
 
-    <OtbCrud::FormSection @label="Longititude" as |inputId|>
-      <Input class="uk-input" @type="number" @step="0.0001000000000" @id={{inputId}} @value={{model.lng}} />
+    <OtbCrud::FormSection @label="Longitude" as |inputId|>
+      <label class="uk-form-label" for={{concat inputId "-stop-lng"}}>
+        {{t "longitude"}}
+      </label>
+      <section class="uk-width-1-1">
+        <Input class="uk-input" @type="number" @step="any" @id={{concat inputId "-stop-lng"}} @value={{this.model.lng}} />
+      </section>
     </OtbCrud::FormSection>
 
-    <button class='uk-button uk-button-small' uk-toggle target='.parking-location'>Add parking location</button> <button class="uk-button uk-button-default" uk-tooltip="You can add a separate parking location by address or Latitude and Longitude and it will show separately on the map for the stop."><span uk-icon="icon: question"></span></button>
-    <div class='parking-location' hidden>
-      <h3 class='uk-heading' >Parking</h3>
+    <button type="button" class="uk-button uk-button-small" uk-toggle target=".parking-location">
+      {{t "add"}} {{t "parking"}}
+    </button>
+    <div class="parking-location" hidden>
       <OtbCrud::FormSection @label="Parking Address" as |inputId|>
-          <Input class="uk-input uk-margin-bottom" @id={{inputId}} @value={{parkingAddress}} />
-          <UkButton @size="small" @color="secondary" @on-click={{action "locateAddress" parkingAddress model.parking_lat model.parking_lng}}>
-            {{fa-icon 'location-arrow'}} Locate Address
+        <label class="uk-form-label" for={{concat inputId "-parking-address"}}>
+          <OtbTooltip @tooltipContent={{t "tooltip.parking"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+              {{t "parking"}} {{t "address"}}
+          </OtbTooltip>
+        </label>
+        <section class="uk-width-1-1">
+          <Input class="uk-input uk-margin-bottom" @id={{concat inputId "-parking-address"}} @value={{this.parkingAddress}} />
+          <UkButton @size="small" @color="secondary" @on-click={{fn this.locateAddress this.parkingAddress this.model.parking_lat this.model.parking_lng}}>
+            <FaIcon @icon="location-arrow" /> {{t "locate"}} {{t "address"}}
           </UkButton>
+        </section>
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Latitude" as |inputId|>
-        <Input @type="number" class="uk-input" @step="0.0001000000000" @id={{inputId}} @value={{model.parking_lat}} />
+        <label class="uk-form-label" for={{concat inputId "-parking-lat"}}>
+          {{t "latitude"}}
+        </label>
+        <section class="uk-width-1-1">
+          <Input @type="number" class="uk-input" @step="any" @id={{concat inputId "-parking-lat"}} @value={{this.model.parking_lat}} />
+        </section>
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Longitude" as |inputId|>
-        <Input @type="number" class="uk-input" @step="0.0001000000000" @id={{inputId}} @value={{model.parking_lng}} />
+        <label class="uk-form-label" for={{concat inputId "-parking-lng"}}>
+          {{t "longitude"}}
+        </label>
+        <section class="uk-width-1-1">
+          <Input @type="number" class="uk-input" @step="any" @id={{concat inputId "-parking-lng"}} @value={{this.model.parking_lng}} />
+        </section>
       </OtbCrud::FormSection>
     </div>
   </div>
 
-  <div class='uk-width-2-3@m uk-width-1-1@s'>
-  {{#if (and model.lat model.lng)}}
-    <GMap @options={{hash zoom=18 mapTypeId=model.map_type}} @lat={{model.lat}} @lng={{model.lng}} as |feature|>
-        <feature.marker @draggable={{true}} @onDrag={{action "reLocate"}} @lat={{model.lat}} @lng={{model.lng}} as |marker|>
-        </feature.marker>
-        {{#if (and model.parking_lat model.parking_lng)}}
-          <feature.marker @icon={{parking-icon}} @draggable={{true}} @onDrag={{action "reLocateParking"}} @lat={{model.parking_lat}} @lng={{model.parking_lng}} as |marker|>
-        </feature.marker>
-        {{/if}}
+  <div class="uk-width-2-3@m uk-width-1-1@s">
+  {{#if (and this.this.model.lat this.this.model.lng)}}
+    {{#if (and this.model.parking_lat this.model.parking_lng)}}
+      <GMap @options={{hash zoom="16" mapTypeId=this.model.map_type}} @lat={{this.model.lat}} @lng={{this.model.lng}} as |feature|>
+        <feature.marker @draggable={{true}} @onDrag={{fn this.reLocate}} @lat={{this.model.lat}} @lng={{this.model.lng}} />
+        <feature.marker @icon={{this.parkingIcon}} @draggable={{true}} @onDrag={{fn this.reLocateParking}} @lat={{this.model.parking_lat}} @lng={{this.model.parking_lng}} />
       </GMap>
+    {{else}}
+      <GMap @options={{hash zoom=18 mapTypeId=this.model.map_type}} @lat={{this.model.lat}} @lng={{this.model.lng}} as |feature|>
+        <feature.marker @draggable={{true}} @onDrag={{fn this.reLocate}} @lat={{this.model.lat}} @lng={{this.model.lng}} />
+      </GMap>
+    {{/if}}
   {{/if}}
   </div>
-  <div class='uk-width-1-1'>
-    <OtbCrud::FormSection @label="Direction Notes" as |inputId|><button class="uk-button uk-button-default" uk-tooltip="Directions are created through Google maps. Under Direction Notes you can add any specific details that Google maps would not be able to provide (e.g. turn right at the big tree). This field will not show on the tour if you leave it blank."><span uk-icon="icon: question"></span></button>
-      <EmberJodit @value={{if model.direction_notes model.direction_notes ""}} @onChange={{action (mut model.direction_notes)}} />
+  <div class="uk-width-1-1">
+    <OtbCrud::FormSection @label="Direction Notes" as |inputId|>
+      <label class="uk-form-label" for={{concat inputId "-direction-notes"}}>
+        <OtbTooltip @tooltipContent={{t "tooltip.directionNotes"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+            {{t "direction"}} {{t "notes"}}
+        </OtbTooltip>
+      </label>
+      <EmberJodit @value={{if this.model.direction_notes this.model.direction_notes ""}} @onChange={{fn (mut this.model.direction_notes)}} />
     </OtbCrud::FormSection>
   </div>
 </div>

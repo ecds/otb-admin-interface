@@ -1,7 +1,9 @@
 <OtbCrud::FormSection @label="Video" as |inputId|>
-  <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
-    <label class="uk-form-label" for={{concat inputId '-video'}}>Video</label>
-  </OtbTooltip>
+  <label class="uk-form-label" for={{concat inputId '-video'}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat inputId "-aria-describedby"}}>
+      Video
+    </OtbTooltip>
+  </label>
   <section class="uk-width-1-1">
     <Input @id={{concat inputId '-video'}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{videoCode}} @input={{action "getVideo" videoCode}} />
   </section>

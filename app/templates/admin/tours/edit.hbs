@@ -214,7 +214,7 @@
       <div class="otb-crud-footer uk-padding-margin">
         <div class="uk-padding">
           <OtbCrud::SubmitButtons @class="uk-width-1-1" @save={{perform saveTour tourLoader.data}} />
-          <PreviewButton @model=tourLoader.data></PreviewButton>
+          <PreviewButton @model={{tourLoader.data}}></PreviewButton>
         </div>
       </div>
     </div>

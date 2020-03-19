@@ -45,8 +45,12 @@
         >
           <OtbCrud::CommonForm @model={{tourLoader.data}} @modelTitle="Tour" />
           <section>
-              <legend class="uk-legend">Travel Modes</legend>
-              <DataLoader @queryType="all" @modelName="mode" as |modeLoader|>
+            <legend class="uk-legend">Themes</legend>
+            <OtbCrud::ThemePicker @model={{tourLoader.data}} @save={{this.saveRecord}} />
+          </section>
+          <section>
+            <legend class="uk-legend">Travel Modes</legend>
+            <DataLoader @queryType="all" @modelName="mode" as |modeLoader|>
               <div class="uk-width-medium" uk-grid>
                 <div class="uk-width-1-2">
                   {{t "mode"}}

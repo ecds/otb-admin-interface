@@ -16,9 +16,10 @@
       <input
         type="checkbox"
         id={{concat inputId '-published'}}
-        name={{model.published}}
-        checked={{model.published}}
+        name={{this.model.published}}
+        checked={{this.model.published}}
         class="uk-checkbox"
+        onchange={{toggle "published" this.model}}
       >
     </section>
   </OtbCrud::FormSection>

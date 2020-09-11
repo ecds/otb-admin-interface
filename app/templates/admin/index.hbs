@@ -51,13 +51,16 @@
           </td>
         </tr>
       {{else}}
-      <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
+      {{!-- <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
       <ul>
         {{#each tourLoader as |tour|}}
           <li>{{tour.title}}</li>
         {{/each}}
       </ul>
-      </DataLoader>
+      </DataLoader> --}}
+        <div class="uk-margin">
+          You have not been added to any tour sites. Please contact an administrator.
+        </div>
       {{/each}}
         </tbody>
       </UkTableStriped>

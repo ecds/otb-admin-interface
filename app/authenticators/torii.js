@@ -27,7 +27,7 @@ export default class _Torii extends Torii {
   }
 
   @task(function * (data) {
-    requestBody = {
+    let requestBody = {
       grant_type: 'google_auth_code',
       auth_code: data.access_token
     };

@@ -27,6 +27,18 @@ export default class _Torii extends Torii {
   }
 
   @task(function * (data) {
+    requestBody = {
+      grant_type: 'google_auth_code',
+      auth_code: data.access_token
+    };
+
+    if (data.provider.includes('facebook')) {
+      requestBody = {
+        grantType: 'facebook_auth_code',
+        data.access_token: data.authorizationCode
+      }
+    }
+
     let response = yield fetch(`${ENV.APP.API_HOST}/${this.get('tenant.tenant')}/token`, {
       method: 'POST',
       headers: {
@@ -39,10 +51,7 @@ export default class _Torii extends Torii {
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site"
       },
-      body: JSON.stringify({
-        grant_type: 'google_auth_code',
-        auth_code: data.access_token
-      })
+      body: JSON.stringify(requestBody)
     });
 
     let responseData = yield response.json();

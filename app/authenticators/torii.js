@@ -35,7 +35,7 @@ export default class _Torii extends Torii {
     if (data.provider.includes('facebook')) {
       requestBody = {
         grantType: 'facebook_auth_code',
-        data.access_token: data.authorizationCode
+        auth_code: data.authorizationCode
       }
     }
 

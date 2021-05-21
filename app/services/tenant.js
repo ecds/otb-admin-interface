@@ -1,18 +1,13 @@
-import classic from 'ember-classic-decorator';
-import Service, { inject as service } from '@ember/service';
+import Service from '@ember/service';
 import { isEmpty } from '@ember/utils';
 import ENV from '../config/environment';
 
-@classic
 export default class TenantService extends Service {
-  @service
-  fastboot;
-
   tenant = 'public';
 
   setTenant(path = window.location.pathname) {
     if (ENV.APP.TENANT) {
-      this.setProperties({ tenant: ENV.APP.TENANT });
+      this.tenant = ENV.APP.TENANT;
       return true;
     }
     if (typeof path !== 'string') {
@@ -56,6 +51,7 @@ export default class TenantService extends Service {
   }
 
   setTenantFromContext(context) {
+    console.log("🚀 ~ file: tenant.js ~ line 57 ~ TenantService ~ setTenantFromContext ~ context", context)
     if (isEmpty(context)) {
       this.setTenant();
     } else if (typeof context === 'string') {

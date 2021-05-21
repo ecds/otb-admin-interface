@@ -1,11 +1,9 @@
-import classic from 'ember-classic-decorator';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
-@classic
 export default class Medium extends Model {
   @service
   tenant;

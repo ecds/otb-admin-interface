@@ -1,9 +1,7 @@
-import classic from 'ember-classic-decorator';
 import { computed } from '@ember/object';
 import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
 
-@classic
 export default class FlatPage extends Model {
   @attr('string')
   title;
@@ -24,7 +22,7 @@ export default class FlatPage extends Model {
   @hasMany('tour-flat-pages', {
     async: true
   })
-  tour_flat_pages;
+  tourFlatPages;
 
   @computed('content')
   get safeContent() {

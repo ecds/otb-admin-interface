@@ -1,8 +1,6 @@
-import classic from 'ember-classic-decorator';
 import Model, { belongsTo, attr } from '@ember-data/model';
 import { get, computed } from '@ember/object';
 
-@classic
 export default class TourStop extends Model {
   @belongsTo('tour')
   tour;

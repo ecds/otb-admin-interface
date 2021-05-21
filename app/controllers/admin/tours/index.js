@@ -1,18 +1,18 @@
-import classic from 'ember-classic-decorator';
-import { action } from '@ember/object';
 import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+import { action } from '@ember/object';
 import { task } from 'ember-concurrency';
 import UIkit from 'uikit';
-import CrudActionsMixin from '../../../mixins/crud-actions';
 
-@classic
-export default class IndexController extends Controller.extend(CrudActionsMixin) {
+export default class IndexController extends Controller {
+  @service crudActions;
+
   @task(function*() {
     let newTour = this.store.createRecord('tour');
     yield newTour.save();
     return this.transitionToRoute(
       'admin.tours.edit',
-      this.get('tenant.tenant'),
+      this.tenant.tenant,
       newTour.id
     );
   })

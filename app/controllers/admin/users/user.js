@@ -1,10 +1,10 @@
-import classic from 'ember-classic-decorator';
 import { action } from '@ember/object';
 import Controller from '@ember/controller';
-import CrudActionsMixin from '../../../mixins/crud-actions';
+import { inject as service } from '@ember/service';
 
-@classic
-export default class UserController extends Controller.extend(CrudActionsMixin) {
+export default class UserController extends Controller.extend(CrudActions) {
+  @service crudActions;
+
   @action
   addRemoveSet(parent, child, event) {
     let options = {
@@ -13,9 +13,9 @@ export default class UserController extends Controller.extend(CrudActionsMixin) 
       childObj: child
     };
     if (event.target.checked) {
-      this.createHasMany.perform(options);
+      this.crudActions.createHasMany.perform(options);
     } else {
-      this.deleteHasMany.perform(options);
+      this.crudActions.deleteHasMany.perform(options);
     }
   }
 }

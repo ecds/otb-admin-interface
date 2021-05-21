@@ -1,25 +1,22 @@
-import classic from 'ember-classic-decorator';
-import { attributeBindings, classNameBindings } from '@ember-decorators/component';
 import Component from '@ember/component';
 import { get, set, computed } from '@ember/object';
 import UIkit from 'uikit';
 
-@classic
-@classNameBindings(
-  'parent.center:uk-flex-top',
-  'parent.container:uk-modal-container',
-  'parent.full:uk-moldal-full'
-)
-@attributeBindings(
-  'parent.modalName:id',
-  'parent.escClose:esc-close',
-  'parent.bgClose:bg-close',
-  'parent.stack:stack',
-  'parent.container:container',
-  'parent.clsPage:cls-page',
-  'parent.clsPanel:cls-panel',
-  'parent.selClose:sel-close'
-)
+// @classNameBindings(
+//   'parent.center:uk-flex-top',
+//   'parent.container:uk-modal-container',
+//   'parent.full:uk-moldal-full'
+// )
+
+//   'parent.modalName:id',
+//   'parent.escClose:esc-close',
+//   'parent.bgClose:bg-close',
+//   'parent.stack:stack',
+//   'parent.container:container',
+//   'parent.clsPage:cls-page',
+//   'parent.clsPanel:cls-panel',
+//   'parent.selClose:sel-close'
+// )
 export default class ModalBase extends Component {
   ukModal = '';
 

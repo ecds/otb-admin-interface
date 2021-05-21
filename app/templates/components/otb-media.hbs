@@ -3,7 +3,7 @@
     {{#each stop.sortedMedia as |medium|}}
     <li class='uk-width-1-1'>
       <UkModal @modalName={{concat "intro-media-modal-" medium.medium.id}} @on-show={{toggle "loadEmbed" medium.medium}} @on-hide={{toggle "loadEmbed" medium.medium}} as |modal|>
-      <modal.open @class="otb-media-button" @tagName="div">
+      <modal.open @class="otb-media-button">
 
       <img data-sizes={{medium.medium.srcset_sizes}} data-src={{concat imageBasePath medium.medium.mobile}} data-srcset={{medium.medium.srcset}}
         class='lazyload' />
@@ -33,8 +33,7 @@
     </li>
     {{/each}}
   </ul>
-  <a href='#' aria-hidden='true' class='uk-position-center-left uk-slidenav-large' uk-slidenav-previous
-    uk-slideshow-item='previous'></a>
+  <a href='#' aria-hidden='true' class='uk-position-center-left uk-slidenav-large' uk-slidenav-previous uk-slideshow-item='previous'></a>
   <a href='#' aria-hidden='true' class='uk-position-center-right uk-slidenav-large' uk-slidenav-next uk-slideshow-item='next'></a>
   <ul aria-hidden='true' class='uk-slideshow-nav uk-dotnav uk-flex-center uk-margin'>
     {{#each media as |medium index|}}

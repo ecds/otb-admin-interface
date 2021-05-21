@@ -1,11 +1,9 @@
-import classic from 'ember-classic-decorator';
 import Component from '@ember/component';
 import UIkit from 'uikit';
 import { get, set } from '@ember/object';
 // import { later, cancel, debounce } from '@ember/runloop';
 import { schedule } from '@ember/runloop';
 
-@classic
 export default class UkSticky extends Component {
   // attributeBindings: [
   // //   'animation',

@@ -1,29 +1,24 @@
-import classic from 'ember-classic-decorator';
+import Route from '@ember/routing/route';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import Route from '@ember/routing/route';
 import { isEmpty, isPresent } from '@ember/utils';
-import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mixin';
 
-@classic
-export default class ApplicationRoute extends Route.extend(ApplicationRouteMixin) {
-  @service
-  currentUser;
-
-  @service
-  tenant;
-
-  @service
-  media;
-
-  @service
-  intl;
+export default class ApplicationRoute extends Route {
+  @service currentUser;
+  @service tenant;
+  @service media;
+  @service intl;
+  @service session
 
   beforeModel(transisition) {
     super.beforeModel(...arguments);
+
+    // Transition to the Login Route if unauthenticated.
+    this.session.requireAuthentication('login', 'login');
+
     this.__setTenant(transisition);
     this.intl.setLocale(['en-us']);
-    return this.currentUser.load();
+    return this.currentUser.load.perform();
   }
 
   @action

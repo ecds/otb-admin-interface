@@ -10,13 +10,21 @@ module.exports = {
       legacyDecorators: true
     }
   },
-  extends: ['eslint:recommended', 'plugin:ember-best-practices/recommended', 'ember' ],
-  plugins: ['prettier'],
+  plugins: [
+    'ember',
+    'prettier'
+  ],
+  extends: [
+    'eslint:recommended',
+    'plugin:ember/recommended'
+  ],
   env: {
     browser: true
   },
   rules: {
-    'ember/no-jquery': 'error'
+    'ember/no-jquery': 'error',
+    'no-console': ["error", { allow: ["warn", "error"] }],
+    'semi': "error"
   },
   overrides: [
     // node files

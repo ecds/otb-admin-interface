@@ -1,28 +1,32 @@
 import Controller from '@ember/controller';
-import { task } from 'ember-concurrency';
-import { computed } from '@ember/object';
+import { action } from '@ember/object';
+import { task } from 'ember-concurrency-decorators';
+import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import CrudActionsMixin from '../../../mixins/crud-actions';
 import UIkit from 'uikit';
-import ENV from '../../../config/environment';
 
-export default Controller.extend(CrudActionsMixin, {
-  store: service(),
-  tenant: service(),
-  geocoder: service(),
-  taskMessage: null,
-  env: ENV,
+export default class ToursController extends Controller{
+  @service crudActions;
+  @service geocoder;
+  @service store;
+  @service taskMessage;
+  @service tenant;
 
-  mapTypes: ['roadmap', 'satellite', 'hybrid', 'terrain'],
+  // @tracked
+  // taskMessage = null;
 
-  screenBlocker: computed('taskMessage', () => {
+  mapTypes = ['roadmap', 'satellite', 'hybrid', 'terrain'];
+
+  get screenBlocker() {
     return UIkit.modal(document.getElementById('task-running'), {
+      message: this.taskMessage,
       escClose: false,
       bgClose: false
     });
-  }),
+  }
 
-  waitForElement: task(function*(element, accordion) {
+  @task
+  *waitForElement(element, accordion) {
     // TODO: Use Ember Concurrency `waitForProperty`
     let checkExist = yield setInterval(() => {
       if (document.getElementById(element)) {
@@ -33,28 +37,32 @@ export default Controller.extend(CrudActionsMixin, {
       }
     }, 300);
     return checkExist;
-  }),
+  }
 
-  saveTour: task(function*(tour) {
-    yield this.saveRecord.perform(tour);
+  @task
+  *saveTour(tour) {
+    yield this.crudActions.saveRecord.perform(tour);
     tour.stops.forEach(stop => {
       if (stop.hasDirtyAttributes) {
         stop.save();
       }
     });
-  }),
+  }
 
-  showTaskMessage: task(function*(message) {
+  @task
+  *showTaskMessage(message) {
     this.set('taskMessage', message);
     return yield this.screenBlocker.show();
-  }),
+  }
 
-  clearTaskMessage: task(function*() {
+  @task
+  *clearTaskMessage() {
     this.set('taskMessage', null);
     return yield this.screenBlocker.hide();
-  }),
+  }
 
-  newStop: task(function*(tour) {
+  @task
+  *newStop(tour) {
     yield this.showTaskMessage.perform({
       message: 'Creating new stop...',
       type: 'success'
@@ -68,7 +76,7 @@ export default Controller.extend(CrudActionsMixin, {
         message: 'Adding new stop to tour...',
         type: 'success'
       });
-      let newStop = yield this.createHasMany.perform({
+      let newStop = yield this.crudActions.createHasMany.perform({
         relationType: 'stop',
         parentObj: tour,
         childObj: this.store.createRecord('stop', {})
@@ -86,9 +94,10 @@ export default Controller.extend(CrudActionsMixin, {
     }
     // Destroy the modal but leave the element for next time.
     this.screenBlocker.$destroy;
-  }),
+  }
 
-  newPage: task(function*(tour) {
+  @task
+  *newPage(tour) {
     yield this.showTaskMessage.perform({
       message: 'Creating new page...',
       type: 'success'
@@ -104,8 +113,8 @@ export default Controller.extend(CrudActionsMixin, {
         message: 'Adding new page to tour...',
         type: 'success'
       });
-      let newPage = yield this.createHasMany.perform({
-        relationType: 'flat_page',
+      let newPage = yield this.crudActions.createHasMany.perform({
+        relationType: 'flatPage',
         parentObj: tour
       });
       newPage.setProperties({
@@ -118,9 +127,10 @@ export default Controller.extend(CrudActionsMixin, {
     }
     // Destroy the modal but leave the element for next time.
     this.screenBlocker.$destroy;
-  }),
+  }
 
-  addVideo: task(function*(videoCode, parentObj) {
+  @task
+  *addVideo(videoCode, parentObj) {
     this.set('taskMessage', { message: 'Adding video...', type: 'success' });
     const modal = this.screenBlocker;
     modal.show();
@@ -134,59 +144,62 @@ export default Controller.extend(CrudActionsMixin, {
         video: videoCode
       }
     };
-    yield this.createHasMany.perform(options);
+    yield this.crudActions.createHasMany.perform(options);
     modal.hide();
     modal.$destroy;
-  }),
+  }
 
-  actions: {
-    cancelChangesTour(tour) {
-      this.send('cancelChanges', tour);
-      tour.stops.forEach(stop => {
-        this.send('cancelChanges', stop);
+  @action
+  cancelChangesTour(tour) {
+    this.cancelChanges(tour);
+    tour.stops.forEach(stop => {
+      this.cancelChanges(stop);
+    });
+  }
+
+  @action
+  cancelChanges(model) {
+    if (model.hasOwnProperty('_belongsToState')) {
+      model.then(m => {
+        this.cancelChanges(m);
       });
-    },
-
-    cancelChanges(model) {
-      if (model.hasOwnProperty('_belongsToState')) {
-        model.then(m => {
-          this.send('cancelChanges', m);
-        });
+    }
+    if (!model.get('hasDirtyAttributes')) return;
+    let changes = null;
+    if (typeof model.changedAttributes == 'function') {
+      changes = model.changedAttributes();
+    } else {
+      changes = model.changedAttributes;
+    }
+    for (const changed in changes) {
+      if (
+        model.editors &&
+        model.editors[changed] &&
+        model.changedAttributes()[changed]
+      ) {
+        const oldValue = changes[changed][0];
+        model.editors[changed].setEditorValue(oldValue);
       }
-      if (!model.get('hasDirtyAttributes')) return;
-      let changes = null;
-      if (typeof model.changedAttributes == 'function') {
-        changes = model.changedAttributes();
-      } else {
-        changes = model.changedAttributes;
-      }
-      for (const changed in changes) {
-        if (
-          model.editors &&
-          model.editors[changed] &&
-          model.changedAttributes()[changed]
-        ) {
-          const oldValue = changes[changed][0];
-          model.editors[changed].setEditorValue(oldValue);
-        }
-        model.rollbackAttributes();
-      }
-    },
-
-    doNothing() {
-      return true;
-    },
-
-    scrollElementToTop(event) {
-      let path = event.path || (event.composedPath && event.composedPath());
-      path[2].scrollIntoView();
-      window.scrollBy(0, -100);
-    },
-
-    addRemoveMode(options, event) {
-      if (event.target.checked) {
-        this.get();
-      }
+      model.rollbackAttributes();
     }
   }
-});
+
+  @action
+  doNothing() {
+    return true;
+  }
+
+  @action
+  scrollElementToTop(event) {
+    let path = event.path || (event.composedPath && event.composedPath());
+    path[2].scrollIntoView();
+    window.scrollBy(0, -100);
+  }
+
+  @action
+  addRemoveMode(options, event) {
+    if (event.target.checked) {
+      this.get();
+    }
+  }
+}

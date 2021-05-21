@@ -31,7 +31,7 @@ module.exports = function(defaults) {
     }
   });
 
-  app.import('node_modules/jodit/build/jodit.min.js');
+  app.import('node_modules/pell/dist/pell.min.css');
 
   return app.toTree();
 };

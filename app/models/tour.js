@@ -1,12 +1,8 @@
-import classic from 'ember-classic-decorator';
-import { sort } from '@ember/object/computed';
 import Model, { hasMany, belongsTo, attr } from '@ember-data/model';
-import { get, computed } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
-@classic
-export default class Tour extends Model {
+export default class TourModel extends Model {
   @attr('string')
   title;
 
@@ -19,13 +15,10 @@ export default class Tour extends Model {
   description;
 
   @attr('string')
-  sanitized_description;
+  sanitizedDescription;
 
   @attr('string')
-  meta_description;
-
-  @attr('string')
-  sanitized_direction_notes;
+  metaDescription;
 
   @attr('string')
   video;
@@ -34,19 +27,19 @@ export default class Tour extends Model {
   position;
 
   @attr('number')
-  stop_count;
+  stopCount;
 
   @attr('string')
-  theme_title;
+  themeTitle;
 
-  @hasMany('mode')
-  modes;
+  @hasMany('tour-mode')
+  tourModes;
 
   @attr()
   splash;
 
   @attr('string')
-  external_url;
+  externalUrl;
 
   @belongsTo('mode', {
     async: true,
@@ -63,7 +56,7 @@ export default class Tour extends Model {
   tenant;
 
   @attr('string')
-  tenant_title;
+  tenantTitle;
 
   @attr('boolean')
   published;
@@ -71,10 +64,15 @@ export default class Tour extends Model {
   @hasMany('tour-stop', {
     async: true
   })
-  tour_stops;
+  tourStops;
+
+  @hasMany('mode', {
+    async: true
+  })
+  modes;
 
   @hasMany('tour-medium')
-  tour_media;
+  tourMedia;
 
   @hasMany('medium', {
     async: true
@@ -89,20 +87,19 @@ export default class Tour extends Model {
   @hasMany('flat-page', {
     async: true
   })
-  flat_pages;
+  flatPages;
 
   @hasMany('tour-flat-page')
-  tour_flat_pages;
+  tourFlatPages;
 
   @attr('string', {
     defaultValue: 'hybrid'
   })
-  map_type;
+  mapType;
 
   @hasMany('user')
   authors;
 
-  @computed('description')
   get safeDescription() {
     return new htmlSafe(this.description);
   }
@@ -111,29 +108,29 @@ export default class Tour extends Model {
     return v;
   }
 
-  @computed('splash')
   get splashBackground() {
     return new htmlSafe(
       `background: url(${ENV.APP.API_HOST}/${this.splash.original_image.desktop.url}); background-size: cover;`
     );
   }
 
+  get modeList() {
+    return this.modes.map(m => m.get('title'));
+  }
+
   set splashBackground(v) {
     return v;
   }
 
-  @sort('tour_stops', '_positionSort')
-  sortedTourStops;
+  get sortedTourStops() {
+    return this.tourStops.sortBy('position');
+  }
 
-  _positionSort = ['position:asc'];
+  get sortedMedia() {
+    return this.tourMedia.sortBy('position');
+  }
 
-  @sort('tour_media', '_mediumPositionSort')
-  sortedMedia;
-
-  _mediumPositionSort = ['position:asc'];
-
-  @sort('tour_flat_pages', '_flatPagePositionSort')
-  sortedFlatPages;
-
-  _flatPagePositionSort = ['position:asc'];
+  get sortedFlatPages() {
+    return this.tourFlatPages.sortBy('position');
+  }
 }

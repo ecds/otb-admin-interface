@@ -1,8 +1,6 @@
-import classic from 'ember-classic-decorator';
 import Service from '@ember/service';
 import { get } from '@ember/object';
 
-@classic
 export default class ReaderService extends Service {
   init() {
     super.init(...arguments);

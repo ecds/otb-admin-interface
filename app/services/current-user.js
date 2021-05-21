@@ -1,8 +1,7 @@
-import classic from 'ember-classic-decorator';
-import { get } from '@ember/object';
 import Service, { inject as service } from '@ember/service';
+import { task } from 'ember-concurrency-decorators';
+import { tracked } from '@glimmer/tracking';
 
-@classic
 export default class CurrentUserService extends Service {
   @service('session')
   session;
@@ -10,32 +9,26 @@ export default class CurrentUserService extends Service {
   @service
   store;
 
-  init() {
-    super.init(...arguments);
-  }
+  @tracked user = null;
 
-  load() {
-    if (this.get('session.isAuthenticated')) {
-      return this.store
-        .queryRecord('user', { me: true })
-        .then(user => {
-          this.set('user', user);
-        });
+  @task
+  *load() {
+    if (this.session.isAuthenticated) {
+      this.user = yield this.store.queryRecord('user', { me: true });
+      return this.user;
     }
     return false;
   }
 
-  reLoad() {
-    this.store
-      .queryRecord('user', { me: true })
-      .then(user => {
-        this.store.unloadRecord(user);
-        this.load();
-      });
+  @task
+  *reLoad() {
+    let user = yield this.store.queryRecord('user', { me: true });
+    this.store.unloadRecord(user);
+    this.load.perform();
   }
 
   update() {
-    const user = this.store.peekRecord('user', get(this, 'user.id'));
+    const user = this.store.peekRecord('user', this.user.id);
     user.save();
   }
 }

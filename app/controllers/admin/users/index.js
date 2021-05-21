@@ -1,10 +1,10 @@
-import classic from 'ember-classic-decorator';
 import { action } from '@ember/object';
 import Controller from '@ember/controller';
-import CrudActionsMixin from '../../../mixins/crud-actions';
+import { inject as service } from '@ember/service';
 
-@classic
-export default class IndexController extends Controller.extend(CrudActionsMixin) {
+export default class IndexController extends Controller {
+  @service crudActions;
+
   @action
   doNothing() {
     return true;

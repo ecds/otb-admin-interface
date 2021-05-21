@@ -1,10 +1,5 @@
-import classic from 'ember-classic-decorator';
-import { sort } from '@ember/object/computed';
 import Model, { hasMany, attr } from '@ember-data/model';
-import { get, computed } from '@ember/object';
-import ENV from '../config/environment';
 
-@classic
 export default class Stop extends Model {
   @attr('string')
   title;
@@ -23,10 +18,10 @@ export default class Stop extends Model {
   lng;
 
   @attr('number')
-  parking_lat;
+  parkingLat;
 
   @attr('number')
-  parking_lng;
+  parkingLng;
 
   @attr('string')
   address;
@@ -37,13 +32,7 @@ export default class Stop extends Model {
   description;
 
   @attr('string')
-  sanitized_description;
-
-  @attr('string')
-  sanitized_direction_notes;
-
-  @attr('string')
-  meta_description;
+  metaDescription;
 
   @attr('string')
   article_link;
@@ -58,20 +47,20 @@ export default class Stop extends Model {
   direction_intro;
 
   @attr('string')
-  direction_notes;
+  directionNotes;
 
   @hasMany('tour')
   tours;
 
-  @hasMany('tour_stop', {
+  @hasMany('tour-stop', {
     async: true
   })
-  tour_stops;
+  tourStops;
 
-  @hasMany('stop_medium', {
+  @hasMany('stop-medium', {
     async: true
   })
-  stop_media;
+  stopMedia;
 
   @hasMany('medium', {
     async: true
@@ -81,19 +70,15 @@ export default class Stop extends Model {
   @attr()
   splash;
 
-  @computed('original_image')
-  get mobileThumbUrl() {
-    return `${
-      ENV.APP.API_HOST
-    }${get(this, 'splash.original_image.mobile_list_thumb.url')}`;
+  // get mobileThumbUrl() {
+  //   return `${ENV.APP.API_HOST}${this.splash.original_image.mobile_list_thumb.url}`;
+  // }
+
+  // set mobileThumbUrl(v) {
+  //   return v;
+  // }
+
+  get sortedMedia() {
+    return this.stopMedia.sortBy('position');
   }
-
-  set mobileThumbUrl(v) {
-    return v;
-  }
-
-  @sort('stop_media', '_mediumPositionSort')
-  sortedMedia;
-
-  _mediumPositionSort = ['position:asc'];
 }

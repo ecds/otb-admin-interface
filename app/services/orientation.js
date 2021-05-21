@@ -1,7 +1,5 @@
-import classic from 'ember-classic-decorator';
 import Service from '@ember/service';
 
-@classic
 export default class OrientationService extends Service {
   orientationClass = 'portrait';
   windowHeight = null;

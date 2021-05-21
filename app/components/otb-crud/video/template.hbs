@@ -1,0 +1,47 @@
+<OtbCrud::FormSection @label="Video">
+  <label class="uk-form-label" for={{concat @model.title '-video'}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat @model.title "-aria-describedby"}}>
+      <FaIcon @icon="video" /> Video
+    </OtbTooltip>
+  </label>
+  <section class="uk-width-1-1">
+    <Input @id={{concat @model.slug '-video'}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{videoCode}} @input={{action "getVideo" videoCode}} />
+  </section>
+</OtbCrud::FormSection>
+{{#if
+  (and
+    (xor videoProviders.videoPreview videoProviders.videoPreview.error)
+    (gt videoProviders.videoPreview.videoId.length 0)
+  )
+}}
+  <div class="uk-width-1-2 uk-align-center">
+    <section class="uk-section uk-text-center embed-container">
+      {{#if (eq videoProviders.videoPreview.provider "youtube")}}
+        <iframe
+          src="https://www.youtube.com/embed/{{videoProviders.videoPreview.videoId}}"
+          frameborder="0"
+          allowfullscreen
+          uk-responsive
+          uk-video
+          autoplay="false"
+        >
+        </iframe>
+      {{else if (eq videoProviders.videoPreview.provider "vimeo")}}
+        <iframe
+          src="https://player.vimeo.com/video/{{videoProviders.videoPreview.videoId}}"
+          frameborder="0"
+          webkitAllowFullScreen
+          mozallowfullscreen
+          allowFullScreen
+        >
+        </iframe>
+      {{/if}}
+    </section>
+  </div>
+
+  <UkButton @color="primary" @on-click={{action "addVideo"}}>
+    {{t "buttons.confirmVideo"}}
+  </UkButton>
+{{else}}
+  {{videoProviders.videoPreview.error}}
+{{/if}}

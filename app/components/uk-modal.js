@@ -1,13 +1,10 @@
-import classic from 'ember-classic-decorator';
-import { tagName, layout as templateLayout } from '@ember-decorators/component';
 import Component from '@ember/component';
 import layout from '../templates/components/uk-modal';
 
 const noop = () => {};
 
-@classic
-@templateLayout(layout)
-@tagName('')
+
+
 export default class UkModal extends Component {
   modalName = 'uk-dialog';
 

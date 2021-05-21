@@ -1,0 +1,13 @@
+<ul class="uk-subnav uk-subnav-pill" uk-switcher>
+      <li><a href="#"><FaIcon @icon='file' /> Preview</a></li>
+      <li><a href="#"><FaIcon @icon='code' /> Source</a></li>
+    </ul>
+    <ul class="uk-switcher uk-margin">
+      <li>
+        <div {{did-insert this.initPell}}></div>
+      </li>
+      <li>
+        <Textarea @rows={{10}} class="uk-textarea" @value={{@content}} {{on 'change' this.updateSource}} />
+      </li>
+    </ul>
+  {{yield}}

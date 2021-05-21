@@ -5,7 +5,7 @@
     </div>
     {{#if currentUser.user.super}}
       <div>
-        <Input @id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform saveRecord model)}} />
+        <Input @id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform this.crudActions.saveRecord model)}} />
         <label for='super'>Super User</label>
       </div>
       <div>

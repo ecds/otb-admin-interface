@@ -1,69 +1,56 @@
 {{#if currentUser.user.super}}
   <h2 class='uk-heading-bullet'>Tour Sites</h2>
-  <UkModal @modalName="newSite" @on-show={{action "newSite"}} as |modal|>
-    <modal.open @class="uk-button uk-button-primary" @tagName="div">
+  <UkModal @modalName="newSite" @on-show={{perform this.newSite}} as |modal|>
+    <modal.open @class="uk-button uk-button-primary">
       New Site
     </modal.open>
     <modal.dialog>
       <modal.body>
-        <OtbCrud::FormSection @label="Site Title" as |inputId|>
-          <label class="uk-form-label" for={{concat inputId '-description'}}>{{modelTitle}} Description</label>
-          <Input @autofocus="autofocus" class="uk-input" @id={{concat inputId '-description'}} @value={{newSite.name}} />
+        <OtbCrud::FormSection @label="Site Title">
+          <label class="uk-form-label" for={{concat @model.slug '-description'}}>{{modelTitle}} Description</label>
+          <Input @autofocus="autofocus" class="uk-input" @id={{concat @model.slug '-description'}}
+            @value={{this.newSite.name}} />
         </OtbCrud::FormSection>
       </modal.body>
       <modal.footer>
-        <OtbCrud::NewButton @class="uk-modal-close" @click={{perform createSite}}>New Site</OtbCrud::NewButton>
+        <OtbCrud::NewButton @class="uk-modal-close" @onClick={{perform this.createSite}}>New Site</OtbCrud::NewButton>
         <UkButton @color="link" @class="uk-modal-close">Cancel</UkButton>
       </modal.footer>
     </modal.dialog>
   </UkModal>
 {{/if}}
+<table class="uk-table uk-table-striped uk-table uk-table-middle">
+  <thead>
+    <tr>
+      <th class='uk-table-expand'>
+        Site Name
+        <OtbTooltip
+          @tooltipContent="Each Tour Site can contain multiple tours. Click the name of your Tour Site below to see your tours."
+          @ariaDescribedBy="site-name-aria-describedby" />
+      </th>
+      <th class='uk-width-small uk-text-center'>Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each this.model.tourSets as |tourSet|}}
+      <tr>
+        <td class='uk-table-link'>
+          <a href={{concat tourSet.subdir "/"}}>
+            {{tourSet.name}}
+          </a>
+        </td>
 
-  <DataLoader @queryType="all" @modelName="tourSet" as |siteLoader|>
-    {{#if siteLoader.fetchingAll}}
-      <div>
-        Loading Tour Sites...
-      </div>
+        <td class='uk-table-link'>
+          <UkButton @color="link" @class="uk-align-center" @on-click={{perform this.crudActions.deleteRecord tourSet}}>
+            <FaIcon @icon='trash' />
+          </UkButton>
+        </td>
+      </tr>
     {{else}}
-      <UkTableStriped>
-        <thead>
-          <tr>
-            <th class='uk-table-expand'>
-              Site Name
-              <OtbTooltip @tooltipContent="Each Tour Site can contain multiple tours. Click the name of your Tour Site below to see your tours." @ariaDescribedBy="site-name-aria-describedby" />
-            </th>
-            <th class='uk-width-small uk-text-center'>Delete</th>
-          </tr>
-        </thead>
-      <tbody>
-      {{#each siteLoader.data as |tourSet|}}
-        <tr>
-          <td class='uk-table-link'>
-            <a href={{concat tourSet.subdir "/"}}>
-              {{tourSet.name}}
-            </a>
-          </td>
-
-          <td class='uk-table-link'>
-            <UkButton @color="link" @class="uk-align-center" @on-click={{perform deleteRecord tourSet}}>
-              <FaIcon @icon='trash' />
-            </UkButton>
-          </td>
-        </tr>
-      {{else}}
-      {{!-- <DataLoader @queryType="all" @modelName="tour" as |tourLoader|>
-      <ul>
-        {{#each tourLoader as |tour|}}
-          <li>{{tour.title}}</li>
-        {{/each}}
-      </ul>
-      </DataLoader> --}}
-        <div class="uk-margin">
-          You have not been added to any tour sites. Please contact an administrator.
-        </div>
-      {{/each}}
-        </tbody>
-      </UkTableStriped>
-  {{/if}}
-</DataLoader>
+      <div class="uk-margin">
+        You have not been added to any tour sites. Please contact an administrator.
+      </div>
+    {{/each}}
+  </tbody>
+</table>
 <div class='uk-section'></div>

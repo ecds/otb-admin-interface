@@ -6,7 +6,7 @@
   </div>
   <div>
     <UkModal @modalName="tour-authors" as |modal|>
-      <modal.open @class="" @tagName="div">
+      <modal.open @class="">
         Manage Site Admins
       </modal.open>
       <modal.dialog>
@@ -20,7 +20,7 @@
                 {{#each userLoader.data as |user|}}
                   {{#unless user.super}}
                     <div>
-                      <Input @id={{concat "user" user.id}} @type="checkbox" @name="tour_set" @change={{perform toggleHasMany (hash relationType="admins" parentObj=this.model childObj=user)}} @checked={{user.currentTenantAdmin}} />
+                      <Input @id={{concat "user" user.id}} @type="checkbox" @name="tour_set" @change={{perform this.crudActions.toggleHasMany (hash relationType="admins" parentObj=this.model childObj=user)}} @checked={{user.currentTenantAdmin}} />
                       <label for={{tourSet.subdir}}>{{if user.display_name user.display_name user.login.identification}}</label>
                     </div>
                   {{/unless}}
@@ -34,48 +34,40 @@
   </div>
 </div>
 
-<DataLoader @queryType="all" @modelName="tour" as |toursLoader|>
-  {{#if toursLoader.fetchingAll}}
-    <p>Loading Tours...</p>
-  {{else}}
-    <UkTableStriped>
-      <thead>
-        <tr>
-          <th>Tour</th>
-          <th class="uk-table-shrink uk-text-center">
-            <OtbTooltip @tooltipContent="Until published the site can only be viewed when logged into OpenTour." @ariaDescribedBy="tour-published-aria-describedby">
-              Published
-            </OtbTooltip>
-          </th>
-          <th class="uk-table-shrink uk-text-center">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
+<table class="uk-table uk-table-striped uk-table uk-table-middle">
+  <thead>
+    <tr>
+      <th>Tour</th>
+      <th class="uk-table-shrink uk-text-center">
+        <OtbTooltip @tooltipContent="Until published the site can only be viewed when logged into OpenTour." @ariaDescribedBy="tour-published-aria-describedby">
+          Published
+        </OtbTooltip>
+      </th>
+      <th class="uk-table-shrink uk-text-center">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
 
-        {{#each toursLoader.data as |tour|}}
+    {{#each model as |tour|}}
 
-          <tr>
-            <td>
-              {{!-- {{#link-to "admin.tours.edit" tour}} --}}
-              <a href={{concat "edit/" tour.id}}>{{tour.title}}</a>
-              {{!-- {{/link-to}} --}}
-            </td>
-            <td>
-              <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
-                {{fa-icon (if tour.published "check" "times") aria-hidden="true"}}
-                <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
-              </UkButton>
-            </td>
-            <td>
-              <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
-                {{fa-icon "trash" aria-hidden="true"}}
-                <span class="sr-only">Delete {{tour.title}}</span>
-              </UkButton>
-            </td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </UkTableStriped>
-  {{/if}}
-</DataLoader>
+      <tr>
+        <td>
+          <LinkTo @route="admin.tours.edit" @model={{tour.id}}>{{tour.title}}</LinkTo>
+        </td>
+        <td>
+          <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
+            {{fa-icon (if tour.published "check" "times") aria-hidden="true"}}
+            <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
+          </UkButton>
+        </td>
+        <td>
+          <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
+            {{fa-icon "trash" aria-hidden="true"}}
+            <span class="sr-only">Delete {{tour.title}}</span>
+          </UkButton>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
 <div class="uk-section"></div>

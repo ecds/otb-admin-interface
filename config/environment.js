@@ -10,9 +10,6 @@ module.exports = environment => {
     'ember-cli-mirage': {
       enabled: false
     },
-    torii: {
-      providers: {}
-    },
 
     'ember-simple-auth': {
       routeAfterAuthentication: 'admin.index',
@@ -32,14 +29,15 @@ module.exports = environment => {
 
     googleFonts: ['Open+Sans:300,400,700', 'Source+Sans+Pro:300'],
 
-    fastboot: {
-      hostWhitelist: [
-        /^.*lvh.me:4200+$/,
-        /^.*tours.org:4200+$/,
-        /^.*otb.org:3000+$/,
-        '*'
-      ],
-      disabled: true
+    torii: {
+      sessionServiceName: 'session',
+      providers: {
+        ecds: {}
+      }
+    },
+
+    fauxOAuth: {
+      baseUrl: 'http://auth.digitalscholarship.emory.edu/auth/'
     },
 
     APP: {
@@ -50,9 +48,8 @@ module.exports = environment => {
 
   if (environment === 'development') {
     ENV.APP.API_HOST = 'https://otb.org:3000';
-    ENV.fastboot.hostWhitelist.push('https://jay.otb.org:3000');
-    ENV.APP.LOG_TRANSITIONS = true;
-    ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
+    // ENV.APP.LOG_TRANSITIONS = true;
+    // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     ENV['ember-cli-mirage'] = {
       enabled: false
     };
@@ -61,17 +58,10 @@ module.exports = environment => {
       libraries: ['places'],
       language: 'en'
     };
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://otb.org:3000/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://otb.org:3000/auth/tokens/';
+    ENV['fauxOAuth'].redirectUrl = 'https://lvh.me:4200/admin/torii/redirect.html';
 
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey: '391159993660-70se4jcll933rh4f896takormj0rnlbc.apps.googleusercontent.com',
-      redirectUri: 'https://lvh.me:4200/admin/torii/redirect.html',
-      scope: 'email'
-    };
-
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '383939088765607',
-      redirectUri: 'https://lvh.me:4200/admin/torii/redirect.html'
-    };
   }
 
   if (environment === 'mobile') {

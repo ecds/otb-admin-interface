@@ -1,9 +1,0 @@
-
-<OtbCrud::CommonForm @model={{stop}} @modelTitle="Stop" />
-<OtbCrud::Map @model={{stop}} />
-{{#if stop.id}}
-  <OtbCrud::Media @model={{stop}} @reorder={{reordered}} />
-{{else}}
-  <p>You must save the stop before adding media.</p>
-{{/if}}
-<UkButton @color="primary" @on-click={{save}}>save</UkButton> <UkButton @on-click={{cancel}}>Cancel</UkButton>

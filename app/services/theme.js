@@ -1,9 +1,7 @@
-import classic from 'ember-classic-decorator';
 import { computed /* observer */ } from '@ember/object';
 import Service, { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
 
-@classic
 export default class ThemeService extends Service {
   @service
   store;

@@ -1,9 +1,7 @@
-import classic from 'ember-classic-decorator';
-import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
-import { task } from 'ember-concurrency';
+import RSVP from 'rsvp';
+import { inject as service } from '@ember/service';
 
-@classic
 export default class IndexRoute extends Route {
   @service
   currentUser;
@@ -11,35 +9,20 @@ export default class IndexRoute extends Route {
   @service
   tenant;
 
-  // beforeModel() {
-  //   // this.get('tenant').setTenant();
-  //   return this.get('currentUser').load();
-  // },
+  beforeModel() {
+    // this.get('tenant').setTenant();
+    return this.currentUser.load.perform();
+  }
 
-  // model() {
-  //   if (this.get('currentUser.user.super')) {
-  //     return {
-  //       tours: this.get('getTours').perform(),
-  //       tourSets: this.get('getTourSets').perform()
-  //     };
-  //   } else {
-  //     return {
-  //       tours: this.get('getTours').perform()
-  //     };
-  //   }
-  // },
-
-  @task(function*() {
-    // if (!this.currentUser.user.current_tenant_admin) return;
-    return yield this.store.findAll('tour');
-  })
-  getTours;
-
-  @task(function*() {
-    if (!this.currentUser.user.tour_sets && !this.currentUser.user.super) {
-      return yield this.getTours.perform();
+  model() {
+    const data = {
     }
-    return yield this.store.findAll('tour-set');
-  })
-  getTourSets;
+    if (this.currentUser.user.super) {
+      return RSVP.hash({
+        // tours: this.store.findAll('tour'),
+        tourSets: this.store.findAll('tour-set')
+      })
+    }
+    return data;
+  }
 }

@@ -1,11 +1,8 @@
-import classic from 'ember-classic-decorator';
-import { tagName } from '@ember-decorators/component';
 import { inject as service } from '@ember/service';
 import Component from '@ember/component';
 import { task } from 'ember-concurrency';
 
-@classic
-@tagName('')
+
 export default class DataLoader extends Component {
   @service
   store;

@@ -2,7 +2,7 @@ import Component from '@ember/component';
 /* global google */
 
 export default Component.extend({
-  tagName: '',
+
 
   myIcon: {
     url: '/assets/icons/parking.svg',

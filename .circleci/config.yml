@@ -16,7 +16,7 @@ jobs:
       - run:
           name: NPM Install
           command: npm install --non-interactive
-      - run: echo 'export PATH=~/atlmaps/node_modules/.bin:$PATH' >> $BASH_ENV
+      - run: echo 'export PATH=~/otb-admin-interface/node_modules/.bin:$PATH' >> $BASH_ENV
       - run:
           name: Run Tests
           command: ember t

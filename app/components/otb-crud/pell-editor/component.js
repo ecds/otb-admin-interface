@@ -1,10 +1,23 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import pell from 'pell';
-import { library, icon as faIcon } from '@fortawesome/fontawesome-svg-core';
-import { faBold, faItalic, faLink, faListOl, faListUl, faQuoteLeft, faRedo, faStrikethrough, faUnderline, faUndo } from '@fortawesome/free-solid-svg-icons';
+import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
+import { addObserver } from '@ember/object/observers';
 
 export default class OtbCrudPellEditorComponent extends Component {
+  @service crudActions;
+
+  constructor() {
+    super(...arguments);
+    addObserver(this, 'args.model.description', this.setContent);
+  }
+
+  @action
+  setContent() {
+    this.crudActions.saveRecord.perform(this.args.model);
+  }
+
   editor = null;
 
   icons = {
@@ -24,9 +37,9 @@ export default class OtbCrudPellEditorComponent extends Component {
   initPell(element) {
     this.editor = pell.init({
       element,
-      onChange: this.args.onChange,
       defaultParagraphSeparator: 'p',
       styleWithCSS: true,
+      onChange: this.args.onChange,
       actions: [
         {
           name:'bold',
@@ -97,9 +110,10 @@ export default class OtbCrudPellEditorComponent extends Component {
         }
       ]
     });
-
-    this.editor.content.innerHTML = this.args.content;
+    this.editor.content.innerHTML = this.args.model.get('description');
   }
+
+
 
   @action
   updateSource(event) {

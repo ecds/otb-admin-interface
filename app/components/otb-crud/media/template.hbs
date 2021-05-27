@@ -1,15 +1,16 @@
 <section>
-  {{t "mediaCount"}}: {{@model.sortedMedia.length}}
+  <OtbCrud::Media::ExtraMedia @model={{@model}} @media={{@media}} @modalId={{concat "extra-media-" @model.slug}} />
+  <p>{{t "mediaCount"}}: {{@model.sortedMedia.length}}</p>
 </section>
-<UkSortable
+{{!-- <UkSortable
   @on-added={{action "addExisting" model}}
   @on-stop={{perform @reorder}}
   @group="media"
   @class="uk-grid uk-grid-small uk-child-width-auto uk-text-center"
->
+> --}}
   {{#each @model.sortedMedia as |modelMedium index|}}
     <li
-      class="uk-tile uk-inline-clip uk-transition-toggle"
+      class="uk-tile uk-inline-clip uk-transition-toggle uk-padding-remove"
       tabindex="0"
       data-id={{modelMedium.id}}
       data-model={{modelMedium.constructor.modelName}}
@@ -29,9 +30,9 @@
       {{!-- Overlay with edit and delete buttons. --}}
       <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">
         {{!-- Edit button and modal --}}
-        <UkModal @modalName={{concat "edit-" @model.slug modelMedium.id}}
+        {{!-- <UkModal @modalName={{concat "edit-" @model.tour.slug modelMedium.id}}
           @on-show={{toggle "loadEmbed" modelMedium.medium}} as |modal|>
-          <modal.open @class="otb-media-button uk-button uk-button-primary">
+          <modal.open @class="otb-media-button uk-button uk-button-text">
             {{fa-icon "pencil"}} {{t "buttons.edit"}}
           </modal.open>
           <modal.dialog>
@@ -47,11 +48,11 @@
                 {{/if}}
               </section>
               <OtbCrud::FormSection @label="Medium Title">
-                <Input class="uk-input" @id={{concat @model.slug "-medium-" index}} placeholder="Medium title..."
+                <Input class="uk-input" @id={{concat @model.tour.slug "-medium-" index}} placeholder="Medium title..."
                   @value={{modelMedium.medium.title}} />
               </OtbCrud::FormSection>
               <OtbCrud::FormSection @label="Caption">
-                <Textarea class="uk-input" @id={{concat @model.slug "-medium-caption" index}} @value={{modelMedium.medium.caption}} />
+                <Textarea class="uk-input" @id={{concat @model.tour.slug "-medium-caption" index}} @value={{modelMedium.medium.caption}} />
                 </OtbCrud::FormSection>
             </modal.body>
             <modal.footer>
@@ -63,9 +64,10 @@
               </UkButton>
             </modal.footer>
           </modal.dialog>
-        </UkModal>
+        </UkModal> --}}
+        <OtbCrud::EditMediaModal @medium={{modelMedium}} />
         {{!-- Delete button --}}
-        <UkButton @color="secondary" @on-click={{perform delete (hash parentObj=model childObj=modelMedium.medium relationType="media")}}>
+        <UkButton @color="text" @on-click={{perform delete (hash parentObj=model childObj=modelMedium.medium relationType="media")}}>
           {{fa-icon "trash"}} {{t "buttons.delete"}}
         </UkButton>
       </div>
@@ -76,4 +78,4 @@
       <hr>
     </li>
   {{/each}}
-</UkSortable>
+{{!-- </UkSortable> --}}

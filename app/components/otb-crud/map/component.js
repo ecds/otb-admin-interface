@@ -1,103 +1,114 @@
-import Component from '@ember/component';
-import { get, set, action, computed } from '@ember/object';
-import { debug } from '@ember/debug';
+import Component from '@glimmer/component';
+import { action } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
+import { task } from 'ember-concurrency-decorators';
+import { inject as service } from '@ember/service';
 /* global google */
 
 const locator = new google.maps.Geocoder();
 
-
 export default class Map extends Component {
+  @service store;
+
+  @tracked
+  stop = null;
+
+  @tracked
   stopAddress = null;
+
+  @tracked
   parkingAddress = null;
 
-  didReceiveAttrs() {
-    super.didReceiveAttrs(...arguments);
-    if (get(this, 'model.lat') && !get(this, 'model.address')) {
-      this.getAddress();
+  constructor() {
+    super(...arguments);
+    this.stop = this.store.peekRecord('stop', this.args.model.get('id'));
+    if ((this.stop.lat && !this.stop.address) || (this.stop.parkingLat && !this.parkingAddress)) {
+      this.getAddress(!this.stop.address);
     }
   }
 
-  willDestroyElement() {
-    set(this, 'locator', null);
-    // set(this, 'stopAddress', null);
-    set(this, 'parkingAddress', null);
+  @action
+  clearLocator() {
+    this.locator = null;
+    this.parkingAddress = null;
   }
 
-  getAddress() {
+  getAddress(getStop=true) {
     let stopLatLng = {
-        lat: parseFloat(get(this, 'model.lat')),
-        lng: parseFloat(get(this, 'model.lng'))
+        lat: parseFloat(this.stop.lat),
+        lng: parseFloat(this.stop.lng)
       },
       parkingLatLng = {
-        lat: parseFloat(get(this, 'model.parkingLat')),
-        lng: parseFloat(get(this, 'model.parkingLng'))
+        lat: parseFloat(this.stop.parkingLat),
+        lng: parseFloat(this.stop.parkingLng)
       };
 
-    if (stopLatLng) {
+    if (stopLatLng && getStop) {
       locator.geocode(
         {
           location: stopLatLng
         },
         (results, status) => {
           if (status === 'OK') {
-            this.model.setProperties({
+            this.stop.setProperties({
               address: results[0].formatted_address
             });
           } else {
-            debug(status);
+            //
           }
         }
       );
     }
 
-    if (get(this, 'model.parkingLat')) {
+    if (this.stop.parkingLat) {
       locator.geocode(
         {
           location: parkingLatLng
         },
         (results, status) => {
           if (status === 'OK') {
-            set(this, 'parkingAddress', results[0].formatted_address);
+            this.parkingAddress = results[0].formatted_address;
           } else {
-            debug(status);
+            //
           }
         }
       );
     }
   }
 
-  @computed('this.model.parkingLat')
   get parkingIcon() {
-    return {
-      url: '/admin/assets/icons/parking.svg',
-      size: new google.maps.Size(90, 90),
-      scaledSize: new google.maps.Size(40, 40),
-      anchor: new google.maps.Point(15, 15),
-      origin: new google.maps.Point(0, 0)
-    };
+    if (this.stop.parkingLat) {
+      return {
+        url: '/admin/assets/icons/parking.svg',
+        size: new google.maps.Size(90, 90),
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(15, 15),
+        origin: new google.maps.Point(0, 0)
+      };
+    }
+    return null;
   }
 
   set parkingIcon(v) {
     return v;
   }
 
-  @action
-  locateAddress() {
-    if (this.get('model.address')) {
-      locator.geocode(
+  @task
+  *locateAddress() {
+    if (this.address) {
+      yield locator.geocode(
         {
-          address: this.get('model.address')
+          address: this.address
         },
         (result, status) => {
           if (status === 'OK') {
             let location = result[0].geometry.location;
-            // console.log(location);
-            this.model.setProperties({
+            this.stop.setProperties({
               lat: location.lat(),
               lng: location.lng()
             });
           } else {
-            debug(status);
+            // debug(status);
           }
         }
       );
@@ -111,12 +122,12 @@ export default class Map extends Component {
         (result, status) => {
           if (status === 'OK') {
             let location = result[0].geometry.location;
-            this.model.setProperties({
+            this.stop.setProperties({
               parkingLat: location.lat(),
               parkingLng: location.lng()
             });
           } else {
-            debug(status);
+            // debug(status);
           }
         }
       );
@@ -125,7 +136,7 @@ export default class Map extends Component {
 
   @action
   reLocate(newLat, newLng) {
-    this.model.setProperties({
+    this.stop.setProperties({
       lat: newLat,
       lng: newLng
     });
@@ -134,7 +145,7 @@ export default class Map extends Component {
 
   @action
   reLocateParking(newLat, newLng) {
-    this.model.setProperties({
+    this.stop.setProperties({
       parkingLat: newLat,
       parkingLng: newLng
     });

@@ -1,0 +1,35 @@
+<UkButton @color="primary" {{did-insert this.initToggle}}>Add Other Media</UkButton>
+
+<div id={{@modalId}} {{did-insert this.initModal}}>
+  <div class="uk-modal-dialog otb-extras-modal">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-header">Other available media.</h2>
+      <div class="uk-inline uk-modal-body" uk-overflow-auto>
+      <div class="uk-grid-small uk-child-width-1-4@s uk-flex-center uk-text-center" uk-grid>
+        {{#each @media as |medium|}}
+          {{#if (notin @model.media medium)}}
+            <div class="uk-card uk-card-default uk-card-small">
+            <div class="uk-card-media-top">
+              <img src={{concat medium.baseUrl medium.mobile}} />
+            </div>
+            <div class="uk-card-body">
+                <p>{{medium.title}}</p>
+            </div>
+            <div class="uk-card-footer uk-align-right">
+              <UkButton {{on "click" (fn this.addImage medium)}}>Add</UkButton>
+            </div>
+        </div>
+          {{/if}}
+        {{/each}}
+      </div>
+        {{#if this.crudActions.saveRecord.isRunning}}
+          <div class="uk-overlay-primary uk-position-cover"></div>
+          <div class="uk-overlay uk-position-center uk-light">
+            <p>ADDING</p>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>

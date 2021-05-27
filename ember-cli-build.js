@@ -5,10 +5,13 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
   let app = new EmberApp(defaults, {
-    hinting: false,
-    'ember-cli-babel': {
-      includePolyfill: true
+    babel: {
+      plugins: [ require.resolve('ember-auto-import/babel-plugin') ]
     },
+    // hinting: false,
+    // 'ember-cli-babel': {
+    //   includePolyfill: true
+    // },
 
     'ember-composable-helpers': {
       only: ['toggle', 'next', 'pipe', 'contains']

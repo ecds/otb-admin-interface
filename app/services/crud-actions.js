@@ -35,9 +35,17 @@ export default class CrudActionsService extends Service {
     }
   }
 
-
   @task
   *createHasMany(options) {
+    this.taskMessage.message = {
+      message: `Adding ${options.relationType}`,
+      type: 'success'
+    };
+    this.taskMessage.screenBlocker.show();
+    if (options.parentObj.promise) {
+      const parentModel = options.parentObj._belongsToState.modelName;
+      options.parentObj = this.store.peekRecord(parentModel, parseInt(options.parentObj.get('id')));
+    }
     let attrs = isEmpty(options.attrs) ? {} : options.attrs;
     let childObj = isEmpty(options.childObj)
       ? this.store.createRecord(options.relationType, attrs)
@@ -48,27 +56,29 @@ export default class CrudActionsService extends Service {
     let relation = yield options.parentObj.get(`${pluralize(options.relationType)}`);
     relation.pushObject(childObj);
     yield this.saveRecord.perform(options.parentObj);
-
+    yield this.taskMessage.screenBlocker.hide();
     return childObj;
   }
 
   @task
   *deleteHasMany(options) {
+    let didConfirm = yield this.confirmDelete.perform(
+      options.childObj.get('title')
+    );
     let parentObj = Object.hasOwnProperty.call(options.parentObj, 'isFulfilled')
       ? options.parentObj.content
       : options.parentObj;
     let childObj = Object.hasOwnProperty.call(options.childObj, 'isFulfilled')
       ? options.childObj.content
       : options.childObj;
-    parentObj
-      .get(`${pluralize(options.relationType)}`)
-      .removeObject(childObj);
-    let didConfirm = yield this.confirmDelete.perform(
-      options.childObj.get('title')
-    );
-      if (didConfirm) {
+    if (didConfirm ) {
       try {
-        yield this.saveRecord.perform(parentObj);
+        parentObj
+          .get(`${pluralize(options.relationType)}`)
+          .removeObject(childObj);
+        if (options.save != false) {
+          yield this.saveRecord.perform(parentObj);
+        }
       } catch (error) {
         UIkit.notification(`ERROR: ${error}`, { status: 'danger' });
       } finally {
@@ -79,13 +89,10 @@ export default class CrudActionsService extends Service {
       }
       return true;
     } else {
-      console.log("🚀 ~ file: crud-actions.js ~ line 88 ~ CrudActionsService ~ *deleteHasMany ~ parentObj", parentObj.modeList)
-      // parentObj.rollbackAttributes();
       parentObj
         .get(`${pluralize(options.relationType)}`)
         .pushObject(childObj);
       childObj.rollbackAttributes();
-      console.log("🚀 ~ file: crud-actions.js ~ line 88 ~ CrudActionsService ~ *deleteHasMany ~ parentObj", parentObj.modeList)
     }
   }
 
@@ -102,8 +109,7 @@ export default class CrudActionsService extends Service {
   *deleteRecord(obj) {
     let didConfirm = yield this.confirmDelete.perform();
     if (didConfirm) {
-      obj.deleteRecord();
-      return yield obj.save();
+      obj.destroyRecord();
     }
   }
 
@@ -118,7 +124,7 @@ export default class CrudActionsService extends Service {
   }
 
   @task
-  *reorder() {
+  *reorder(event) {
     // Warn if person tries to leave page before everything has been saved.
     // window.onbeforeunload = () => {
     //   return 'Not all updates have finished saving.';
@@ -129,7 +135,7 @@ export default class CrudActionsService extends Service {
     if (event.constructor === CustomEvent) {
       list = event.target.children;
     } else {
-      list = document.getElementById(event).firstChild.children;
+      list = document.getElementById(event).firstElementChild.children;
     }
     this.taskMessage.message = {
       message: `Saving new order 0 of ${list.length}`,
@@ -163,36 +169,38 @@ export default class CrudActionsService extends Service {
 
   @dropTask
   *saveRecord(obj) {
+    this.lastSaved = null;
     this.tenant.setTenant();
     this.taskMessage.message = {
       message: 'Saving...',
       type: 'success'
     };
-    yield obj.save();
-    yield timeout(1000);
+    this.taskMessage.screenBlocker.show();
+    // yield obj.save();
+    // yield timeout(1000);
+    obj = Object.hasOwnProperty.call(obj, 'isFulfilled') ? obj.content : obj;
+    if (!Object.hasOwnProperty.call(obj, 'store')) {
+      return false;
+    }
+    try {
+      yield obj.save();
+      this.taskMessage.message = {
+        message: `SAVED: ${obj.title}`,
+        type: 'success'
+      };
+      yield timeout(1000);
+    } catch (error) {
+      this.taskMessage.message = {
+        message: `ERROR: ${error}`,
+        type: 'danger'
+      };
+      yield timeout(5000);
+    } finally {
+      this.taskMessage.screenBlocker.hide();
+    }
     const date = new Date;
     this.lastSaved = `Last saved: at ${date.toLocaleTimeString()} on ${date.toLocaleDateString()}`;
-    // obj = Object.hasOwnProperty.call(obj, 'isFulfilled') ? obj.content : obj;
-    // if (!Object.hasOwnProperty.call(obj, 'store')) {
-    //   return false;
-    // }
-    // try {
-    //   yield obj.save();
-    //   this.taskMessage.message = {
-    //     message: `SAVED: ${obj.title}`,
-    //     type: 'success'
-    //   };
-    //   yield timeout(1000);
-    // } catch (error) {
-    //   this.taskMessage.message = {
-    //     message: `ERROR: ${error}`,
-    //     type: 'danger'
-    //   };
-    //   yield timeout(5000);
-    // } finally {
-    //   this.taskMessage.screenBlocker.hide();
-    // }
-    // return obj;
+    return obj;
   }
 
   @task
@@ -242,5 +250,10 @@ export default class CrudActionsService extends Service {
   *setDefaultMode(tour, mode) {
     tour.setProperties({ mode: mode });
     yield tour.save();
+  }
+
+  @task
+  *rollback(obj) {
+    yield obj.rollbackAttributes();
   }
 }

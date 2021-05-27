@@ -8,12 +8,12 @@ export default class Stop extends Model {
   slug;
 
   @attr('number', {
-    defaultValue: 0.0
+    defaultValue: 33.75432
   })
   lat;
 
   @attr('number', {
-    defaultValue: 0.0
+    defaultValue: -84.38979
   })
   lng;
 
@@ -48,6 +48,8 @@ export default class Stop extends Model {
 
   @attr('string')
   directionNotes;
+
+  @attr('boolean') orphaned;
 
   @hasMany('tour')
   tours;

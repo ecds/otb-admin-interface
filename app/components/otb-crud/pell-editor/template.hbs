@@ -7,7 +7,7 @@
         <div {{did-insert this.initPell}}></div>
       </li>
       <li>
-        <Textarea @rows={{10}} class="uk-textarea" @value={{@content}} {{on 'change' this.updateSource}} />
+        <Textarea @rows={{10}} @id={{concat @model.slug "-description-source"}} class="uk-textarea" @value={{@model.description}} {{on 'keyup' this.updateSource}} />
       </li>
     </ul>
   {{yield}}

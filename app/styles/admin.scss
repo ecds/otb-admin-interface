@@ -105,12 +105,6 @@ a.uk-accordion-title::after {
   max-width: 25vw;
 }
 
-.ember-power-select-option,
-.ember-power-select-selected-item,
-.uk-form-label {
-  text-transform: capitalize;
-}
-
 .js-upload.uk-placeholder {
   background-color: lightgray;
   border-color: #454545;
@@ -120,4 +114,8 @@ a.uk-accordion-title::after {
 .uk-table-shrink {
   max-width: 1px;
   width: auto;
+}
+
+.otb-extras-modal {
+  width: unset;
 }

@@ -127,6 +127,7 @@ export default class TourModel extends Model {
   }
 
   get sortedMedia() {
+    this.stops;
     return this.tourMedia.sortBy('position');
   }
 

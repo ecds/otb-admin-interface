@@ -1,0 +1,36 @@
+<UkButton @color="primary" {{did-insert this.initToggle}}>Add Other Stops</UkButton>
+
+<div id={{@modalId}} {{did-insert this.initModal}}>
+  <div class="uk-modal-dialog otb-extras-modal">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-header">Other available stops.</h2>
+      <div class="uk-modal-body" uk-overflow-auto>
+          <table class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>Stop</th>
+                    <th>Add</th>
+                    <th>Copy</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+              {{#each @model.stops as |stop|}}
+                {{#if (notin @model.tour.stops stop)}}
+                  <tr>
+                    <td>{{stop.title}}</td>
+                    <td><UkButton @color="primary" {{on "click" (perform @add stop)}}><FaIcon @icon="plus" /> add</UkButton></td>
+                    <td><UkButton @color="primary" {{on "click" (perform @copy stop)}}><FaIcon @icon="copy" /> copy</UkButton></td>
+                    <td>
+                      <UkButton class="uk-button-danger" disabled={{not stop.orphaned}} {{on "click" (perform @delete stop)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
+                    </td>
+                  </tr>
+                {{/if}}
+              {{/each}}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+</div>

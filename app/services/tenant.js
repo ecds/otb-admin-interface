@@ -51,7 +51,6 @@ export default class TenantService extends Service {
   }
 
   setTenantFromContext(context) {
-    console.log("🚀 ~ file: tenant.js ~ line 57 ~ TenantService ~ setTenantFromContext ~ context", context)
     if (isEmpty(context)) {
       this.setTenant();
     } else if (typeof context === 'string') {

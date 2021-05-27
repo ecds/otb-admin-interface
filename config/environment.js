@@ -47,6 +47,7 @@ module.exports = environment => {
   };
 
   if (environment === 'development') {
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
     ENV.APP.API_HOST = 'https://otb.org:3000';
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
@@ -76,10 +77,8 @@ module.exports = environment => {
   }
 
   if (environment === 'test') {
-    ENV['ember-cli-mirage'] = {
-      enabled: true
-    };
-    ENV.APP.API_HOST = 'otb.org:3000';
+    ENV['ember-cli-mirage'] = { enabled: true, autostart: true };
+    ENV.APP.API_HOST = '';
     // Testem prefers this...
     ENV.locationType = 'none';
 
@@ -88,6 +87,7 @@ module.exports = environment => {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+    ENV.APP.autoboot = false;
   }
 
   if (environment === 'staging') {

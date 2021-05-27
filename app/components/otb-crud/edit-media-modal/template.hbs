@@ -1,0 +1,36 @@
+<button class="uk-button uk-button-text" {{did-insert this.initToggle}}>{{fa-icon "pencil"}} {{t "buttons.edit"}}</button>
+
+<div id={{concat "edit-" @medium.id}} class="uk-flex-top" {{did-insert this.initModal}}>
+  <div class="uk-modal-dialog uk-margin-auto-vertical">
+    <form class="uk-form-stacked uk-padding">
+      <div class="uk-inline">
+        <img src={{concat @medium.medium.baseUrl @medium.medium.desktop}} alt={{concat "Image: " @medium.medium.caption}} class="uk-tile uk-inline-clip uk-transition-toggle">
+        {{#if this.crudActions.saveRecord.isRunning}}
+          <div class="uk-overlay-primary uk-position-cover"></div>
+          <div class="uk-overlay uk-position-center uk-light">
+            <p>SAVING</p>
+          </div>
+        {{/if}}
+      </div>
+        <fieldset class="uk-fieldset">
+          <legend class="uk-legend">Edit Medium</legend>
+          <section class="uk-margin">
+            <label class="uk-form-label" for={{concat "image-title-" @medium.id}}>Image Title</label>
+            <div class="uk-form-controls">
+                <Input class="uk-input" @id={{concat "image-title-" @medium.id}} @type="text" @placeholder="Image Title..." @value={{@medium.medium.title}} />
+            </div>
+          </section>
+          <section class="uk-margin">
+            <label class="uk-form-label" for={{concat "image-caption-" @medium.id}}>Image Caption</label>
+            <div class="uk-form-controls">
+                <Textarea class="uk-input" @id={{concat "image-caption-" @medium.id}} @type="text" @placeholder="Image Title..." @value={{@medium.medium.caption}} />
+            </div>
+          </section>
+        </fieldset>
+        <div class="uk-modal-footer uk-text-right">
+          <button class="uk-button uk-button-default" type="button" {{on "click" (perform this.cancelEdit)}}>Cancel</button>
+          <button class="uk-button uk-button-primary" type="button" {{on "click" (perform this.saveMedium)}}>Save</button>
+        </div>
+      </form>
+  </div>
+</div>

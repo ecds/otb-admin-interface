@@ -2,7 +2,7 @@ import { action } from '@ember/object';
 import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 
-export default class UserController extends Controller.extend(CrudActions) {
+export default class UserController extends Controller {
   @service crudActions;
 
   @action

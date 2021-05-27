@@ -5,6 +5,7 @@
     <div class="uk-child-width-1-1" uk-grid>
       {{#if currentUser.user.current_tenant_admin}}
         <div>
+          {{!-- TODO: READD
           <UkModal @modalName="tour-authors" as |modal|>
             <modal.open>
               {{t "manageAuthors"}}
@@ -30,14 +31,12 @@
                 </DataLoader>
               </modal.body>
             </modal.dialog>
-          </UkModal>
+          </UkModal> --}}
         </div>
       {{/if}}
       <div>
-        <form
-          class="uk-form-stacked otb-crud uk-padding uk-padding-bottom"
-          {{action "doNothing" on="submit"}}
-        >
+        <form class="uk-form-stacked otb-crud uk-padding uk-padding-bottom">
+          <legend class="uk-legend">Tour</legend>
           <OtbCrud::CommonForm @model={{this.model.tour}} @modelTitle="Tour" />
           <section>
             <legend class="uk-legend">Themes</legend>
@@ -45,47 +44,18 @@
           </section>
           <section>
             <legend class="uk-legend"><FaIcon @icon="route" /> Travel Modes</legend>
-            <DataLoader @queryType="all" @modelName="mode" as |modeLoader|>
-              <div class="uk-width-medium" uk-grid>
-                <div class="uk-width-1-2">
-                  {{t "mode"}}
-                </div>
-                <div class="uk-width-1-4">
-                  {{t "enable"}}
-                </div>
-                <div class="uk-width-1-4">
-                  {{t "default"}}
-                </div>
-                {{#each modeLoader.data as |mode|}}
-                  <div class="uk-width-1-2">
-                    <FaIcon @icon={{mode.icon}} /> {{titleize mode.title}}
-                  </div>
-                  <div class="uk-width-1-4">
-                    <Input @type="checkbox" disabled={{eq this.model.tour.mode.id mode.id}} class="uk-checkbox" @checked={{includes this.model.tour.modeList mode.title }} @change={{perform this.crudActions.toggleHasMany (hash parentObj=this.model.tour relationType="mode" childObj=mode)}} />
-                  </div>
-                  <div class="uk-width-1-4">
-                    <input
-                      class="uk-radio"
-                      type="radio"
-                      name="default"
-                      value={{mode}}
-                      checked={{eq this.model.tour.mode.id mode.id}}
-                      onchange={{perform this.crudActions.setDefaultMode this.model.tour mode}}
-                      disabled={{not (includes this.model.tour.modeList mode.title)}}
-                    >
-                  </div>
-                {{/each}}
-              </div>
-            </DataLoader>
+              <OtbCrud::TravelModes @model={{this.model}} />
           </section>
 
           <section>
-            <legend class="uk-legend">{{modelTitle}}Map Type</legend>
+            <legend class="uk-legend">{{@modelTitle}}Map Type</legend>
             <div class="uk-form-controls uk-child-width-1-2" uk-grid>
               <div>
-                <PowerSelect @id={{concat @model.slug '-map-type'}} @options={{mapTypes}} @searchEnabled={{false}} @selected={{this.model.tour.mapType}} @onchange={{action (mut this.model.tour.mapType)}} as |type|>
-                  {{type}}
-                </PowerSelect>
+                <select class="uk-select" onChange={{this.updateMapType}} {{on 'change' (perform this.crudActions.saveRecord this.model.tour)}}>
+                  {{#each this.mapTypes as |type|}}
+                    <option value={{type}} selected={{eq type this.model.tour.mapType }}>{{type}}</option>
+                  {{/each}}
+                </select>
               </div>
               <div>
                 <img
@@ -98,26 +68,28 @@
           </section>
           <section>
             <legend class="uk-legend"><FaIcon @icon="images" /> Media</legend>
+
             <OtbCrud::Video @model={{this.model.tour}} @save={{addVideo}} />
             <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{this.model.tour}} @modelName="tour" />
-            <OtbCrud::Media @model={{this.model.tour}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
+            <OtbCrud::Media @model={{this.model.tour}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
           </section>
 
           <section>
-            <legend class="uk-legend">Stops
-
-            </legend>
+            <legend class="uk-legend">Stops</legend>
             <div class="uk-form-controls">
               <section class="uk-margin">
-                <OtbCrud::NewButton @class="uk-margin" @onClick={{perform newStop this.model.tour}}>
+                <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newStop this.model.tour}}>
                   {{t "buttons.newStop"}}
                 </OtbCrud::NewButton>
                 <OtbTooltip @tooltipContent={{t "tooltip.newStop"}} @ariaDescribedBy="new-stop-aria-describedby">
                 </OtbTooltip>
               </section>
+              <section class="uk-margin">
+                <OtbCrud::ExtraStops @modalId="extra-stops-modal" @model={{this.model}} @copy={{this.copyStop}} @add={{this.addExistingStop}} @delete={{this.deleteStop}} />
+              </section>
 
 
-              <UkAccordion @targets="> div > *" {{did-insert this.initAccordion}}>
+              <UkAccordion @elementId='stopList' @targets="> div > *" {{did-insert this.initAccordion}}>
                 <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}} @on-remove={{perform this.crudActions.reorder}}>
                   {{#each this.model.tour.sortedTourStops as |stop index|}}
                     <div
@@ -130,17 +102,18 @@
                       <a class="uk-accordion-title" href="#">{{stop.position}}: {{if stop.stop.title stop.stop.title "Loading.."}}</a>
                         {{!-- <item.content> --}}
                           <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
+                            <UkButton {{on "click" (perform this.copyStop stop.stop this.model.tour)}}>Copy</UkButton>
                             <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
                             <OtbCrud::Map @model={{stop.stop}} />
                             <h3 class="uk-heading">{{t "manageMedia"}}</h3>
                             <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
                             <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
-                            <OtbCrud::Media @model={{stop.stop}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
+                            <OtbCrud::Media @model={{stop.stop}} @media={{model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
                             <UkButton @color="primary" @on-click={{perform this.crudActions.saveRecord stop.stop}}>
                               {{t "buttons.save"}}
                             </UkButton>
                             <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
-                            <UkButton @color="link" @on-click={{perform this.crudActions.deleteHasMany (hash parentObj=this.model.tour relationType="stop" childObj=stop.stop reorder=true)}}>
+                            <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour stop.stop stop)}}>
                               {{t "deleteFromTour"}}
                             </UkButton>
                           </div>
@@ -216,14 +189,6 @@
         </div>
         <div>&nbsp;</div>
         <div class="uk-width-1-1">&nbsp;</div>
-      </div>
-    </div>
-
-    <div id="task-running" class="uk-flex-top">
-      <div class="uk-modal-dialog uk-margin-auto-vertical uk-modal-body">
-        <p class="uk-text-{{taskMessage.message.type}} uk-text-large">
-          {{taskMessage.message.message}}
-        </p>
       </div>
     </div>
   {{/if}}

@@ -1,6 +1,7 @@
 {{#if currentUser.user.super}}
   <h2 class='uk-heading-bullet'>Tour Sites</h2>
-  <UkModal @modalName="newSite" @on-show={{perform this.newSite}} as |modal|>
+  {{!-- TODO: READD --}}
+  {{!-- <UkModal @modalName="newSite" @on-show={{perform this.newSite}} as |modal|>
     <modal.open @class="uk-button uk-button-primary">
       New Site
     </modal.open>
@@ -17,7 +18,7 @@
         <UkButton @color="link" @class="uk-modal-close">Cancel</UkButton>
       </modal.footer>
     </modal.dialog>
-  </UkModal>
+  </UkModal> --}}
 {{/if}}
 <table class="uk-table uk-table-striped uk-table uk-table-middle">
   <thead>

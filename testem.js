@@ -4,10 +4,9 @@ module.exports = {
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
   launch_in_ci: [
-    'PhantomJS'
+    'Chrome'
   ],
   launch_in_dev: [
-    'PhantomJS',
     'Chrome'
   ],
   browser_start_timeout: 120,
@@ -21,7 +20,7 @@ module.exports = {
         '--disable-software-rasterizer',
         '--mute-audio',
         '--remote-debugging-port=0',
-        '--window-size=1440,900'
+        '--window-size=1920,1098'
       ].filter(Boolean)
     }
   }

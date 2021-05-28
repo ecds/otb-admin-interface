@@ -26,6 +26,7 @@
         checked={{eq @model.tour.mode.id mode.id}}
         onchange={{perform this.crudActions.setDefaultMode @model.tour mode}}
         disabled={{not (includes @model.tour.modeList mode.title)}}
+        id={{concat mode.title "-default"}}
       >
     </div>
   {{/each}}

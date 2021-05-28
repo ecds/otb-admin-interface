@@ -1,13 +1,13 @@
 <section class="uk-flex-center uk-text-center" uk-grid>
-  {{#each theme.themes as |theme|}}
+  {{#each this.theme.themes as |theme|}}
     <div class="uk-transition-toggle">
       <div class="uk-card uk-card-default uk-card-small uk-transition-scale-up uk-transition-opaque">
         <label for={{theme.title}}>
-          <img src="/admin/assets/images/otb-themes/{{theme.title}}.png" alt="Theme {{theme.title}} preview"
-            style="max-height: 200px;" class="">
+          <img src="/admin/assets/images/otb-themes/{{theme.title}}.png" alt={{concat "Theme " theme.title " preview"}}
+            style="max-height: 200px;" id={{concat theme.title "-preview"}}>
         </label>
         <br>
-        <input type="radio" name="theme" id={{theme.title}} checked={{eq model.theme.id theme.id}}
+        <input type="radio" name="theme" id={{theme.title}} checked={{eq @model.theme.id theme.id}}
           onchange={{action 'setTheme' theme}}>
       </div>
     </div>

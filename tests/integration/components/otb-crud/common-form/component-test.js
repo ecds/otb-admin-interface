@@ -6,19 +6,10 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | otb-crud/common-form', function(hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(async function() {
+    this.server.loadFixtures('tours');
     this.set('store', this.owner.lookup('service:store'));
-    const tour = this.store.createRecord(
-      'tour',
-      {
-        title: 'Jay\'s Awesome Burrito Tour',
-        slug: 'jays-awesome-burrito-tour',
-        published: false,
-        description: 'Burritos are yummy',
-        metaDescription: 'Bean burrito burrito'
-      }
-    );
-
+    const tour = await this.store.findRecord('tour', 1);
     this.set('model', tour);
   });
 

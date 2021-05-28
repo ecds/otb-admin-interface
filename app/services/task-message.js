@@ -16,7 +16,8 @@ export default class TaskMessageService extends Service {
     this.screenBlocker = UIkit.modal(this.modalElement, {
       message: this.message,
       escClose: false,
-      bgClose: false
+      bgClose: false,
+      container: '.ember-application'
     });
   }
 

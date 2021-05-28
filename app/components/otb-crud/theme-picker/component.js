@@ -1,6 +1,6 @@
+import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import Component from '@ember/component';
 
 export default class ThemePicker extends Component {
   @service
@@ -8,7 +8,7 @@ export default class ThemePicker extends Component {
 
   @action
   setTheme(theme) {
-    this.model.setProperties({ theme: theme });
-    this.save.perform(this.model);
+    this.args.model.setProperties({ theme: theme });
+    this.args.save.perform(this.model);
   }
 }

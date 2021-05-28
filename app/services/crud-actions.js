@@ -1,4 +1,5 @@
 import Service, { inject as service } from '@ember/service';
+import ENV from '../config/environment';
 import { tracked } from '@glimmer/tracking';
 import { dropTask, task } from 'ember-concurrency-decorators';
 import { timeout, waitForProperty } from 'ember-concurrency';
@@ -44,6 +45,7 @@ export default class CrudActionsService extends Service {
     this.taskMessage.screenBlocker.show();
     if (options.parentObj.promise) {
       const parentModel = options.parentObj._belongsToState.modelName;
+      // const parentModel = options.parentObj.belongsToState(`${pluralize(options.relationType)}`.meta());
       options.parentObj = this.store.peekRecord(parentModel, parseInt(options.parentObj.get('id')));
     }
     let attrs = isEmpty(options.attrs) ? {} : options.attrs;
@@ -63,8 +65,8 @@ export default class CrudActionsService extends Service {
   @task
   *deleteHasMany(options) {
     let didConfirm = yield this.confirmDelete.perform(
-      options.childObj.get('title')
-    );
+        options.childObj.get('title')
+      );
     let parentObj = Object.hasOwnProperty.call(options.parentObj, 'isFulfilled')
       ? options.parentObj.content
       : options.parentObj;
@@ -115,6 +117,7 @@ export default class CrudActionsService extends Service {
 
   @task
   *confirmDelete(title) {
+    if (ENV.environment == 'test') return true;
     try {
       yield UIkit.modal.confirm(`DELETE ${title}`, { status: 'danger' });
       return true;

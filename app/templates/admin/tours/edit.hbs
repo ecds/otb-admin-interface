@@ -36,12 +36,16 @@
       {{/if}}
       <div>
         <form class="uk-form-stacked otb-crud uk-padding uk-padding-bottom">
-          <legend class="uk-legend">Tour</legend>
-          <OtbCrud::CommonForm @model={{this.model.tour}} @modelTitle="Tour" />
+          <section>
+            <legend class="uk-legend">Tour</legend>
+            <OtbCrud::CommonForm @model={{this.model.tour}} @modelTitle="Tour" />
+          </section>
+
           <section>
             <legend class="uk-legend">Themes</legend>
             <OtbCrud::ThemePicker @model={{this.model.tour}} @save={{crudActions.saveRecord}} />
           </section>
+
           <section>
             <legend class="uk-legend"><FaIcon @icon="route" /> Travel Modes</legend>
               <OtbCrud::TravelModes @model={{this.model}} />
@@ -49,23 +53,9 @@
 
           <section>
             <legend class="uk-legend">{{@modelTitle}}Map Type</legend>
-            <div class="uk-form-controls uk-child-width-1-2" uk-grid>
-              <div>
-                <select class="uk-select" onChange={{this.updateMapType}} {{on 'change' (perform this.crudActions.saveRecord this.model.tour)}}>
-                  {{#each this.mapTypes as |type|}}
-                    <option value={{type}} selected={{eq type this.model.tour.mapType }}>{{type}}</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div>
-                <img
-                  border="0"
-                  src="//maps.googleapis.com/maps/api/staticmap?center=Atlanta,GA&amp;zoom=13&amp;size=300x300&amp;maptype={{this.model.tour.mapType}}&key=AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE"
-                  alt={{t "atlanta"}}
-                >
-              </div>
-            </div>
+            <OtbCrud::MapType @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
           </section>
+
           <section>
             <legend class="uk-legend"><FaIcon @icon="images" /> Media</legend>
 

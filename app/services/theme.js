@@ -1,26 +1,30 @@
-import { computed /* observer */ } from '@ember/object';
 import Service, { inject as service } from '@ember/service';
+import { tracked } from '@glimmer/tracking';
 import { isEmpty } from '@ember/utils';
 
 export default class ThemeService extends Service {
   @service
   store;
 
+  @tracked
   tour = null;
+
+  @tracked
   base = 'default';
+
+  @tracked
   theme = 'dark';
 
-  init() {
-    super.init(...arguments);
-    this.set('themes', this.store.findAll('theme'));
+  constructor() {
+    super(...arguments);
+    this.themes = this.store.findAll('theme');
   }
 
   // the property used as a reference for styles
-  @computed('base')
   get name() {
-    const base = this.base;
-    const theme = this.theme;
-    return `${base}-${theme}`;
+    // const base = this.base;
+    // const theme = this.theme;
+    return `${this.base}-${this.theme}`;
   }
 
   set name(v) {
@@ -29,15 +33,15 @@ export default class ThemeService extends Service {
 
   // set the base theme for the application
   setBase(base) {
-    this.set('base', isEmpty(base) ? 'default' : base);
+    this.base = isEmpty(base) ? 'default' : base;
   }
 
   // set theme to use within base theme
   setTheme(theme) {
-    this.set('theme', isEmpty(theme) ? 'first' : theme);
+    this.theme = isEmpty(theme) ? 'first' : theme;
   }
 
   setTour(tour) {
-    this.set('tour', tour);
+    this.tour = tour;
   }
 }

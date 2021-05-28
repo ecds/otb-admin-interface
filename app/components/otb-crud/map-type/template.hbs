@@ -1,0 +1,16 @@
+<div class="uk-form-controls uk-child-width-1-2" uk-grid>
+  <div>
+    <select class="uk-select" {{on "change" this.update}}>
+      {{#each this.mapTypes as |type|}}
+        <option id={{concat "option-" type}} value={{type}} selected={{eq type @model.mapType }}>{{type}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div>
+    <img
+      border="0"
+      src="//maps.googleapis.com/maps/api/staticmap?center=Atlanta,GA&amp;zoom=13&amp;size=300x300&amp;maptype={{@model.mapType}}&key=AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE"
+      alt={{t "atlanta"}}
+    >
+  </div>
+</div>

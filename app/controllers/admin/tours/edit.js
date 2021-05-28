@@ -1,10 +1,8 @@
 import Controller from '@ember/controller';
 import { action } from '@ember/object';
 import { task } from 'ember-concurrency-decorators';
-import { copy } from '@ember/object/internals';
-import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { isEmpty, isPresent } from '@ember/utils';
+import { isEmpty } from '@ember/utils';
 import UIkit from 'uikit';
 import { timeout } from 'ember-concurrency';
 
@@ -17,8 +15,6 @@ export default class ToursController extends Controller{
 
   // @tracked
   // taskMessage = null;
-
-  mapTypes = ['roadmap', 'satellite', 'hybrid', 'terrain'];
 
   @task
   *waitForElement(element, accordion) {
@@ -125,7 +121,7 @@ export default class ToursController extends Controller{
   *addVideo(videoCode, parentObj) {
     this.taskMessage.message = { message: 'Adding video...', type: 'success' };
 
-    if (parentObj.hasOwnProperty('content')) {
+    if (Object.hasOwnProperty.call(parentObj, 'content')) {
       parentObj = parentObj.content;
     }
     let options = {
@@ -170,7 +166,7 @@ export default class ToursController extends Controller{
 
   @action
   cancelChanges(model) {
-    if (model.hasOwnProperty('_belongsToState')) {
+    if (Object.hasOwnProperty.call(model, '_belongsToState')) {
       model.then(m => {
         this.cancelChanges(m);
       });

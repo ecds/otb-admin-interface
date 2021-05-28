@@ -66,9 +66,7 @@ export default class TourModel extends Model {
   })
   tourStops;
 
-  @hasMany('mode', {
-    async: true
-  })
+  @hasMany('mode')
   modes;
 
   @hasMany('tour-medium')

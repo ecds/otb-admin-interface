@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render } from '@ember/test-helpers';
+import { render, select } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | otb-crud/map-type', function(hooks) {
@@ -24,9 +24,9 @@ module('Integration | Component | otb-crud/map-type', function(hooks) {
     assert.dom('select').hasValue('hybrid');
   });
 
-  // test('it updates tour\'s mapType', async function(assert) {
-  //   await render(hbs`<OtbCrud::MapType @model={{this.model}} @save={{this.save}} />`);
-  //   await select('select', 'terrain');
-  //   assert.equal(this.model.mapType, 'terrain');
-  // });
+  test('it updates tour\'s mapType', async function(assert) {
+    await render(hbs`<OtbCrud::MapType @model={{this.model}} @save={{this.save}} />`);
+    await select('select', 'terrain');
+    assert.equal(this.model.mapType, 'terrain');
+  });
 });

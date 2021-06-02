@@ -19,7 +19,7 @@
       >
     </span>
     <label class="uk-form-label" for={{concat @model.slug '-published'}}>
-      <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat @model.tour.slug "-published-aria-describedby"}}>
+      <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat @model.slug "-published-aria-describedby"}}>
           Published
       </OtbTooltip>
     </label>
@@ -38,7 +38,7 @@
 
 <OtbCrud::FormSection @label='meta description'>
   <label class="uk-form-label" for={{concat @model.slug '-' @modelTitle '-meta-description'}}>
-    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat @model.tour.slug "meta-description-aria-describedby"}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat @model.slug "meta-description-aria-describedby"}}>
       {{modelTitle}} Meta Description
     </OtbTooltip>
   </label>

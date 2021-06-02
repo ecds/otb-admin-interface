@@ -1,12 +1,18 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
 import UIKit from 'uikit';
 
 export default class OtbCrudEditMediaModalComponent extends Component {
   @service crudActions;
   @service store;
+
+  @tracked
+  modalShowing = false;
+
+  medium = null;
 
   constructor() {
     super(...arguments);
@@ -24,9 +30,26 @@ export default class OtbCrudEditMediaModalComponent extends Component {
 
   @action
   initModal(element) {
-    this.modal = UIKit.modal(element);
-    UIKit.util.on(this.modal, 'hidden', () => this.cancelEdit.perform());
+    this.modal = UIKit.modal(element, { bgClose: false, escClose: false });
+    UIKit.util.on(element, 'beforeshow', this.setUp);
+    UIKit.util.on(element, 'beforehide', this.tearDown);
   }
+
+  @action
+  setUp() {
+   this.medium = this.store.peekRecord('medium', this.args.medium.get('medium.id'));
+   this.modalShowing = true;
+ }
+
+ @action
+ tearDown() {
+  this.modalShowing = false;
+ }
+
+ @action
+ rollback() {
+  this.cancelEdit.perform();
+ }
 
   @task
   *saveMedium() {

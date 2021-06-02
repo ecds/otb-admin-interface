@@ -59,7 +59,7 @@
           <section>
             <legend class="uk-legend"><FaIcon @icon="images" /> Media</legend>
 
-            <OtbCrud::Video @model={{this.model.tour}} @save={{addVideo}} />
+            <OtbCrud::Video @model={{this.model.tour}} @save={{this.addVideo}} />
             <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{this.model.tour}} @modelName="tour" />
             <OtbCrud::Media @model={{this.model.tour}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
           </section>

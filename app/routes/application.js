@@ -1,5 +1,4 @@
 import Route from '@ember/routing/route';
-import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { isEmpty, isPresent } from '@ember/utils';
 
@@ -9,6 +8,13 @@ export default class ApplicationRoute extends Route {
   @service media;
   @service intl;
   @service session
+
+  constructor() {
+    super(...arguments);
+    this.on('routeWillChange', transisition => {
+      this.__setTenant(transisition);
+    });
+  }
 
   beforeModel(transisition) {
     super.beforeModel(...arguments);
@@ -21,29 +27,24 @@ export default class ApplicationRoute extends Route {
     return this.currentUser.load.perform();
   }
 
-  @action
-  willTransition(transisition) {
-    this.__setTenant(transisition);
-  }
-
   __setTenant(transisition) {
     // The admin routes are the only ones where we will be switching tenants.
     // Also, the rootUrl for non admin routes will always come after the tenant in the
     if (window.location.pathname.split('/')[1] === 'admin') {
-      if (transisition.hasOwnProperty('intent')) {
+      if (Object.hasOwnProperty.call(transisition, 'intent')) {
         if (
-          transisition.intent.hasOwnProperty('contexts') &&
+         Object.hasOwnProperty.call(transisition.intent, 'contexts') &&
           isPresent(transisition.intent.contexts)
         ) {
           // Link from TourSet List
           this.tenant.setTenantFromContext(transisition.intent.contexts);
         } else if (isEmpty(transisition.intent)) {
           this.tenant.setTenant();
-        } else if (transisition.intent.hasOwnProperty('name')) {
+        } else if (Object.hasOwnProperty.call(transisition.intent, 'name')) {
           this.tenant.setTenant(
             transisition.intent.name.replace(/\./g, '/')
           );
-        } else if (transisition.intent.hasOwnProperty('url')) {
+        } else if (Object.hasOwnProperty.call(transisition.intent, 'url')) {
           // Direct to admin.tour.index route
           this.tenant.setTenant(transisition.intent.url);
         } else {

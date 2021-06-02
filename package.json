@@ -38,7 +38,6 @@
     "@glimmer/tracking": "^1.0.0",
     "babel-eslint": "^10.1.0",
     "broccoli-asset-rev": "^3.0.0",
-    "ecds-auth-ember": "ecds/ecds-auth-ember#develop",
     "ecds-ember-responsive-embed": "git://github.com/ecds/ecds-ember-responsive-embed.git#develop",
     "ember-a11y-testing": "^3.0.2",
     "ember-auto-import": "^1.11.3",
@@ -100,7 +99,8 @@
   },
   "ember-addon": {
     "paths": [
-      "lib/ember-g-map"
+      "lib/ember-g-map",
+      "lib/ecds-auth-ember"
     ]
   }
 }

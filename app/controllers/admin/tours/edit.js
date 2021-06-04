@@ -118,7 +118,7 @@ export default class ToursController extends Controller{
   }
 
   @task
-  *addVideo(videoCode, parentObj) {
+  *addVideo(videoProps, parentObj) {
     this.taskMessage.message = { message: 'Adding video...', type: 'success' };
 
     if (Object.hasOwnProperty.call(parentObj, 'content')) {
@@ -127,9 +127,7 @@ export default class ToursController extends Controller{
     let options = {
       relationType: 'medium',
       parentObj: parentObj,
-      attrs: {
-        video: videoCode
-      }
+      attrs: videoProps
     };
     yield this.crudActions.createHasMany.perform(options);
   }
@@ -222,7 +220,7 @@ export default class ToursController extends Controller{
       parentObj: this.model.tour,
       childObj: stop
     });
-      }
+  }
 
   @task
   *copyStop(stop) {

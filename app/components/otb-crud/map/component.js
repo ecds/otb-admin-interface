@@ -54,7 +54,7 @@ export default class Map extends Component {
               address: results[0].formatted_address
             });
           } else {
-            //
+            // console.log('nope')
           }
         }
       );
@@ -94,16 +94,17 @@ export default class Map extends Component {
   }
 
   @task
-  *locateAddress() {
-    if (this.address) {
+  *locateAddress(stop=true) {
+    if (stop) {
       yield locator.geocode(
         {
-          address: this.address
+          address: this.stop.address
         },
         (result, status) => {
           if (status === 'OK') {
             let location = result[0].geometry.location;
             this.stop.setProperties({
+              address: result[0].formatted_address,
               lat: location.lat(),
               lng: location.lng()
             });
@@ -112,12 +113,10 @@ export default class Map extends Component {
           }
         }
       );
-    }
-
-    if (this.parkingAddress) {
+    } else {
       locator.geocode(
         {
-          address: this.parkingAddress
+          address: this.stop.parkingAddress
         },
         (result, status) => {
           if (status === 'OK') {

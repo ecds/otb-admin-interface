@@ -5,9 +5,9 @@
     <form class="uk-form-stacked uk-padding">
       <div class="uk-inline">
         {{#if (and @medium.medium.video this.modalShowing)}}
-          {{@medium.medium.safeEmbed}}
+          <VideoEmbed @embed={{@medium.medium.embed}} />
         {{else}}
-          <img loading="lazy" src={{concat @medium.medium.baseUrl @medium.medium.desktop}} alt={{concat "Image: " @medium.medium.caption}} class="uk-tile uk-inline-clip uk-transition-toggle">
+          <img loading="lazy" src={{concat @medium.medium.files.desktop}} alt={{concat "Image: " @medium.medium.caption}} class="uk-tile uk-inline-clip uk-transition-toggle">
           {{#if this.crudActions.saveRecord.isRunning}}
             <div class="uk-overlay-primary uk-position-cover"></div>
             <div class="uk-overlay uk-position-center uk-light">

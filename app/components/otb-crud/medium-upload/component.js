@@ -1,9 +1,12 @@
+import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
 export default class MediumUpload extends Component {
+  @service fileQueue;
+
   @action
-  upload(mod, file) {
-    this.uploadTask.perform(mod, file);
+  upload(file) {
+    this.args.uploadTask.perform(this.args.model, file);
   }
 }

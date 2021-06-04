@@ -7,7 +7,7 @@
   <section class="uk-margin uk-width-1-1">
     <section class="uk-form-controls" uk-grid>
       <section class="uk-width-3-4">
-        <Input @id={{concat @model.slug '-video'}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{this.link}} {{on "change" this.getVideo}} />
+        <Input @id={{concat @model.slug '-video'}} class="uk-input uk-margin-bottom" placeholder="Add video code..." @value={{this.link}} {{on "keyup" this.getVideo}} {{on "change" this.getVideo}} />
       </section>
       <section class="uk-width-1-4">
         <UkButton {{on "click" this.getVideo}}@color="secondary"><FaIcon @icon="search" /> Find Video</UkButton>
@@ -18,15 +18,7 @@
 {{#if this.embed}}
   <div class="uk-width-1-2 uk-align-center">
     <section class="uk-section uk-text-center embed-container">
-      <iframe
-        src={{this.embed}}
-        frameborder="0"
-        allowfullscreen
-        uk-responsive
-        uk-video
-        autoplay="false"
-      >
-      </iframe>
+      <VideoEmbed @embed={{this.embed}} />
       {{!-- this here just for testing --}}
       <span class="uk-invisible" id={{concat @model.slug "-video-code"}}>{{this.videoCode}}</span>
     </section>

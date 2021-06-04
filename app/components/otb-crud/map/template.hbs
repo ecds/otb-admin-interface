@@ -2,7 +2,7 @@
   <div class="uk-width-1-3@m uk-width-1-1@s uk-margin-bottom">
 
     <OtbCrud::FormSection @label="Stop Address">
-      <label class="uk-form-label" for={{concat @model.title "-stop-address"}}>
+      <label class="uk-form-label" for={{concat @model.slug "-stop-address"}}>
         <OtbTooltip @tooltipContent={{t "tooltip.location"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
             {{t "stop"}} {{t "address"}}
         </OtbTooltip>
@@ -16,7 +16,7 @@
     </OtbCrud::FormSection>
 
     <OtbCrud::FormSection @label="Latitude">
-      <label class="uk-form-label" for={{concat @model.title "-stop-lat"}}>
+      <label class="uk-form-label" for={{concat @model.slug "-stop-lat"}}>
         {{t "latitude"}}
       </label>
       <section class="uk-width-1-1">
@@ -25,7 +25,7 @@
     </OtbCrud::FormSection>
 
     <OtbCrud::FormSection @label="Longitude">
-      <label class="uk-form-label" for={{concat @model.title "-stop-lng"}}>
+      <label class="uk-form-label" for={{concat @model.slug "-stop-lng"}}>
         {{t "longitude"}}
       </label>
       <section class="uk-width-1-1">
@@ -38,7 +38,7 @@
     </button>
     <div class="parking-location" hidden>
       <OtbCrud::FormSection @label="Parking Address">
-        <label class="uk-form-label" for={{concat @model.title "-parking-address"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-address"}}>
           <OtbTooltip @tooltipContent={{t "tooltip.parking"}} @ariaDescribedBy={{concat @model.slug "-parking-address-aria-describedby"}}>
               {{t "parking"}} {{t "address"}}
           </OtbTooltip>
@@ -52,7 +52,7 @@
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Latitude">
-        <label class="uk-form-label" for={{concat @model.title "-parking-lat"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-lat"}}>
           {{t "latitude"}}
         </label>
         <section class="uk-width-1-1">
@@ -61,7 +61,7 @@
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Longitude">
-        <label class="uk-form-label" for={{concat @model.title "-parking-lng"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-lng"}}>
           {{t "longitude"}}
         </label>
         <section class="uk-width-1-1">

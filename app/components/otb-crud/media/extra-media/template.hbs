@@ -11,7 +11,7 @@
           {{#if (notin @model.media medium)}}
             <div class="uk-card uk-card-default uk-card-small">
             <div class="uk-card-media-top">
-              <img src={{concat medium.baseUrl medium.mobile}} />
+              <img loading="lazy" src={{concat medium.baseUrl medium.mobile}} />
             </div>
             <div class="uk-card-body">
                 <p>{{medium.title}}</p>

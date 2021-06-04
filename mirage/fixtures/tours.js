@@ -7,6 +7,7 @@ export default [
     description: 'Burritos are yummy',
     meta_description: 'Bean burrito burrito',
     modes: [],
-    map_type: 'hybrid'
+    map_type: 'hybrid',
+    media: []
   }
 ];

@@ -135,7 +135,7 @@ export default class CrudActionsService extends Service {
     // Wait a bit to make sure the DOM is settled.
     yield timeout(500);
     let list = {};
-    if (event.constructor === CustomEvent) {
+    if (event.constructor === CustomEvent || ENV.environment == 'test') {
       list = event.target.children;
     } else {
       list = document.getElementById(event).firstElementChild.children;
@@ -208,7 +208,6 @@ export default class CrudActionsService extends Service {
 
   @task
   *uploadFile(parentObj, file) {
-    // const reader = new FileReader();
     let encodedFile = yield file.readAsDataURL();
     this.taskMessage.message = {
       message: 'Uploading medium...',
@@ -223,7 +222,7 @@ export default class CrudActionsService extends Service {
         relationType: 'medium',
         parentObj: parentObj,
         attrs: {
-          original_image: encodedFile,
+          baseSixtyFour: encodedFile,
           title: file.name
         }
       });

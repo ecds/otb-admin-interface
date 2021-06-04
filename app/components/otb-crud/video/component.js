@@ -11,7 +11,7 @@ export default class OtbCrudVideoComponent extends Component {
 
   embedCode = '<iframe width="560" height="315" src="https://www.youtube.com/embed/lVehcuJXe6I" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
   embedCode = '<iframe src="https://player.vimeo.com/video/259134302" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe><p><a href="https://vimeo.com/259134302">MIGOS  ||  S T I R   F R Y</a> from <a href="https://vimeo.com/singjlee">Sing J. Lee</a> on <a href="https://vimeo.com">Vimeo</a>.</p>';
-  link = 'https://vimeo.com/259134302'
+  // link = 'https://vimeo.com/259134302'
 
   @service videoProviders;
 
@@ -27,19 +27,25 @@ export default class OtbCrudVideoComponent extends Component {
   @tracked
   error = null;
 
+  @tracked
+  videoProvider = null;
+
   @action
   getVideo() {
     if (this.vimeoRegex.test(this.link)) {
       this.videoCode = this.vimeoRegex.exec(this.link)[3];
       this.embed = `//player.vimeo.com/video/${this.videoCode}`;
+      this.videoProvider = 'vimeo';
       this.error = false;
     } else if (this.vimeoEmbedRegex.test(this.link)) {
       this.videoCode = this.vimeoEmbedRegex.exec(this.link)[2];
       this.embed = `//player.vimeo.com/video/${this.videoCode}`;
+      this.videoProvider = 'vimeo';
       this.error = false;
     } else if (this.youtubeRegex.test(this.link)) {
       this.videoCode = this.youtubeRegex.exec(this.link)[4];
       this.embed = `//www.youtube.com/embed/${this.videoCode}`;
+      this.videoProvider = 'youtube';
       this.error = false;
     } /* else if (this.instagramRegex.test(this.link)) {
       this.videoCode = this.instagramRegex.exec(this.link)[4];
@@ -54,9 +60,17 @@ export default class OtbCrudVideoComponent extends Component {
 
   @action
   addVideo() {
-    this.args.save.perform(this.videoCode, this.args.model);
+    this.args.save.perform(
+      {
+        video: this.videoCode,
+        videoProvider: this.videoProvider,
+        embed: this.embed
+      },
+      this.args.model
+    );
     this.videoCode = null;
     this.embed = null;
+    this.videoProvider = null;
     this.error = null;
   }
 }

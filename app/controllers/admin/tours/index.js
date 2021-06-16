@@ -6,6 +6,7 @@ import UIkit from 'uikit';
 
 export default class IndexController extends Controller {
   @service crudActions;
+  @service tenant;
 
   @task(function*() {
     let newTour = this.store.createRecord('tour');
@@ -15,8 +16,12 @@ export default class IndexController extends Controller {
       this.tenant.tenant,
       newTour.id
     );
-  })
-  createTour;
+  }) createTour;
+
+  @task
+  *upload(file) {
+    yield this.crudActions.uploadFile.perform(this.tenant.tenantModel, file, 'tour-set', false, 'logoTitle', false);
+  }
 
   @action
   togglePublish() {
@@ -30,7 +35,7 @@ export default class IndexController extends Controller {
         tour.destroyRecord();
       },
       () => {
-        console.log('Rejected.');
+        // console.log('Rejected.');
       }
     );
   }

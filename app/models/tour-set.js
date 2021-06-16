@@ -1,15 +1,11 @@
 import Model, { hasMany, attr } from '@ember-data/model';
 
 export default class TourSet extends Model {
-  @attr('string')
-  name;
-
-  @hasMany('tour')
-  tours;
-
-  @attr('string')
-  subdir;
-
-  @hasMany('user')
-  admins;
+  @attr('string') name;
+  @attr('string') subdir;
+  @attr('string') baseSixtyFour;
+  @attr('string') logoTitle;
+  @attr('string') logoUrl;
+  @hasMany('tour') tours;
+  @hasMany('user') admins;
 }

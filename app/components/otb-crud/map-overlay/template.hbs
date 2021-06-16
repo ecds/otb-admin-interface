@@ -1,0 +1,145 @@
+<section class="uk-form-controls uk-child-width-1-2" uk-grid>
+  <section class="otb-overlay-form">
+    {{yield}}
+    <OtbCrud::FormSection @label="map-overlay">
+      {{#if @model.mapOverlay}}
+
+        <section class="uk-child-width-1-2" uk-grid>
+          <section>
+            <label class="uk-form-label" for={{concat @model.slug '-north'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.north"}} @ariaDescribedBy={{concat this.model.tour.slug "-overlay-north-aria-describedby"}}>
+                Overlay North
+              </OtbTooltip>
+            </label>
+            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-north'}} @value={{@model.mapOverlay.north}} />
+          </section>
+
+          <section>
+            <label class="uk-form-label" for={{concat @model.slug '-south'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.south"}} @ariaDescribedBy={{concat this.model.tour.slug "-overlay-south-aria-describedby"}}>
+                Overlay South
+              </OtbTooltip>
+            </label>
+            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-south'}} @value={{@model.mapOverlay.south}} />
+          </section>
+
+          <section>
+            <label class="uk-form-label" for={{concat @model.slug '-east'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.east"}} @ariaDescribedBy={{concat this.model.tour.slug "-overlay-east-aria-describedby"}}>
+                Overlay East
+              </OtbTooltip>
+            </label>
+            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-east'}} @value={{@model.mapOverlay.east}} />
+          </section>
+
+          <section>
+            <label class="uk-form-label" for={{concat @model.slug '-west'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.west"}} @ariaDescribedBy={{concat this.model.tour.slug "-overlay-west-aria-describedby"}}>
+                Overlay West
+              </OtbTooltip>
+            </label>
+            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-west'}} @value={{@model.mapOverlay.west}} />
+          </section>
+        </section>
+        <section class="uk-width-1-1 uk-margin">
+          <UkButton class="uk-button-danger" {{on "click" (perform @delete @model @model.mapOverlay 'mapOverlay')}}><FaIcon @icon="trash" /> Remove Map Overlay</UkButton>
+        </section>
+      {{else}}
+        {{!-- <OtbTooltip @tooltipContent={{t "tooltip.published"}} @ariaDescribedBy={{concat @model.slug "-tour-map-overlay-is-geo-aria-describedby"}}> --}}
+          <FileDropzone @class="js-upload uk-placeholder uk-text-center uk-text-large uk-inline" @name={{concat "map-overlay-" @model.slug @model.id}} as |dropzone queue|>
+            {{#if dropzone.active}}
+              {{#if dropzone.valid}}
+                Drag and drop an image file here overlay an image on the map or
+              {{else}}
+                {{t "invalid"}}
+              {{/if}}
+            {{else if que.files.length}}
+              <p>Uploading {{que.files.length}} files. ({{queue.progress}}%)</p>
+            {{else}}
+              <p class="uk-text-middle">
+                {{#if dropzone.supported}}
+                  {{t "tooltip.dragAndDrop"}}
+                {{/if}}
+                {{!-- Queue is not really needed here --}}
+                {{!-- Included to suppress warning --}}
+                <FileUpload
+                  @name={{concat "map-overlay-" @model.slug @model.id}}
+                  @for="upload-photo"
+                  @accept="image/*"
+                  @multiple={{false}}
+                  @onfileadd={{perform this.upload }}
+                >
+                  <a tabindex="0">
+                    <OtbTooltip @tooltipContent={{t "tooltip.addOverlay"}} @ariaDescribedBy={{concat this.model.tour.slug "-add-map-overlay-aria-describedby"}}>
+                      select a file.
+                    </OtbTooltip>
+                  </a>
+                </FileUpload>
+              </p>
+            {{/if}}
+          </FileDropzone>
+
+        {{!-- </OtbTooltip> --}}
+      {{/if}}
+    </OtbCrud::FormSection>
+  </section>
+
+  <section class="otb-tour-map">
+    {{#if this.showMap}}
+      <GMap
+        @mapTypeId={{@model.mapType}}
+        @disableDefaultUI={{true}}
+        @zoom={{16}}
+        @lat={{@model.bounds.centerLat}}
+        @lng={{@model.bounds.centerLng}}
+      as |map|>
+
+      {{#if @model.mapOverlay}}
+        <map.imageOverlay
+          @south={{@model.mapOverlay.south}}
+          @west={{@model.mapOverlay.west}}
+          @north={{@model.mapOverlay.north}}
+          @east={{@model.mapOverlay.east}}
+          @image={{@model.mapOverlay.imageUrl}}
+          @zIndex={{this.zIndex}}
+          @draggable={{true}}
+        >
+        </map.imageOverlay>
+
+        <map.circle
+          @radius={{100}}
+          @lat={{@model.mapOverlay.north}}
+          @lng={{@model.mapOverlay.east}}
+          @onClick={{toggle 'showInfoWindow' this}}
+          @draggable={{true}}
+          @onDrag={{this.updateNorthEast}}
+          @onDragend={{perform @save @model.mapOverlay}}
+          as |circle|
+        >
+          <circle.infoWindow
+              @isOpen={{this.showInfoWindow}}
+              @content="Drag me to resize the image."
+            />
+        </map.circle>
+
+        <map.circle
+          @radius={{100}}
+          @lat={{@model.mapOverlay.south}}
+          @lng={{@model.mapOverlay.west}}
+          @onClick={{toggle 'showInfoWindow' this}}
+          @draggable={{true}}
+          @onDrag={{this.updateSouthWest}}
+          @onDragend={{perform @save @model.mapOverlay}}
+          as |circle|
+        >
+          <circle.infoWindow
+              @isOpen={{true}}
+              @content="Drag me to resize the image."
+            />
+        </map.circle>
+      {{/if}}
+
+      </GMap>
+    {{/if}}
+  </section>
+</section>

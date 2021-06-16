@@ -3,12 +3,9 @@ import { inject as service } from '@ember/service';
 
 export default class LoginRoute extends Route {
   @service router;
+  @service session;
 
-  constructor() {
-    super(...arguments);
-
-    this.router.on('routeDidChange', (transition) => {
-      this.controllerFor('login').set('openModal', true)
-    })
+  beforeModel(/*transition*/) {
+    this.session.prohibitAuthentication('admin');
   }
 }

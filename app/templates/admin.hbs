@@ -11,7 +11,9 @@
         </div>
         <div class="uk-navbar-right">
           <ul class="uk-navbar-nav">
-            {{!-- <LoginButton /> --}}
+            {{#if this.session.isAuthenticated}}
+              <UkButton {{on "click" this.signOut}}>Sign Out</UkButton>
+            {{/if}}
         </ul>
         </div>
     </nav>

@@ -63,5 +63,6 @@ export default class OtbCrudEditMediaModalComponent extends Component {
     yield this.crudActions.rollback.perform(this.args.medium);
     yield this.crudActions.rollback.perform(this.medium);
     yield this.modal.hide();
+    this.args.medium.setProperties({ loaded: true });
   }
 }

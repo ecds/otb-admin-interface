@@ -2,14 +2,21 @@ import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 import { task } from 'ember-concurrency-decorators';
 import { A } from '@ember/array';
-import { action } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 
 export default class IndexController extends Controller {
   @service crudActions;
   @service tenant;
   @service currentUser;
 
-  newSite = null;
+  @tracked
+  showNewSiteModal = false;
+
+  @tracked
+  newSiteName = null;
+
+  @tracked
+  error = false;
 
   modelsToUnload = A([
     'flat-page',
@@ -27,16 +34,17 @@ export default class IndexController extends Controller {
 
   @task
   *createSite() {
-    let newSite = yield this.newSite.save();
-    this.modelsToUnload.forEach(model => {
-      this.store.unloadAll(model);
-    });
-    this.currentUser.load.perform();
-    return this.transitionToRoute('admin.tours.index', newSite.subdir);
-  }
-
-  @task
-  *newSite() {
-    this.newSite = yield this.store.createRecord('tour-set');
+    if (this.newSiteName) {
+      this.error = false;
+      let newSite = yield this.crudActions.newRecord.perform('tourSet', { name: this.newSiteName });
+      this.modelsToUnload.forEach(model => {
+        this.store.unloadAll(model);
+      });
+      this.currentUser.load.perform();
+      this.showNewSiteModal = false;
+      return this.transitionToRoute('admin.tours.index', newSite.subdir);
+    } else {
+      this.error = true;
+    }
   }
 }

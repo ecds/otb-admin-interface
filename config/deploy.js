@@ -14,6 +14,17 @@ module.exports = function(deployTarget) {
 
   if (deployTarget === 'staging') {
     ENV.build.environment = 'production';
+    ENV['simply-ssh'] = {
+      connection: {
+        // parameter hash accepted by SSH2, see https://github.com/mscdex/ssh2 for details
+        host: '3.81.27.251',
+        port: 22,
+        username: 'deploy',
+        privateKey: process.env.SSH_KEY
+      },
+      dir: '/data/otb-admin-interface',
+      keep: 5
+    };
   }
 
   if (deployTarget === 'production') {

@@ -39,6 +39,7 @@
           <section>
             <legend class="uk-legend">Tour</legend>
             <OtbCrud::CommonForm @model={{this.model.tour}} @modelTitle="Tour" />
+            <LanguageSelect @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
           </section>
 
           <section>
@@ -47,14 +48,58 @@
           </section>
 
           <section>
-            <legend class="uk-legend"><FaIcon @icon="route" /> Travel Modes</legend>
-              <OtbCrud::TravelModes @model={{this.model}} />
+            <legend class="uk-legend">{{@modelTitle}}Map Options</legend>
+            <OtbCrud::FormSection @label="tour-is-geo">
+              <span class="uk-padding-remove-left uk-padding-remove-vertical uk-padding-small">
+                <input
+                  type="checkbox"
+                  id={{concat this.model.tour.slug '-is-geo'}}
+                  name={{this.model.tour.isGeo}}
+                  checked={{this.model.tour.isGeo}}
+                  class="uk-checkbox"
+                  {{on 'change' (toggle "isGeo" this.model.tour)}}
+                  {{on 'change' ( perform this.crudActions.saveRecord this.model.tour)}}
+                >
+              </span>
+              <label class="uk-form-label" for="tour-is-geo">
+                <OtbTooltip @tooltipContent={{t "tooltip.enableGeo"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-is-geo-aria-describedby"}}>
+                    Enable Map
+                </OtbTooltip>
+              </label>
+            </OtbCrud::FormSection>
+
+            <OtbCrud::FormSection @label="tour-use-directions">
+              <span class="uk-padding-remove-left uk-padding-remove-vertical uk-padding-small">
+                <input
+                  type="checkbox"
+                  id={{concat this.model.tour.slug '-use-directions'}}
+                  name={{this.model.tour.useDirections}}
+                  checked={{this.model.tour.useDirections}}
+                  class="uk-checkbox"
+                  {{on 'change' (toggle "useDirections" this.model.tour)}}
+                  {{on 'change' ( perform this.crudActions.saveRecord this.model.tour)}}
+                >
+              </span>
+              <label class="uk-form-label" for="tour-use-directions">
+                <OtbTooltip @tooltipContent={{t "tooltip.enableDirections"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-use-directions-aria-describedby"}}>
+                  Provide Google Directions
+                </OtbTooltip>
+              </label>
+            </OtbCrud::FormSection>
+
+            {{#if this.model.tour.isGeo}}
+              <OtbCrud::MapOverlay @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @delete={{this.crudActions.deleteHasOne}} @addToModel={{this.crudActions.addHasOne}}>
+                <OtbCrud::MapType @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
+              </OtbCrud::MapOverlay>
+            {{/if}}
           </section>
 
-          <section>
-            <legend class="uk-legend">{{@modelTitle}}Map Type</legend>
-            <OtbCrud::MapType @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
-          </section>
+          {{#if (and this.model.tour.useDirections this.model.tour.isGeo)}}
+            <section>
+              <legend class="uk-legend"><FaIcon @icon="route" /> Travel Modes</legend>
+                <OtbCrud::TravelModes @model={{this.model}} />
+            </section>
+          {{/if}}
 
           <section>
             <legend class="uk-legend"><FaIcon @icon="images" /> Media</legend>
@@ -75,13 +120,17 @@
                 </OtbTooltip>
               </section>
               <section class="uk-margin">
-                <OtbCrud::ExtraStops @modalId="extra-stops-modal" @model={{this.model}} @copy={{this.copyStop}} @add={{this.addExistingStop}} @delete={{this.deleteStop}} />
+                {{#if (gt this.model.stops.length this.model.tour.stops.length)}}
+                  <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyStop}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
+                    Add Other Stops
+                  </OtbCrud::ExtraStops>
+                {{/if}}
               </section>
 
-
               <UkAccordion @elementId='stopList' @targets="> div > *" {{did-insert this.initAccordion}}>
-                <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}} @on-remove={{perform this.crudActions.reorder}}>
+                <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}}>
                   {{#each this.model.tour.sortedTourStops as |stop index|}}
+                    {{#if stop.stop.slug}}
                     <div
                       class="uk-background-muted uk-margin-small uk-padding-small"
                       id={{concat stop.stop.slug "-" stop.stop.id}}
@@ -90,82 +139,98 @@
                       data-index={{index}}
                     >
                       <a class="uk-accordion-title" href="#">{{stop.position}}: {{if stop.stop.title stop.stop.title "Loading.."}}</a>
-                        {{!-- <item.content> --}}
-                          <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
-                            <UkButton {{on "click" (perform this.copyStop stop.stop this.model.tour)}}>Copy</UkButton>
-                            <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
-                            <OtbCrud::Map @model={{stop.stop}} />
-                            <h3 class="uk-heading">{{t "manageMedia"}}</h3>
-                            <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
-                            <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
-                            <OtbCrud::Media @model={{stop.stop}} @media={{model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
-                            <UkButton @color="primary" @on-click={{perform this.crudActions.saveRecord stop.stop}}>
-                              {{t "buttons.save"}}
-                            </UkButton>
-                            <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
-                            <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour stop.stop stop)}}>
-                              {{t "deleteFromTour"}}
-                            </UkButton>
-                          </div>
-                        {{!-- </item.content>
-                      </div> --}}
+                        <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
+                          <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
+                          {{#if this.model.tour.isGeo}}
+                            <OtbCrud::Map @model={{stop.stop}} @position={{stop.position}} @icons={{this.model.mapIcons}} @tour={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @addToModel={{this.crudActions.addHasOne}} @removeFromModel={{this.crudActions.deleteHasOne}} />
+                          {{/if}}
+                          <h3 class="uk-heading">{{t "manageMedia"}}</h3>
+                          <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
+                          <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
+                          <OtbCrud::Media @model={{stop.stop}} @media={{model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
+                          <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
+                            {{t "buttons.save"}}
+                          </UkButton>
+                          <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
+                          <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour stop.stop stop 'stop')}}>
+                            {{t "deleteFromTour"}}
+                          </UkButton>
+                        </div>
                     </div>
+                  {{else}}
+                    <div class="uk-background-muted uk-margin-small uk-padding-small"><FaIcon @icon="spinner" @spin={{true}} /> Loading</div>
+                  {{/if}}
                   {{/each}}
                 </UkSortable>
               </UkAccordion>
             </div>
           </section>
 
-          {{!-- <section>
+          <section>
             <legend class="uk-legend">Pages</legend>
             <div class="uk-form-controls">
-              <OtbTooltip @tooltipContent={{t "tooltip.newPage"}} @ariaDescribedBy="new-page-aria-describedby">
-                <OtbCrud::NewButton @class="uk-margin" @click={{perform newPage this.model.tour}}>
-                  {{t "newPage"}}
-                </OtbCrud::NewButton>
-              </OtbTooltip>
-              <UkAccordion @id="pageList">
+              <section class="uk-margin">
+                <OtbTooltip @tooltipContent={{t "tooltip.newPage"}} @ariaDescribedBy="new-page-aria-describedby">
+                  <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newPage this.model.tour}}>
+                    {{t "newPage"}}
+                  </OtbCrud::NewButton>
+                </OtbTooltip>
+              </section>
+              <section class="uk-margin">
+                {{#if (gt this.model.flatPages.length this.model.tour.flatPages.length)}}
+                  <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyPage}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
+                    Add Other Pages
+                  </OtbCrud::ExtraStops>
+                {{/if}}
+              </section>
+              <UkAccordion @elementId="flatPageList" @targets="> div > *" {{did-insert this.initAccordion}}>
                 <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}}>
                   {{#each this.model.tour.sortedFlatPages as |page index|}}
+                  {{#if page.flatPage.slug}}
                     <div
                       class="uk-background-muted uk-margin-small uk-padding-small"
-                      id={{concat "page-" page.flatPage.id}}
-                      data-id={{page.flatPage.id}}
+                      id={{concat page.flatPage.slug "-" page.flatPage.id}}
+                      data-id={{page.id}}
                       data-model="tour-flat-page"
                       data-index={{index}}
                     >
-                      <accordion.item @title={{concat page.position ": " page.flatPage.title}}>
-                        <item.content>
-                          <div class="uk-card uk-card-default uk-card-body uk-card-small">
-                            <OtbCrud::FormSection @label="Page Title" as |inputId|>
-                              <Input class="uk-input" @id={{inputId}} @value={{page.flatPage.title}} />
-                            </OtbCrud::FormSection>
+                      <a class="uk-accordion-title" href="#">{{page.position}}: {{if page.flatPage.title page.flatPage.title "Loading.."}}</a>
+                      <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
+                        <OtbCrud::FormSection @label="Page Title">
+                          <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{modelTitle}} Title</label>
+                          <section class="uk-width-1-1">
+                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} />
+                          </section>
+                        </OtbCrud::FormSection>
 
-                            <OtbCrud::FormSection @label="Page Content" as |inputId|>
-                            </OtbCrud::FormSection>
+                        <OtbCrud::FormSection @label="Page Content">
+                          <section class="uk-width-1-1">
+                            <OtbCrud::PellEditor @onChange={{fn (mut page.flatPage.body)}} @content={{page.flatPage.body}} @label="flat-page-content" @model={{page.flatPage}}></OtbCrud::PellEditor>
+                          </section>
+                        </OtbCrud::FormSection>
 
-                            <UkButton @color="primary" @on-click={{perform this.crudActions.saveRecord page.flatPage}}>
-                              {{t "buttons.save"}}
-                            </UkButton>
-                            <UkButton @on-click={{cancel}}>
-                              {{t "buttons.cancel"}}
-                            </UkButton>
-                            <UkButton @color="link" @on-click={{perform this.crudActions.deleteHasMany (hash parentObj=this.model.tourrelationType="flatPage" childObj=page.flatPage)}}>
-                              {{t "deleteFromTour"}}
-                            </UkButton>
-                          </div>
-                        </item.content>
-                      </accordion.item>
+                        <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord page.flatPage)}}>
+                          {{t "buttons.save"}}
+                        </UkButton>
+                        <UkButton @on-click={{cancel}}>
+                          {{t "buttons.cancel"}}
+                        </UkButton>
+                        <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour page.flatPage page 'flatPage')}}>
+                          {{t "deleteFromTour"}}
+                        </UkButton>
+                      </div>
                     </div>
                   {{else}}
-                    <div><accordion.item @title="No pages added to tour">{{item.content}}</accordion.item></div>
+                    <div class="uk-background-muted uk-margin-small uk-padding-small"><FaIcon @icon="spinner" @spin={{true}} /> Loading</div>
+                  {{/if}}
                   {{/each}}
                 </UkSortable>
               </UkAccordion>
               <div class="uk-section"></div>
             </div>
-          </section> --}}
-      <div style="height: 200px;"></div>
+          </section>
+
+        <div style="height: 200px;"></div>
         </form>
       </div>
       <div class="otb-crud-footer uk-padding-margin uk-child-width-auto" uk-grid>

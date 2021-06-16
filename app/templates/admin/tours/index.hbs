@@ -1,11 +1,41 @@
-<div uk-grid class="uk-child-width-auto">
-  <div>
+<div uk-grid class="uk-child-width-1-1">
+  <section class="uk-margin-small">
     <UkButton @color="primary" @size="large" @on-click={{perform createTour}}>
       New Tour
     </UkButton>
-  </div>
-  <div>
-    {{!-- TODO: READD
+  </section>
+
+  <section class="uk-margin-small">
+    <FileUpload
+      @name="tour-set-logo"
+      @for="tour-set-logo"
+      @accept="image/*"
+      @multiple={{false}}
+      @onfileadd={{perform this.upload }}
+    >
+      <a tabindex="0">
+        <OtbTooltip @tooltipContent={{t "tooltip.addOverlay"}} @ariaDescribedBy="tour-site-logo-upload">
+          <FaIcon @icon="upload" /> {{if this.tenant.tenantModel.logoUrl "Update " "Upload "}} Site Logo
+        </OtbTooltip>
+      </a>
+    </FileUpload>
+  </section>
+
+  {{#if this.tenant.tenantModel.logoUrl}}
+    <section class="uk-margin-small">
+      <UkButton @color="link"><FaIcon @icon="trash" /> Remove Site Logo</UkButton>
+    </section>
+    <section class="uk-margin-small">
+      <figure>
+        <img src={{this.tenant.tenantModel.logoUrl}} alt={{concat "Logo for " this.tenant.tenantModel.name}} />
+        <figcaption>Logo for {{this.tenant.tenantModel.name}}</figcaption>
+      </figure>
+    </section>
+  {{/if}}
+
+
+  {{!-- <div>
+    TODO: READD
     <UkModal @modalName="tour-authors" as |modal|>
       <modal.open @class="">
         Manage Site Admins
@@ -31,8 +61,8 @@
           </DataLoader>
         </modal.body>
       </modal.dialog>
-    </UkModal> --}}
-  </div>
+    </UkModal>
+  </div>--}}
 </div>
 
 <table class="uk-table uk-table-striped uk-table uk-table-middle">

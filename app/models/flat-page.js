@@ -1,35 +1,19 @@
-import { computed } from '@ember/object';
 import Model, { hasMany, attr } from '@ember-data/model';
-import { htmlSafe } from '@ember/string';
 
 export default class FlatPage extends Model {
-  @attr('string')
-  title;
-
-  @attr('string')
-  slug;
+  @attr('string') title;
+  @attr('string') slug;
+  @attr('boolean') orphaned;
 
   @attr('string', {
     defaultValue: ''
-  })
-  content;
+  }) body;
 
   @hasMany('tour', {
     async: true
-  })
-  tour;
+  }) tour;
 
   @hasMany('tour-flat-pages', {
     async: true
-  })
-  tourFlatPages;
-
-  @computed('content')
-  get safeContent() {
-    return new htmlSafe(this.content);
-  }
-
-  set safeContent(v) {
-    return v;
-  }
+  }) tourFlatPages;
 }

@@ -7,6 +7,12 @@ module.exports = environment => {
     rootURL: '/admin',
     locationType: 'auto',
     historySupportMiddleware: true,
+    defaultCenterLat: 33.75432,
+    defaultCenterLng: -84.38979,
+    defaultSouth: 33.746101262568295,
+    defaultNorth: 33.7594628740807,
+    defaultEast: -84.38041814677302,
+    defaultWest: -84.39878106994395,
     'ember-cli-mirage': {
       enabled: false
     },
@@ -27,8 +33,6 @@ module.exports = environment => {
       }
     },
 
-    googleFonts: ['Open+Sans:300,400,700', 'Source+Sans+Pro:300'],
-
     torii: {
       sessionServiceName: 'session',
       providers: {
@@ -37,7 +41,7 @@ module.exports = environment => {
     },
 
     fauxOAuth: {
-      baseUrl: 'http://auth.digitalscholarship.emory.edu/auth/'
+      baseUrl: 'https://auth.digitalscholarship.emory.edu/auth/'
     },
 
     APP: {
@@ -54,11 +58,13 @@ module.exports = environment => {
     ENV['ember-cli-mirage'] = {
       enabled: false
     };
-    ENV['g-map'] = {
+    ENV['ember-google-maps'] = {
       key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
       libraries: ['places'],
-      language: 'en'
+      language: 'en',
+      protocol: 'https'
     };
+    ENV['g-map'] = ENV['ember-google-maps'];
     ENV['fauxOAuth'].tokenValidationUrl = 'https://otb.org:3000/auth/verify/';
     ENV['fauxOAuth'].tokenAuthUrl = 'https://otb.org:3000/auth/tokens/';
     ENV['fauxOAuth'].redirectUrl = 'https://lvh.me:4200/admin/torii/redirect.html';
@@ -97,18 +103,6 @@ module.exports = environment => {
       key: 'AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE',
       protocol: 'https'
     };
-
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '383939088765607',
-      redirectUri: 'https://obt.ecdsdev.org/admin/torii/redirect.html'
-    };
-
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey:
-        '171053764894-edtmjrjbnh8jukcbsgdue4sovqpe1l5f.apps.googleusercontent.com',
-      redirectUri: 'https://otb.ecdsdev.org/admin/torii/redirect.html',
-      scope: 'email'
-    };
   }
 
   if (environment === 'production') {
@@ -118,17 +112,6 @@ module.exports = environment => {
       protocol: 'https'
     };
 
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey:
-        '583999668970-8t0a0k6lrop28kdgar02sq41gkhet9fa.apps.googleusercontent.com',
-      redirectUri: 'https://opentour.emory.edu/admin/torii/redirect.html',
-      scope: 'email'
-    };
-
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '373879153234380',
-      redirectUri: 'https://opentour.emory.edu/admin/torii/redirect.html'
-    };
   }
 
   if (environment === 'gsuWalkingTours') {

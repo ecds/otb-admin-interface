@@ -10,21 +10,25 @@
 >
   {{#each @model.sortedMedia as |modelMedium index|}}
     <div
-      class="uk-tile uk-inline-clip uk-transition-toggle uk-padding-remove"
+      class="uk-tile uk-inline-clip uk-transition-toggle uk-padding-remove {{if modelMedium.loaded 'otb-image-loaded-bg' 'otb-image-loading-bg'}}"
       tabindex="0"
       data-id={{modelMedium.id}}
       data-model={{modelMedium.constructor.modelName}}
       id={{concat "medium-card-" @model.slug modelMedium.medium.id}}
     >
       {{#if modelMedium.medium.files.mobile}}
-        <img id={{concat "medium-" @model.slug modelMedium.medium.id}} loading="lazy" src={{modelMedium.medium.files.mobile}} alt={{concat "Image: " modelMedium.medium.caption}} class="uk-tile uk-inline-clip uk-transition-toggle">
+        <img
+          id={{concat "medium-" @model.slug modelMedium.medium.id}}
+          loading="lazy"
+          src={{modelMedium.medium.files.mobile}}
+          alt={{concat "Image: " modelMedium.medium.caption}}
+          class="uk-tile uk-inline-clip uk-transition-toggle" {{on "load" (toggle 'loaded' modelMedium)}}
+        >
         {{#if modelMedium.medium.video}}
           <div id={{concat "play-button-" modelMedium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">
-            {{fa-icon "play-circle"}}
+            <FaIcon @icon="play" />
           </div>
         {{/if}}
-      {{else}}
-        {{t "loading.loading"}}
       {{/if}}
       {{!-- Overlay with edit and delete buttons. --}}
       <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">

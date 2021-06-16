@@ -1,4 +1,4 @@
-<UkButton @color="primary" {{did-insert this.initToggle}}>Add Other Stops</UkButton>
+<UkButton @color="primary" {{did-insert this.initToggle}}>{{yield}}</UkButton>
 
 <div id={{@modalId}} {{did-insert this.initModal}}>
   <div class="uk-modal-dialog otb-extras-modal">
@@ -9,24 +9,40 @@
           <table class="uk-table uk-table-striped">
             <thead>
                 <tr>
-                    <th>Stop</th>
-                    <th>Add</th>
-                    <th>Copy</th>
-                    <th>Delete</th>
+                    <th>
+                      {{humanize @itemType}}
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.addExistingStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Add
+                      </OtbTooltip>
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.copyExistingStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Copy
+                      </OtbTooltip>
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.deleteStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Delete
+                      </OtbTooltip>
+                    </th>
                 </tr>
             </thead>
             <tbody>
-              {{#each @model.stops as |stop|}}
-                {{#if (notin @model.tour.stops stop)}}
+              {{#each @items as |item|}}
+                {{#if (notin @current item)}}
                   <tr>
-                    <td>{{stop.title}}</td>
-                    <td><UkButton @color="primary" {{on "click" (perform @add stop)}}><FaIcon @icon="plus" /> add</UkButton></td>
-                    <td><UkButton @color="primary" {{on "click" (perform @copy stop)}}><FaIcon @icon="copy" /> copy</UkButton></td>
+                    <td>{{item.title}}</td>
+                    <td><UkButton @color="primary" {{on "click" (perform @add item @itemType)}}><FaIcon @icon="plus" /> add</UkButton></td>
+                    <td><UkButton @color="primary" {{on "click" (perform @copy item)}}><FaIcon @icon="copy" /> copy</UkButton></td>
                     <td>
-                      <UkButton class="uk-button-danger" disabled={{not stop.orphaned}} {{on "click" (perform @delete stop)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
+                      <UkButton class="uk-button-danger" disabled={{not item.orphaned}} {{on "click" (perform @delete item)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
                     </td>
                   </tr>
                 {{/if}}
+              {{else}}
+              <tr>All existing {{itemType}}s have been added to current tour.</tr>
               {{/each}}
             </tbody>
           </table>

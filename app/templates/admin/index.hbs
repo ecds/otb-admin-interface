@@ -1,24 +1,29 @@
 {{#if currentUser.user.super}}
   <h2 class='uk-heading-bullet'>Tour Sites</h2>
   {{!-- TODO: READD --}}
-  {{!-- <UkModal @modalName="newSite" @on-show={{perform this.newSite}} as |modal|>
-    <modal.open @class="uk-button uk-button-primary">
-      New Site
-    </modal.open>
-    <modal.dialog>
+  <UkModal @visible={{this.showNewSiteModal}} @on-hide={{toggle 'showNewSiteModal' this}} as |modal|>
+      <modal.header>
+        <h2>Create a New Site</h2>
+      </modal.header>
       <modal.body>
-        <OtbCrud::FormSection @label="Site Title">
-          <label class="uk-form-label" for={{concat @model.slug '-description'}}>{{modelTitle}} Description</label>
-          <Input @autofocus="autofocus" class="uk-input" @id={{concat @model.slug '-description'}}
-            @value={{this.newSite.name}} />
+        {{#if this.error}}
+          <div class="uk-alert-danger" uk-alert>
+            <p>You cannot create a new site without providing a name.</p>
+          </div>
+        {{/if}}
+        <OtbCrud::FormSection @label="new-site-title">
+          <label class="uk-form-label" for="new-site-name">Site name</label>
+          <section class="uk-width-1-1">
+            <Input class="uk-input" @id="new-site-name" @value={{this.newSiteName}} />
+          </section>
         </OtbCrud::FormSection>
       </modal.body>
       <modal.footer>
-        <OtbCrud::NewButton @class="uk-modal-close" @onClick={{perform this.createSite}}>New Site</OtbCrud::NewButton>
+        <UkButton @color="primary" {{on "click" (perform this.createSite)}}>Create New Site</UkButton>
         <UkButton @color="link" @class="uk-modal-close">Cancel</UkButton>
       </modal.footer>
-    </modal.dialog>
-  </UkModal> --}}
+  </UkModal>
+  <UkButton @color="primary" @label="New Site" {{on "click" (toggle 'showNewSiteModal' this)}} />
 {{/if}}
 <table class="uk-table uk-table-striped uk-table uk-table-middle">
   <thead>
@@ -42,7 +47,7 @@
         </td>
 
         <td class='uk-table-link'>
-          <UkButton @color="link" @class="uk-align-center" @on-click={{perform this.crudActions.deleteRecord tourSet}}>
+          <UkButton @color="link" @class="uk-align-center" aria-label={{concat "Delete " tourSet.name}} @on-click={{perform this.crudActions.deleteRecord tourSet}}>
             <FaIcon @icon='trash' />
           </UkButton>
         </td>

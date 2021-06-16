@@ -133,15 +133,15 @@ export default class ToursController extends Controller{
   }
 
   @task
-  *removeStop(tour, stop, tourStop) {
+  *removeStop(tour, stop, tourStop, itemType) {
     let didDeleteStop = yield this.crudActions.deleteHasMany.perform({
       parentObj: tour,
-      relationType: 'stop',
+      relationType: itemType,
       childObj: stop
     });
 
     if (didDeleteStop) {
-      let tourStops = yield tour.get('tourStops');
+      let tourStops = yield tour.get(`${itemType}s`);
       tourStops.removeObject(tourStop);
       // This shouldn't be needed, but we need to be sure the stop
       // has been removed from the list before updating the order.
@@ -150,7 +150,7 @@ export default class ToursController extends Controller{
         elToRemove.remove();
       }
       yield timeout(300);
-      yield this.crudActions.reorder.perform('stopList');
+      yield this.crudActions.reorder.perform(`${itemType}List`);
     }
   }
 
@@ -214,11 +214,11 @@ export default class ToursController extends Controller{
   }
 
   @task
-  *addExistingStop(stop) {
+  *addExistingItem(item, itemType) {
     yield this.crudActions.createHasMany.perform({
-      relationType: 'stop',
+      relationType: itemType,
       parentObj: this.model.tour,
-      childObj: stop
+      childObj: item
     });
   }
 
@@ -247,8 +247,22 @@ export default class ToursController extends Controller{
   }
 
   @task
-  *deleteStop(stop) {
-    if (!stop.orphaned) return;
-    yield this.crudActions.deleteRecord.perform(stop);
+  *copyPage(page) {
+    let pageToCopy = this.store.peekRecord('flatPage', page.id);
+    let dataCopy = JSON.parse(JSON.stringify(pageToCopy));
+    let pageCopy = this.store.createRecord('flatPage', dataCopy);
+
+    yield this.crudActions.saveRecord.perform(pageCopy);
+    yield this.crudActions.createHasMany.perform({
+      relationType: 'flatPage',
+      parentObj: this.model.tour,
+      childObj: pageCopy
+    });
+  }
+
+  @task
+  *deleteItem(item) {
+    if (!item.orphaned) return;
+    yield this.crudActions.deleteRecord.perform(item);
   }
 }

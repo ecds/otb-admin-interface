@@ -18,7 +18,7 @@ module.exports = function(defaults) {
     },
 
     'ember-cli-string-helpers': {
-      only: ['titleize']
+      only: ['titleize', 'humanize']
     },
 
     emberCliDropzonejs: {

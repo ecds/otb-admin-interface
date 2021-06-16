@@ -261,7 +261,7 @@ ul {
 
 .otb-playbutton-overlay {
   color: $white;
-  font-size: 9em;
+  font-size: 3rem;
   opacity: .8;
   pointer-events: none;
 
@@ -355,3 +355,22 @@ ul {
 }
 
 img[data-src][src*='data:image'] { background: red; }
+
+label {
+  text-transform: capitalize;
+}
+
+.otb-tour-map {
+  .ember-google-map {
+    height: 500px;
+    width: 500px;
+  }
+}
+
+.uk-button-danger {
+  background-color: #dc3545;
+}
+
+.otb-marker-label {
+  color: white;
+}

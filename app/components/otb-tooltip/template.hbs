@@ -1,0 +1,13 @@
+{{yield}}
+<span
+  class="uk-margin-small-left"
+  uk-tooltip="title: {{@tooltipContent}}"
+  tabindex="0"
+  role="tooltip"
+  aria-describedby={{@ariaDescribedBy}}
+>
+  <FaIcon @icon="question-circle" />
+</span>
+<span class="otb-aria-describedby" id={{@ariaDescribedBy}}>
+  {{tooltipContent}}
+</span>

@@ -2,7 +2,7 @@ import Service, { inject as service } from '@ember/service';
 import ENV from '../config/environment';
 import { tracked } from '@glimmer/tracking';
 import { dropTask, task } from 'ember-concurrency-decorators';
-import { timeout, waitForProperty } from 'ember-concurrency';
+import { timeout } from 'ember-concurrency';
 import { isEmpty } from '@ember/utils';
 import { pluralize } from 'ember-inflector';
 import UIkit from 'uikit';
@@ -32,7 +32,7 @@ export default class CrudActionsService extends Service {
       }
       return rec;
     } catch (error) {
-      //
+      // console.log("🚀 ~ file: crud-actions.js ~ line 80 ~ CrudActionsService ~ *newRecord ~ error", error)
     }
   }
 
@@ -109,10 +109,15 @@ export default class CrudActionsService extends Service {
 
   @task
   *deleteRecord(obj) {
-    let didConfirm = yield this.confirmDelete.perform();
+    if (obj.promise) {
+      obj = this.store.peekRecord(obj._belongsToState.modelName, parseInt(obj.get('id')));
+    }
+    let didConfirm = yield this.confirmDelete.perform(obj.title);
     if (didConfirm) {
       obj.destroyRecord();
+      return true;
     }
+    return false;
   }
 
   @task
@@ -171,14 +176,16 @@ export default class CrudActionsService extends Service {
   }
 
   @dropTask
-  *saveRecord(obj) {
+  *saveRecord(obj, showBlocker=true) {
+    if (showBlocker) {
+      this.taskMessage.screenBlocker.show();
+    }
     this.lastSaved = null;
     this.tenant.setTenant();
     this.taskMessage.message = {
       message: 'Saving...',
       type: 'success'
     };
-    this.taskMessage.screenBlocker.show();
     // yield obj.save();
     // yield timeout(1000);
     obj = Object.hasOwnProperty.call(obj, 'isFulfilled') ? obj.content : obj;
@@ -194,9 +201,10 @@ export default class CrudActionsService extends Service {
       yield timeout(1000);
     } catch (error) {
       this.taskMessage.message = {
-        message: `ERROR: ${error}`,
+        message: `ERROR: ${obj.errors.messages.join(', ')}`,
         type: 'danger'
       };
+      this.taskMessage.screenBlocker.show();
       yield timeout(5000);
     } finally {
       this.taskMessage.screenBlocker.hide();
@@ -207,7 +215,7 @@ export default class CrudActionsService extends Service {
   }
 
   @task
-  *uploadFile(parentObj, file) {
+  *uploadFile(parentObj, file, recordType='medium', many=true, titleKey='title', makeNew=true) {
     let encodedFile = yield file.readAsDataURL();
     this.taskMessage.message = {
       message: 'Uploading medium...',
@@ -218,26 +226,45 @@ export default class CrudActionsService extends Service {
       parentObj = parentObj.content;
     }
     try {
-      let newImage = yield this.createHasMany.perform({
-        relationType: 'medium',
-        parentObj: parentObj,
-        attrs: {
-          baseSixtyFour: encodedFile,
-          title: file.name
+      let newImage = null;
+        if (many) {
+          newImage = yield this.createHasMany.perform({
+            relationType: recordType,
+            parentObj: parentObj,
+            attrs: {
+              baseSixtyFour: encodedFile,
+              [titleKey]: file.name,
+              tour: parentObj
+            }
+          });
+        } else if (makeNew) {
+          newImage = yield this.newRecord.perform(
+            recordType,
+            {
+              baseSixtyFour: encodedFile,
+              [titleKey]: file.name
+            }
+          );
+        } else {
+          parentObj.setProperties({
+            baseSixtyFour: encodedFile,
+            [titleKey]: file.name
+          });
+          this.saveRecord.perform(parentObj);
         }
-      });
-      this.taskMessage.message = {
-        message: 'Loading new image...',
-        type: 'success'
-      };
-      let savedImage = yield this.store.findRecord('medium', newImage.id);
-      yield waitForProperty(savedImage, 'mobile', v => v !== null);
-    } catch {
-      this.taskMessage.message = {
-        message: 'Upload failed :(',
-        type: 'danger'
-      };
-    }
+        this.taskMessage.message = {
+          message: 'Loading new file...',
+          type: 'success'
+        };
+        let savedImage = yield this.store.findRecord(recordType, newImage.id);
+        // yield waitForProperty(savedImage, 'mobile', v => v !== null);
+        return savedImage;
+      } catch {
+        this.taskMessage.message = {
+          message: 'Upload failed :(',
+          type: 'danger'
+        };
+      }
 
     this.taskMessage.screenBlocker.hide();
   }
@@ -252,6 +279,21 @@ export default class CrudActionsService extends Service {
   *setDefaultMode(tour, mode) {
     tour.setProperties({ mode: mode });
     yield tour.save();
+  }
+
+  @task
+  *addHasOne(parentObj, childObj, recordType) {
+    parentObj.setProperties({ [recordType]: childObj });
+    yield this.saveRecord.perform(parentObj);
+  }
+
+  @task
+  *deleteHasOne(parentObj, childObj, recordType, deleteChild=true) {
+    parentObj.setProperties({ [recordType]: null });
+    yield this.saveRecord.perform(parentObj);
+    if (deleteChild) {
+      yield this.deleteRecord.perform(childObj);
+    }
   }
 
   @task

@@ -3,34 +3,24 @@ import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
 export default class TourModel extends Model {
-  @attr('string')
-  title;
+  @attr('string') title;
+  @attr('string') slug;
+  @attr('string') sanitizedDescription;
+  @attr('string') metaDescription;
+  @attr('string') video;
+  @attr('number') position;
+  @attr('number') stopCount;
+  @attr('string') themeTitle;
+  @attr('string') defaultLng;
+  @attr('boolean') useDirections;
 
-  @attr('string')
-  slug;
+  @attr('boolean', {
+    defaultValue: true
+  }) isGeo;
 
   @attr('string', {
     defaultValue: ''
-  })
-  description;
-
-  @attr('string')
-  sanitizedDescription;
-
-  @attr('string')
-  metaDescription;
-
-  @attr('string')
-  video;
-
-  @attr('number')
-  position;
-
-  @attr('number')
-  stopCount;
-
-  @attr('string')
-  themeTitle;
+  }) description;
 
   @hasMany('tour-mode')
   tourModes;
@@ -51,6 +41,8 @@ export default class TourModel extends Model {
     async: true
   })
   theme;
+
+  @belongsTo('mapOverlay') mapOverlay;
 
   @attr('string')
   tenant;
@@ -97,6 +89,19 @@ export default class TourModel extends Model {
 
   @hasMany('user')
   authors;
+
+  @attr({
+    defaultValue() {
+      return {
+        centerLat: ENV.defaultCenterLat,
+        centerLng: ENV.defaultCenterLng,
+        south: ENV.defaultSouth,
+        north: ENV.defaultNorth,
+        east: ENV.defaultEast,
+        west: ENV.defaultWest
+      };
+    }
+  }) bounds;
 
   get safeDescription() {
     return new htmlSafe(this.description);

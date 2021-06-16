@@ -13,11 +13,23 @@ export default class EditRoute extends Route {
 
   async afterModel(model) {
     let extra = await RSVP.hash({
+      flatPages: this.store.findAll('flatPage'),
+      stops: this.store.findAll('stop'),
       media: this.store.findAll('medium'),
-      stops: this.store.findAll('stop')
+      mapIcons: this.store.findAll('mapIcon')
     });
 
     Object.assign(model, extra);
+
+    model.tour.tourMedia.forEach((tourMedium) => {
+      if (tourMedium.id) {
+        this.store.findRecord('tour-medium', tourMedium.id);
+      }
+    });
+    model.tour.tourStops.forEach((tourStop) => {
+      this.store.findRecord('tour-stop', tourStop.id);
+    });
+
   }
 
   @action

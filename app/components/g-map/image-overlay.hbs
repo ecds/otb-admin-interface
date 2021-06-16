@@ -1,0 +1,10 @@
+{{#if (has-block)}}
+  {{#if this.container}}
+    {{#in-element this.container}}
+      <div style="position:absolute;" id={{this.id}} ...attributes {{did-insert this.getOverlay}}>
+        <img src={{@image}} style="height:100%;width:100%;position:absolute;" />
+        {{yield}}
+      </div>
+    {{/in-element}}
+  {{/if}}
+{{/if}}

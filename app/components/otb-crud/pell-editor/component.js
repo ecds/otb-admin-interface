@@ -10,12 +10,12 @@ export default class OtbCrudPellEditorComponent extends Component {
 
   constructor() {
     super(...arguments);
-    addObserver(this, 'args.model.description', this.setContent);
+      addObserver(this, 'args.content', this.setContent);
   }
 
   @action
   setContent() {
-    this.crudActions.saveRecord.perform(this.args.model);
+    this.crudActions.saveRecord.perform(this.args.model, false);
   }
 
   editor = null;
@@ -110,7 +110,7 @@ export default class OtbCrudPellEditorComponent extends Component {
         }
       ]
     });
-    this.editor.content.innerHTML = this.args.model.get('description');
+    this.editor.content.innerHTML = this.args.content;
   }
 
 

@@ -1,11 +1,19 @@
 import Service from '@ember/service';
 import { isEmpty } from '@ember/utils';
 import ENV from '../config/environment';
+import { inject as service } from '@ember/service';
+import { tracked } from '@glimmer/tracking';
 
 export default class TenantService extends Service {
+  @service store;
+
+  @tracked
   tenant = 'public';
 
-  setTenant(path = window.location.pathname) {
+  @tracked
+  tenantModel = null;
+
+  async setTenant(path = window.location.pathname) {
     if (ENV.APP.TENANT) {
       this.tenant = ENV.APP.TENANT;
       return true;
@@ -36,35 +44,28 @@ export default class TenantService extends Service {
       pathParts[2] === 'users' ||
       firstSubDir.length === 0
     ) {
-      this.setProperties({
-        tenant: 'public'
-      });
+      this.tenant = 'public';
     } else if (firstSubDir === 'admin' && pathParts.length > 2) {
-      this.setProperties({
-        tenant: pathParts[2]
-      });
+      this.tenant = pathParts[2];
     } else {
-      this.setProperties({
-        tenant: firstSubDir
-      });
+      this.tenant = firstSubDir;
     }
+    let tourSets = await this.store.query('tour-set', {
+      subdir: this.tenant
+    });
+
+    this.tenantModel = tourSets.firstObject;
   }
 
   setTenantFromContext(context) {
     if (isEmpty(context)) {
       this.setTenant();
     } else if (typeof context === 'string') {
-      this.setProperties({
-        tenant: context
-      });
+      this.tenant = context;
     } else if (isNaN(context[0]) && typeof context[0] === 'string') {
-      this.setProperties({
-        tenant: context.firstObject
-      });
+      this.tenant = context.firstObject;
     } else if (context.params[context.targetName].hasOwnProperty('tenant')) {
-      this.setProperties({
-        tenant: context.params[context.targetName].tenant
-      });
+      this.tenant = context.params[context.targetName].tenant;
     } else {
       this.setTenant();
     }

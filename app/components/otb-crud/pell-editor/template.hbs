@@ -4,10 +4,10 @@
     </ul>
     <ul class="uk-switcher uk-margin">
       <li>
-        <div {{did-insert this.initPell}}></div>
+        <div tabindex="0" {{did-insert this.initPell}}></div>
       </li>
       <li>
-        <Textarea @rows={{10}} @id={{concat @model.slug "-description-source"}} class="uk-textarea" @value={{@model.description}} {{on 'keyup' this.updateSource}} />
+        <Textarea @rows={{10}} @id={{concat @model.slug "-" @label "-source"}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} />
       </li>
     </ul>
   {{yield}}

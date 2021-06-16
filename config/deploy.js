@@ -13,7 +13,7 @@ module.exports = function(deployTarget) {
   }
 
   if (deployTarget === 'staging') {
-    ENV.build.environment = 'production';
+    ENV.build.environment = 'staging';
     ENV['simply-ssh'] = {
       connection: {
         // parameter hash accepted by SSH2, see https://github.com/mscdex/ssh2 for details

@@ -5,6 +5,10 @@ import { inject as service } from '@ember/service';
 export default class IndexRoute extends Route {
   @service currentUser;
 
+  async beforeModel() {
+    return await this.currentUser.load.perform();
+  }
+
   model() {
     if (this.currentUser.user.super) {
       return RSVP.hash({

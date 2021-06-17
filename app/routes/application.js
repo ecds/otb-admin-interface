@@ -24,7 +24,6 @@ export default class ApplicationRoute extends Route {
 
     this.__setTenant(transisition);
     this.intl.setLocale(['en-us']);
-    this.session.one('authenticationSucceeded', () => (console.log('app route', this)));
     return this.currentUser.load.perform();
   }
 

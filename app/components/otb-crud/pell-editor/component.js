@@ -82,8 +82,8 @@ export default class OtbCrudPellEditorComponent extends Component {
           icon: this.icons['link'].html[0],
           title: 'link',
           result: () => {
-            const url = window.prompt('Enter the link URL')
-            if (url) pell.exec('createLink', url)
+            const url = window.prompt('Enter the link URL');
+            if (url) pell.exec('createLink', url);
           }
         },
         {

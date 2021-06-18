@@ -34,7 +34,7 @@
       <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">
         <OtbCrud::EditMediaModal @medium={{modelMedium}} />
         {{!-- Delete button --}}
-        <UkButton @color="text" @on-click={{perform delete (hash parentObj=model childObj=modelMedium.medium relationType="media")}}>
+        <UkButton @color="text" @on-click={{perform @delete (hash parentObj=@model childObj=modelMedium.medium relationType="media")}}>
           <FaIcon @icon="trash" /> {{t "buttons.delete"}}
         </UkButton>
       </div>

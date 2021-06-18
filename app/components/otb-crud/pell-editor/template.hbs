@@ -7,7 +7,7 @@
       <div tabindex="0" {{did-insert this.initPell}}></div>
     </li>
     <li>
-      <Textarea @rows={{10}} @id={{concat this.model.slug "-" @label "-source"}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} />
+      <Textarea @rows={{10}} @id={{concat this.model.slug "-" @label "-source"}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} aria-labelledby={{concat "Edit Source for " this.model.title " " @label}} />
     </li>
   </ul>
 {{yield}}

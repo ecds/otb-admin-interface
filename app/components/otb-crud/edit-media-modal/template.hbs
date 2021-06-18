@@ -1,6 +1,6 @@
 <UkButton @color="text" {{did-insert this.initToggle}}><FaIcon @icon="pencil-alt" /> {{t "buttons.edit"}}</UkButton>
 
-<div id={{concat "edit-" @medium.id}} class="uk-flex-top" {{did-insert this.initModal}}>
+<div id={{concat "edit-medium-for-" @parentObj.slug "-" @medium.id}} class="uk-flex-top" {{did-insert this.initModal}}>
   <div class="uk-modal-dialog uk-margin-auto-vertical">
     <form class="uk-form-stacked uk-padding">
       <div class="uk-inline">

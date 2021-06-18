@@ -97,7 +97,6 @@ module.exports = environment => {
   }
 
   if (environment === 'staging') {
-    ENV['g-map'] = ENV['ember-google-maps'];
     ENV.APP.API_HOST = 'https://otb-api.ecdsdev.org';
     ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
 
@@ -110,6 +109,7 @@ module.exports = environment => {
       language: 'en',
       protocol: 'https'
     };
+    ENV['g-map'] = ENV['ember-google-maps'];
     ENV['fauxOAuth'].tokenValidationUrl = 'https://otb-api.ecdsdev.org/auth/verify/';
     ENV['fauxOAuth'].tokenAuthUrl = 'https://otb-api.ecdsdev.org/auth/tokens/';
     ENV['fauxOAuth'].redirectUrl = 'https://otb.ecdsdev.org/admin/torii/redirect.html';

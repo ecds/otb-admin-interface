@@ -93,7 +93,7 @@
         </td>
         <td>
           <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
-            {{fa-icon "trash" aria-hidden="true"}}
+            <FaIcon @icon="trash" />
             <span class="sr-only">Delete {{tour.title}}</span>
           </UkButton>
         </td>

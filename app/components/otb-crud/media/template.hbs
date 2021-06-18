@@ -32,7 +32,7 @@
       {{/if}}
       {{!-- Overlay with edit and delete buttons. --}}
       <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">
-        <OtbCrud::EditMediaModal @medium={{modelMedium}} />
+        <OtbCrud::EditMediaModal @medium={{modelMedium}} />&nbsp;
         {{!-- Delete button --}}
         <UkButton @color="text" @on-click={{perform @delete (hash parentObj=@model childObj=modelMedium.medium relationType="media")}}>
           <FaIcon @icon="trash" /> {{t "buttons.delete"}}

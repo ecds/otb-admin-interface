@@ -1,13 +1,13 @@
 <ul class="uk-subnav uk-subnav-pill" uk-switcher>
-      <li><a href="#"><FaIcon @icon='file' /> Preview</a></li>
-      <li><a href="#"><FaIcon @icon='code' /> Source</a></li>
-    </ul>
-    <ul class="uk-switcher uk-margin">
-      <li>
-        <div tabindex="0" {{did-insert this.initPell}}></div>
-      </li>
-      <li>
-        <Textarea @rows={{10}} @id={{concat @model.slug "-" @label "-source"}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} />
-      </li>
-    </ul>
-  {{yield}}
+    <li><a href="#"><FaIcon @icon='file' /> Preview</a></li>
+    <li><a href="#"><FaIcon @icon='code' /> Source</a></li>
+  </ul>
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div tabindex="0" {{did-insert this.initPell}}></div>
+    </li>
+    <li>
+      <Textarea @rows={{10}} @id={{concat this.model.slug "-" @label "-source"}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} />
+    </li>
+  </ul>
+{{yield}}

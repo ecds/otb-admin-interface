@@ -3,13 +3,13 @@
 
     <div class="uk-margin">
       <OtbCrud::FormSection @label="Stop Address">
-        <label class="uk-form-label" for={{concat @model.slug "-stop-address"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-stop-address-" @model.id}}>
           <OtbTooltip @tooltipContent={{t "tooltip.location"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
               {{t "stop"}} {{t "address"}}
           </OtbTooltip>
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input uk-margin-bottom" @id={{concat @model.slug "-stop-address"}} @value={{@model.address}} />
+          <Input class="uk-input uk-margin-bottom" @id={{concat @model.slug "-stop-address-" @model.id}} @value={{@model.address}} />
         <UkButton @size="small" @color="secondary" {{on "click" (perform this.locateAddress)}}>
           <FaIcon @icon="location-arrow" /> {{t "locate"}} {{t "address"}}
         </UkButton>
@@ -17,20 +17,20 @@
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Latitude">
-        <label class="uk-form-label" for={{concat @model.slug "-stop-lat"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-stop-lat-" @model.id}}>
           {{t "latitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lat"}} @value={{@model.lat}} {{on "change" (perform this.updateLocation)}} />
+          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lat-" @model.id}} @value={{@model.lat}} {{on "change" (perform this.updateLocation)}} />
         </section>
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Longitude">
-        <label class="uk-form-label" for={{concat @model.slug "-stop-lng"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-stop-lng-" @model.id}}>
           {{t "longitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lng"}} @value={{@model.lng}} {{on "change" (perform this.updateLocation)}} />
+          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lng-" @model.id}} @value={{@model.lng}} {{on "change" (perform this.updateLocation)}} />
         </section>
       </OtbCrud::FormSection>
 
@@ -44,13 +44,13 @@
     </button>
     <div class="uk-margin parking-location" hidden>
       <OtbCrud::FormSection @label="Parking Address">
-        <label class="uk-form-label" for={{concat @model.slug "-parking-address"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-address-" @model.id}}>
           <OtbTooltip @tooltipContent={{t "tooltip.parking"}} @ariaDescribedBy={{concat @model.slug "-parking-address-aria-describedby"}}>
               {{t "parking"}} {{t "address"}}
           </OtbTooltip>
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input uk-margin-bottom" @id={{concat @model.slug "-parking-address"}} @value={{@model.parkingAddress}} />
+          <Input class="uk-input uk-margin-bottom" @id={{concat @model.slug "-parking-address-" @model.id}} @value={{@model.parkingAddress}} />
           <UkButton @size="small" @color="secondary" {{on "click" (perform this.locateAddress false)}}>
             <FaIcon @icon="location-arrow" /> {{t "locate"}} {{t "address"}}
           </UkButton>
@@ -58,20 +58,20 @@
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Parking Latitude">
-        <label class="uk-form-label" for={{concat @model.slug "-parking-lat"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-lat-" @model.id}}>
           {{t "parking"}} {{t "latitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input @type="number" class="uk-input" @step="any" @id={{concat @model.slug "-parking-lat"}} @value={{@model.parkingLat}} />
+          <Input @type="number" class="uk-input" @step="any" @id={{concat @model.slug "-parking-lat-" @model.id}} @value={{@model.parkingLat}} />
         </section>
       </OtbCrud::FormSection>
 
       <OtbCrud::FormSection @label="Parking Longitude">
-        <label class="uk-form-label" for={{concat @model.slug "-parking-lng"}}>
+        <label class="uk-form-label" for={{concat @model.slug "-parking-lng-" @model.id}}>
           {{t "parking"}} {{t "longitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input @type="number" class="uk-input" @step="any" @id={{concat @model.slug "-parking-lng"}} @value={{@model.parkingLng}} />
+          <Input @type="number" class="uk-input" @step="any" @id={{concat @model.slug "-parking-lng-" @model.id}} @value={{@model.parkingLng}} />
         </section>
       </OtbCrud::FormSection>
     </div>

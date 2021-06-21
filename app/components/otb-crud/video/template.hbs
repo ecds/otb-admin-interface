@@ -1,13 +1,13 @@
 <OtbCrud::FormSection @label="Video">
-  <label class="uk-form-label" for={{concat @model.slug '-video'}}>
-    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat @model.slug "-video-aria-describedby"}}>
+  <label class="uk-form-label" for={{concat @model.slug '-video-' @model.id}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat @model.slug @mode.id "-video-aria-describedby"}}>
       <FaIcon @icon="photo-video" /> Embed Media <FaIcon @icon="youtube" @prefix="fab" /> <FaIcon @icon="vimeo" @prefix="fab" /> <FaIcon @icon="soundcloud" @prefix="fab" />
     </OtbTooltip>
   </label>
   <section class="uk-margin uk-width-1-1">
     <section class="uk-form-controls" uk-grid>
       <section class="uk-width-3-4">
-        <Input @id={{concat @model.slug '-video'}} class="uk-input uk-margin-bottom" placeholder="Add YouTube, Vimeo, on SoundCloud..." @value={{this.link}} {{on "keyup" this.getVideo}} {{on "change" this.getVideo}} />
+        <Input @id={{concat @model.slug '-video-' @model.id}} class="uk-input uk-margin-bottom" placeholder="Add YouTube, Vimeo, on SoundCloud..." @value={{this.link}} {{on "keyup" this.getVideo}} {{on "change" this.getVideo}} />
       </section>
       <section class="uk-width-1-4">
         <UkButton {{on "click" this.getVideo}}@color="secondary"><FaIcon @icon="search" /> Find Medium</UkButton>
@@ -20,7 +20,7 @@
     <section class="uk-section uk-text-center embed-container">
       <VideoEmbed @embed={{this.embed}} />
       {{!-- this here just for testing --}}
-      <span class="uk-invisible" id={{concat @model.slug "-video-code"}}>{{this.videoCode}}</span>
+      <span class="uk-invisible" id={{concat @model.slug "-video-code-" @model.id}}>{{this.videoCode}}</span>
     </section>
   </div>
 

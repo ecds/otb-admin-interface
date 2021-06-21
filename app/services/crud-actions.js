@@ -32,7 +32,16 @@ export default class CrudActionsService extends Service {
       }
       return rec;
     } catch (error) {
-      // console.log("🚀 ~ file: crud-actions.js ~ line 80 ~ CrudActionsService ~ *newRecord ~ error", error)
+      let errors = [];
+      error.errors.forEach((message) => {
+        errors.push(message.detail);
+      });
+      this.taskMessage.message = {
+        message: `ERROR: ${errors.join(', ')}`,
+        type: 'danger'
+      };
+      this.taskMessage.screenBlocker.show();
+      yield timeout(5000);
     }
   }
 

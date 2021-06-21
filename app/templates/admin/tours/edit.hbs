@@ -121,7 +121,7 @@
               </section>
               <section class="uk-margin">
                 {{#if (gt this.model.stops.length this.model.tour.stops.length)}}
-                  <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyStop}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
+                  <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
                     Add Other Stops
                   </OtbCrud::ExtraStops>
                 {{/if}}
@@ -140,6 +140,16 @@
                     >
                       <a class="uk-accordion-title" href="#">{{stop.position}}: {{if stop.stop.title stop.stop.title "Loading.."}}</a>
                         <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
+                          {{#if stop.stop.isShared}}
+                            <section class="uk-margin">
+                              <section class="uk-alert-primary uk-text-center" uk-alert>
+                                <p>
+                                  {{t "tooltip.makeUniqueStop"}}
+                                </p>
+                                <UkButton @color="primary" {{on "click" (perform this.makeChildUnique stop 'stop')}}>Make Unique</UkButton>
+                              </section>
+                            </section>
+                          {{/if}}
                           <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
                           {{#if this.model.tour.isGeo}}
                             <OtbCrud::Map @model={{stop.stop}} @position={{stop.position}} @icons={{this.model.mapIcons}} @tour={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @addToModel={{this.crudActions.addHasOne}} @removeFromModel={{this.crudActions.deleteHasOne}} />
@@ -147,12 +157,12 @@
                           <h3 class="uk-heading">{{t "manageMedia"}}</h3>
                           <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
                           <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
-                          <OtbCrud::Media @model={{stop.stop}} @media={{model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
+                          <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} />
                           <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
                             {{t "buttons.save"}}
                           </UkButton>
                           <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
-                          <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour stop.stop stop 'stop')}}>
+                          <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
                             {{t "deleteFromTour"}}
                           </UkButton>
                         </div>
@@ -178,7 +188,7 @@
               </section>
               <section class="uk-margin">
                 {{#if (gt this.model.flatPages.length this.model.tour.flatPages.length)}}
-                  <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyPage}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
+                  <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
                     Add Other Pages
                   </OtbCrud::ExtraStops>
                 {{/if}}
@@ -196,10 +206,21 @@
                     >
                       <a class="uk-accordion-title" href="#">{{page.position}}: {{if page.flatPage.title page.flatPage.title "Loading.."}}</a>
                       <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
+                        {{#if page.flatPage.isShared}}
+                          <section class="uk-margin">
+                            <section class="uk-alert-primary uk-text-center" uk-alert>
+                              <p>
+                                {{t "tooltip.makeUniqueFlatPage"}}
+                              </p>
+                              <UkButton @color="primary" {{on "click" (perform this.makeChildUnique page 'flatPage')}}>Make Unique</UkButton>
+                            </section>
+                          </section>
+                        {{/if}}
+
                         <OtbCrud::FormSection @label="Page Title">
                           <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{modelTitle}} Title</label>
                           <section class="uk-width-1-1">
-                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} />
+                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
                           </section>
                         </OtbCrud::FormSection>
 
@@ -215,7 +236,7 @@
                         <UkButton @on-click={{cancel}}>
                           {{t "buttons.cancel"}}
                         </UkButton>
-                        <UkButton @color="link" {{on "click" (perform this.removeStop this.model.tour page.flatPage page 'flatPage')}}>
+                        <UkButton @color="link" {{on "click" (perform this.removeChild page.flatPage page 'flatPage')}}>
                           {{t "deleteFromTour"}}
                         </UkButton>
                       </div>

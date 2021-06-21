@@ -11,9 +11,13 @@ export default class FlatPage extends Model {
 
   @hasMany('tour', {
     async: true
-  }) tour;
+  }) tours;
 
   @hasMany('tour-flat-pages', {
     async: true
   }) tourFlatPages;
+
+  get isShared() {
+    return this.tours.length > 1;
+  }
 }

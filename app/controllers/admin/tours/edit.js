@@ -133,25 +133,96 @@ export default class ToursController extends Controller{
   }
 
   @task
-  *removeStop(tour, stop, tourStop, itemType) {
-    let didDeleteStop = yield this.crudActions.deleteHasMany.perform({
-      parentObj: tour,
-      relationType: itemType,
-      childObj: stop
-    });
+  *removeChild(child, tourChild, itemType, skipConfirm=false) {
+    let didDeleteChild = yield this.crudActions.deleteHasMany.perform(
+      {
+        parentObj: this.model.tour,
+        relationType: itemType,
+        childObj: child
+      },
+      skipConfirm
+    );
 
-    if (didDeleteStop) {
-      let tourStops = yield tour.get(`${itemType}s`);
-      tourStops.removeObject(tourStop);
+    if (didDeleteChild) {
+      // let tourStops = yield this.model.tour.get(`${itemType}s`);
+      // tourStops.removeObject(tourChild);
       // This shouldn't be needed, but we need to be sure the stop
       // has been removed from the list before updating the order.
-      let elToRemove = document.getElementById(`${stop.get('slug')}-${stop.get('id')}`);
+      let elToRemove = document.getElementById(`${child.get('slug')}-${child.get('id')}`);
       if (elToRemove) {
         elToRemove.remove();
       }
       yield timeout(300);
       yield this.crudActions.reorder.perform(`${itemType}List`);
     }
+  }
+
+  @task
+  *makeChildUnique(tourChild, childType) {
+    let child = this.store.peekRecord(childType, tourChild.get(`${childType}.id`));
+    yield this.removeChild.perform(child, tourChild, childType, true);
+    yield this.copyChild.perform(child, childType);
+  }
+
+  @task
+  *addExistingItem(item, itemType) {
+    yield this.crudActions.createHasMany.perform({
+      relationType: itemType,
+      parentObj: this.model.tour,
+      childObj: item
+    });
+  }
+
+  @task
+  *copyChild(child, childType) {
+    let childToCopy = this.store.peekRecord(childType, child.get('id'));
+    let dataCopy = JSON.parse(JSON.stringify(childToCopy));
+
+    let childCopy = null;
+
+    if (childType == 'stop') {
+      let mediaToCopy = dataCopy.media;
+      delete dataCopy.media;
+      delete dataCopy.tours;
+      childCopy = yield this.store.createRecord(childType, dataCopy);
+      let stopMedia = childCopy.get('media');
+
+      yield mediaToCopy.forEach((mediumId) => {
+        const medium = this.store.peekRecord('medium', mediumId);
+        stopMedia.pushObject(medium);
+      });
+    } else {
+      delete dataCopy.tours;
+      childCopy = yield this.store.createRecord(childType, dataCopy);
+    }
+
+    yield this.crudActions.saveRecord.perform(childCopy);
+
+    yield this.crudActions.createHasMany.perform({
+      relationType: childType,
+      parentObj: this.model.tour,
+      childObj: childCopy
+    });
+  }
+
+  // @task
+  // *copyPage(page) {
+  //   let pageToCopy = this.store.peekRecord('flatPage', page.id);
+  //   let dataCopy = JSON.parse(JSON.stringify(pageToCopy));
+  //   let pageCopy = this.store.createRecord('flatPage', dataCopy);
+
+  //   yield this.crudActions.saveRecord.perform(pageCopy);
+  //   yield this.crudActions.createHasMany.perform({
+  //     relationType: 'flatPage',
+  //     parentObj: this.model.tour,
+  //     childObj: pageCopy
+  //   });
+  // }
+
+  @task
+  *deleteItem(item) {
+    if (!item.orphaned) return;
+    yield this.crudActions.deleteRecord.perform(item);
   }
 
   @action
@@ -211,58 +282,5 @@ export default class ToursController extends Controller{
   @action
   updateMapType(event) {
     this.model.tour.setProperties({ mapType: event.target.value });
-  }
-
-  @task
-  *addExistingItem(item, itemType) {
-    yield this.crudActions.createHasMany.perform({
-      relationType: itemType,
-      parentObj: this.model.tour,
-      childObj: item
-    });
-  }
-
-  @task
-  *copyStop(stop) {
-    let stopToCopy = this.store.peekRecord('stop', stop.get('id'));
-    let dataCopy = JSON.parse(JSON.stringify(stopToCopy));
-    let mediaToCopy = dataCopy.media;
-    delete dataCopy.media;
-    delete dataCopy.tours;
-    let stopCopy = this.store.createRecord('stop', dataCopy);
-    let stopMedia = stopCopy.get('media');
-
-    yield mediaToCopy.forEach((mediumId) => {
-      const medium = this.store.peekRecord('medium', mediumId);
-      stopMedia.pushObject(medium);
-    });
-
-    yield this.crudActions.saveRecord.perform(stopCopy);
-
-    yield this.crudActions.createHasMany.perform({
-      relationType: 'stop',
-      parentObj: this.model.tour,
-      childObj: stopCopy
-    });
-  }
-
-  @task
-  *copyPage(page) {
-    let pageToCopy = this.store.peekRecord('flatPage', page.id);
-    let dataCopy = JSON.parse(JSON.stringify(pageToCopy));
-    let pageCopy = this.store.createRecord('flatPage', dataCopy);
-
-    yield this.crudActions.saveRecord.perform(pageCopy);
-    yield this.crudActions.createHasMany.perform({
-      relationType: 'flatPage',
-      parentObj: this.model.tour,
-      childObj: pageCopy
-    });
-  }
-
-  @task
-  *deleteItem(item) {
-    if (!item.orphaned) return;
-    yield this.crudActions.deleteRecord.perform(item);
   }
 }

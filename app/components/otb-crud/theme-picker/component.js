@@ -9,6 +9,6 @@ export default class ThemePicker extends Component {
   @action
   setTheme(theme) {
     this.args.model.setProperties({ theme: theme });
-    this.args.save.perform(this.model);
+    this.args.save.perform(this.args.model);
   }
 }

@@ -1,6 +1,6 @@
 <OtbCrud::FormSection @label="Video">
   <label class="uk-form-label" for={{concat @model.slug '-video-' @model.id}}>
-    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat @model.slug @mode.id "-video-aria-describedby"}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.addVideo"}} @ariaDescribedBy={{concat @model.slug @model.id "-video-aria-describedby"}}>
       <FaIcon @icon="photo-video" /> Embed Media <FaIcon @icon="youtube" @prefix="fab" /> <FaIcon @icon="vimeo" @prefix="fab" /> <FaIcon @icon="soundcloud" @prefix="fab" />
     </OtbTooltip>
   </label>

@@ -4,7 +4,7 @@
     <div class="uk-margin">
       <OtbCrud::FormSection @label="Stop Address">
         <label class="uk-form-label" for={{concat @model.slug "-stop-address-" @model.id}}>
-          <OtbTooltip @tooltipContent={{t "tooltip.location"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+          <OtbTooltip @tooltipContent={{t "tooltip.location"}} @ariaDescribedBy={{concat @model.slug "-" @model.id "-address-aria-describedby"}}>
               {{t "stop"}} {{t "address"}}
           </OtbTooltip>
         </label>
@@ -45,7 +45,7 @@
     <div class="uk-margin parking-location" hidden>
       <OtbCrud::FormSection @label="Parking Address">
         <label class="uk-form-label" for={{concat @model.slug "-parking-address-" @model.id}}>
-          <OtbTooltip @tooltipContent={{t "tooltip.parking"}} @ariaDescribedBy={{concat @model.slug "-parking-address-aria-describedby"}}>
+          <OtbTooltip @tooltipContent={{t "tooltip.parking"}} @ariaDescribedBy={{concat @model.slug "-" @model.id "-parking-address-aria-describedby"}}>
               {{t "parking"}} {{t "address"}}
           </OtbTooltip>
         </label>
@@ -119,7 +119,7 @@
   <div class="uk-width-1-1">
     <OtbCrud::FormSection @label="Direction Notes">
       <label class="uk-form-label" for={{concat @model.title "-direction-notes"}}>
-        <OtbTooltip @tooltipContent={{t "tooltip.directionNotes"}} @ariaDescribedBy={{concat @model.slug "-direction-notes-aria-describedby"}}>
+        <OtbTooltip @tooltipContent={{t "tooltip.directionNotes"}} @ariaDescribedBy={{concat @model.slug "-" @model.id "-direction-notes-aria-describedby"}}>
             {{t "direction"}} {{t "notes"}}
         </OtbTooltip>
       </label>

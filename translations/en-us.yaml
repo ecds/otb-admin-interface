@@ -49,6 +49,8 @@ tooltip:
   enableGeo: 'Show stops on a map.'
   languageSelect: 'Select the language for the content. This will be used when a person has their device read the content. Please let us know if you would like a language added!'
   location: 'You can update the stop location by Stop Address or Latitude and Longitude and the other will update automatically. Once you enter your location by either means, click Locate Address. You can also click and drag the point on the map to update the location. If you enter Latitude and Logitude, you MUST enter BOTH fields or you will get a map error.'
+  makeUniqueFlatPage: 'This page is shared with another tour. Any changes here will also show in the other tour(s). If you make it unique, changes here will only show on the this tour.'
+  makeUniqueStop: 'This stop is shared with another tour. Any changes here will also show in the other tour(s). If you make it unique, changes here will only show on the this tour.'
   newPage: 'Create a new page. You can add an About page to describe the project, copyright information, or other data or images using html and the wysiwyg editor. The pages will show up in the menu.'
   newStop: 'Create a new stop. Each stop MUST have a unique name for your entire Tour Site. Each stop MUST have a location. You can reuse locations.'
   north: 'Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position.'

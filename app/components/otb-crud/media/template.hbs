@@ -1,5 +1,5 @@
 <section>
-  <OtbCrud::Media::ExtraMedia @model={{@model}} @media={{@media}} @modalId={{concat "extra-media-" @model.slug}} />
+  <OtbCrud::Media::ExtraMedia @model={{@model}} @media={{@media}} @modalId={{concat "extra-media-" @model.slug "-" @model.id}} />
   <p>{{t "mediaCount"}}: {{@model.sortedMedia.length}}</p>
 </section>
 

@@ -38,11 +38,11 @@
 
 <OtbCrud::FormSection @label='meta description'>
   <label class="uk-form-label" for={{concat @model.slug '-' @modelTitle '-meta-description-' @model.id}}>
-    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat @model.slug "meta-description-aria-describedby"}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.metaDescription"}} @ariaDescribedBy={{concat @model.slug "-" @model.id "meta-description-aria-describedby"}}>
       {{modelTitle}} Meta Description
     </OtbTooltip>
   </label>
   <section class="uk-width-1-1">
-    <Textarea @id={{concat @model.slug '-' @modelTitle '-meta-description-' @model.id}} @rows={{6}} class="uk-textarea" @value={{@model.metaDescription}} {{on 'keyup' (perform this.crudActions.saveRecord @model)}} />
+    <Textarea @id={{concat @model.slug '-' @modelTitle '-meta-description-' @model.id}} @rows={{6}} class="uk-textarea" @value={{@model.metaDescription}} {{on 'keyup' (perform this.crudActions.saveRecord @model false)}} />
   </section>
 </OtbCrud::FormSection>

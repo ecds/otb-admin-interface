@@ -47,13 +47,9 @@ export default class Stop extends Model {
 
   @attr() splash;
 
-  // get mobileThumbUrl() {
-  //   return `${ENV.APP.API_HOST}${this.splash.original_image.mobile_list_thumb.url}`;
-  // }
-
-  // set mobileThumbUrl(v) {
-  //   return v;
-  // }
+  get isShared() {
+    return this.tours.length > 1;
+  }
 
   get sortedMedia() {
     return this.stopMedia.sortBy('position');

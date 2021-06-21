@@ -1,6 +1,6 @@
 <OtbCrud::FormSection @label="images">
   <label class="uk-form-label">
-    <OtbTooltip @tooltipContent={{t "tooltip.reorderImages"}} @ariaDescribedBy={{concat @model.slug  "-upload-aria-describedby"}}>
+    <OtbTooltip @tooltipContent={{t "tooltip.reorderImages"}} @ariaDescribedBy={{concat @model.slug "-" @model.id  "-upload-aria-describedby"}}>
       <FaIcon @icon="image" /> Images
     </OtbTooltip>
   </label>

@@ -72,17 +72,20 @@ export default class CrudActionsService extends Service {
   }
 
   @task
-  *deleteHasMany(options) {
-    let didConfirm = yield this.confirmDelete.perform(
+  *deleteHasMany(options, skipConfirm=false) {
+    let didConfirm = skipConfirm;
+    if (!skipConfirm) {
+      didConfirm = yield this.confirmDelete.perform(
         options.childObj.get('title')
       );
+    }
     let parentObj = Object.hasOwnProperty.call(options.parentObj, 'isFulfilled')
       ? options.parentObj.content
       : options.parentObj;
     let childObj = Object.hasOwnProperty.call(options.childObj, 'isFulfilled')
       ? options.childObj.content
       : options.childObj;
-    if (didConfirm ) {
+    if (skipConfirm || didConfirm ) {
       try {
         parentObj
           .get(`${pluralize(options.relationType)}`)

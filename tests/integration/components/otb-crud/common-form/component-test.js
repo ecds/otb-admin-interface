@@ -15,16 +15,16 @@ module('Integration | Component | otb-crud/common-form', function(hooks) {
 
   test('it renders a form', async function(assert) {
     await render(hbs`<OtbCrud::CommonForm @model={{this.model}} @modelTitle="Tour" />`);
-    assert.dom(`input#${this.model.slug}-title`).hasValue(this.model.title);
+    assert.dom(`input#${this.model.slug}-title-${this.model.id}`).hasValue(this.model.title);
     assert.dom(`input#${this.model.slug}-published`).isNotChecked();
     assert.dom('.pell-content').hasText(this.model.description);
-    assert.dom(`textarea#${this.model.slug}-description-source`).hasValue(this.model.description);
-    assert.dom(`textarea#${this.model.slug}-Tour-meta-description`).hasValue(this.model.metaDescription);
+    assert.dom(`textarea#${this.model.slug}-description-source-${this.model.id}`).hasValue(this.model.description);
+    assert.dom(`textarea#${this.model.slug}-Tour-meta-description-${this.model.id}`).hasValue(this.model.metaDescription);
   });
 
   test('it updates model attributes', async function(assert) {
     await render(hbs`<OtbCrud::CommonForm @model={{this.model}} @modelTitle="Tour" />`);
-    await fillIn(`input#${this.model.slug}-title`, 'Jay\'s Totally Awesome Burrito Tour');
+    await fillIn(`input#${this.model.slug}-title-${this.model.id}`, 'Jay\'s Totally Awesome Burrito Tour');
 
     assert.equal(this.model.title, 'Jay\'s Totally Awesome Burrito Tour');
 
@@ -32,10 +32,10 @@ module('Integration | Component | otb-crud/common-form', function(hooks) {
     await click(`input#${this.model.slug}-published`);
     assert.ok(this.model.published);
 
-    await fillIn(`textarea#${this.model.slug}-description-source`, 'hello');
+    await fillIn(`textarea#${this.model.slug}-description-source-${this.model.id}`, 'hello');
     assert.equal(this.model.description, 'hello');
 
-    await fillIn(`textarea#${this.model.slug}-Tour-meta-description`, 'poop');
+    await fillIn(`textarea#${this.model.slug}-Tour-meta-description-${this.model.id}`, 'poop');
     assert.equal(this.model.metaDescription, 'poop');
   });
 

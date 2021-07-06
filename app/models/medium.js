@@ -1,4 +1,3 @@
-import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import Model, { hasMany, attr } from '@ember-data/model';
 import { htmlSafe } from '@ember/string';
@@ -19,7 +18,7 @@ export default class Medium extends Model {
   @attr('string') srcset;
   @attr('string') srcset_sizes;
   @attr('string') baseSixtyFour;
-
+  @attr('boolean', { defaultValue: false }) orphaned;
   @attr() files;
 
   // stop: attr(),
@@ -32,7 +31,6 @@ export default class Medium extends Model {
   @attr('boolean', { defaultValue: false })
   loadEmbed;
 
-  @computed('original_image')
   get baseUrl() {
     return `${ENV.APP.API_HOST}`;
   }
@@ -41,7 +39,6 @@ export default class Medium extends Model {
     return v;
   }
 
-  @computed('embed')
   get safeEmbed() {
     return htmlSafe(this.embed);
   }

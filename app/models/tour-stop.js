@@ -35,14 +35,14 @@ export default class TourStop extends Model {
   })
   active;
 
-  @computed('position', 'inView')
-  get labelContent() {
-    if (get(this, 'inView')) {
-      return '!';
-    } else {
-      return get(this, 'position').toString();
-    }
-  }
+  // @computed('position', 'inView')
+  // get labelContent() {
+  //   if (get(this, 'inView')) {
+  //     return '!';
+  //   } else {
+  //     return get(this, 'position').toString();
+  //   }
+  // }
 
   set labelContent(v) {
     return v;

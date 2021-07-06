@@ -22,7 +22,8 @@
           loading="lazy"
           src={{modelMedium.medium.files.mobile}}
           alt={{concat "Image: " modelMedium.medium.caption}}
-          class="uk-tile uk-inline-clip uk-transition-toggle" {{on "load" (toggle 'loaded' modelMedium)}}
+          class="uk-tile uk-inline-clip uk-transition-toggle"
+          {{on "load" (toggle 'loaded' modelMedium)}}
         >
         {{#if modelMedium.medium.video}}
           <div id={{concat "play-button-" modelMedium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">

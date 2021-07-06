@@ -102,41 +102,57 @@
           @east={{@model.mapOverlay.east}}
           @image={{@model.mapOverlay.imageUrl}}
           @zIndex={{this.zIndex}}
-          @draggable={{true}}
+          @className={{if @model.mapOverlay.resizing "otb-map-overlay-resizing"}}
+          @onLoad={{toggle "overlayLoaded" this}}
         >
         </map.imageOverlay>
+
+        {{#if this.overlayLoaded}}
 
         <map.circle
           @radius={{100}}
           @lat={{@model.mapOverlay.north}}
           @lng={{@model.mapOverlay.east}}
           @onClick={{toggle 'showInfoWindow' this}}
+          @onDragstart={{this.dragStart}}
           @draggable={{true}}
           @onDrag={{this.updateNorthEast}}
-          @onDragend={{perform @save @model.mapOverlay}}
+          @onDragend={{this.dragEnd}}
           as |circle|
         >
-          <circle.infoWindow
-              @isOpen={{this.showInfoWindow}}
-              @content="Drag me to resize the image."
-            />
         </map.circle>
+
+        <map.infoWindow
+          @lat={{@model.mapOverlay.north}}
+          @lng={{@model.mapOverlay.east}}
+          @isOpen={{this.showInfoWindow}}
+          @onCloseclick={{toggle 'showInfoWindow' this}}
+          @disableAutoPan={{true}}
+          @content="Drag me to resize the image."
+        />
 
         <map.circle
           @radius={{100}}
           @lat={{@model.mapOverlay.south}}
           @lng={{@model.mapOverlay.west}}
           @onClick={{toggle 'showInfoWindow' this}}
+          @onDragstart={{this.dragStart}}
           @draggable={{true}}
           @onDrag={{this.updateSouthWest}}
-          @onDragend={{perform @save @model.mapOverlay}}
+          @onDragend={{this.dragEnd}}
           as |circle|
         >
-          <circle.infoWindow
-              @isOpen={{true}}
-              @content="Drag me to resize the image."
-            />
         </map.circle>
+
+        <map.infoWindow
+          @lat={{@model.mapOverlay.south}}
+          @lng={{@model.mapOverlay.west}}
+          @isOpen={{this.showInfoWindow}}
+          @disableAutoPan={{true}}
+          @onCloseclick={{toggle 'showInfoWindow' this}}
+          @content="Drag me to resize the image."
+        />
+        {{/if}}
       {{/if}}
 
       </GMap>

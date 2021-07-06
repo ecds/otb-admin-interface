@@ -29,6 +29,7 @@ export default class MapOverlayModel extends Model {
   @attr('string') imageUrl;
   @attr('string') title;
   @attr('string') baseSixtyFour;
+  @attr('boolean', { defaultValue: false }) resizing;
   @belongsTo('tour') tour;
   @belongsTo('stop') stop;
 }

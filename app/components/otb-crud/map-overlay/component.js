@@ -10,7 +10,10 @@ export default class OtbCrudMapOverlayComponent extends Component {
   @service store;
 
   @tracked
-  showInfoWindow = false;
+  showInfoWindow = true;
+
+  @tracked
+  overlayLoaded = false;
 
   @tracked
   overlay = this.store.peekRecord('mapOverlay', this.args.model.get('mapOverlay.id'));
@@ -42,6 +45,18 @@ export default class OtbCrudMapOverlayComponent extends Component {
       south: event.circles.center.lat(),
       west: event.circles.center.lng()
     });
+  }
+
+  @action
+  dragStart() {
+    this.showInfoWindow = false;
+    this.overlay.setProperties({ resizing: true });
+  }
+
+  @action
+  dragEnd() {
+    this.overlay.setProperties({ resizing: false });
+    this.args.save.perform(this.overlay);
   }
 
   // @action

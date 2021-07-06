@@ -25,7 +25,7 @@ export default class OtbCrudEditMediaModalComponent extends Component {
 
   @action
   initToggle(element) {
-    UIKit.toggle(element, { target: `#edit-medium-for-${this.args.parentObj.slug}-${this.args.medium.id}` });
+    UIKit.toggle(element, { target: `#edit-medium-for-${this.args.parentObj.get('slug')}-${this.args.medium.id}` });
   }
 
   @action

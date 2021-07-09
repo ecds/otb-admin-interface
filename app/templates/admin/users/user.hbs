@@ -9,25 +9,17 @@
         <label for='super'>Super User</label>
       </div>
       <div>
-        <DataLoader @queryType="all" @modelName="tour-set" as |loader|>
-          <h2>Admin for Site:</h2>
-          {{#if loader.isRunning}}
-          <p>Loading Tour Sets...</p>
-          {{else}}
-            <div class='uk-margin uk-grid-small uk-child-width-1-1 uk-grid'>
-              {{#each loader.data as |tourSet|}}
-                <div>
-                  <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tour_sets tourSet}} />
-                  <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
-                </div>
-              {{/each}}
-            </div>
-          {{/if}}
-        </DataLoader>
-      </div>
-
-      <div>
-
+        <div class='uk-margin uk-grid-small uk-child-width-1-1 uk-grid'>
+          <legend class="uk-legend">Tour Sites</legend>
+          {{#each model.tourSets as |tourSet|}}
+            {{#if tourSet.subdir}}
+              <div>
+                <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
+                <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
     {{/if}}
     <div>

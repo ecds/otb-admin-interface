@@ -18,6 +18,9 @@ export default class IndexController extends Controller {
   @tracked
   error = false;
 
+  @tracked
+  visible = false;
+
   modelsToUnload = A([
     'flat-page',
     'medium',

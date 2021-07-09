@@ -21,6 +21,9 @@ export default class OtbCrudMapOverlayComponent extends Component {
   @tracked
   showMap = ENV.environment != 'test';
 
+  @tracked
+  map = null;
+
   @task
   *upload(file) {
     const newOverlay = yield this.args.upload.perform(this.args.model, file, 'mapOverlay');
@@ -28,9 +31,12 @@ export default class OtbCrudMapOverlayComponent extends Component {
   }
 
   @action
+  mapLoaded(event) {
+    this.map = event.map;
+  }
+
+  @action
   updateNorthEast(event) {
-    // this.showInfoWindow = false;
-    // const overlay = this.args.model.get('mapOverlay');
     this.overlay.setProperties({
       north: event.circles.center.lat(),
       east: event.circles.center.lng()
@@ -39,8 +45,6 @@ export default class OtbCrudMapOverlayComponent extends Component {
 
   @action
   updateSouthWest(event) {
-    // this.showInfoWindow = false;
-    // const overlay = this.args.model.get('mapOverlay');
     this.overlay.setProperties({
       south: event.circles.center.lat(),
       west: event.circles.center.lng()
@@ -58,30 +62,4 @@ export default class OtbCrudMapOverlayComponent extends Component {
     this.overlay.setProperties({ resizing: false });
     this.args.save.perform(this.overlay);
   }
-
-  // @action
-  // updateNorthWest(event) {
-  //   // this.showInfoWindow = false;
-  //   // const overlay = this.args.model.get('mapOverlay');
-  //   this.overlay.setProperties({
-  //     north: event.circles.center.lat(),
-  //     west: event.circles.center.lng()
-  //   });
-  // }
-
-  // @action
-  // updateSouthEast(event) {
-  //   // this.showInfoWindow = false;
-  //   // const overlay = this.args.model.get('mapOverlay');
-  //   this.overlay.setProperties({
-  //     south: event.circles.center.lat(),
-  //     east: event.circles.center.lng()
-  //   });
-  // }
-
-  // @action
-  // mapAdded(map, event) {
-  //   console.log("🚀 ~ file: component.js ~ line 41 ~ OtbCrudMapOverlayComponent ~ mapAdded ~ map", map)
-  //   console.log("🚀 ~ file: component.js ~ line 41 ~ OtbCrudMapOverlayComponent ~ mapAdded ~ event", event)
-  // }
 }

@@ -2,7 +2,7 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
-import { task } from 'ember-concurrency-decorators';
+import { task, timeout } from 'ember-concurrency';
 import UIKit from 'uikit';
 
 export default class OtbCrudEditMediaModalComponent extends Component {
@@ -51,6 +51,12 @@ export default class OtbCrudEditMediaModalComponent extends Component {
   this.cancelEdit.perform();
  }
 
+ @action
+ replaceImage(file) {
+  this.crudActions.uploadFile.perform(this.medium, file, 'medium', false, 'title', false);
+  this.reloadImage.perform();
+ }
+
   @task
   *saveMedium() {
     yield this.crudActions.saveRecord.perform(this.args.medium);
@@ -63,6 +69,14 @@ export default class OtbCrudEditMediaModalComponent extends Component {
     yield this.crudActions.rollback.perform(this.args.medium);
     yield this.crudActions.rollback.perform(this.medium);
     yield this.modal.hide();
-    this.args.medium.setProperties({ loaded: true });
+    this.medium.setProperties({ loaded: true });
+  }
+
+  @task
+  *reloadImage() {
+    this.medium.setProperties({ loaded: false });
+    yield this.store.
+    this.medium.setProperties({ loaded: true });
+
   }
 }

@@ -9,37 +9,54 @@
   @class="uk-grid uk-grid-small uk-child-width-auto uk-text-center"
 >
   {{#each @model.sortedMedia as |modelMedium index|}}
-    <div
-      class="uk-tile uk-inline-clip uk-transition-toggle uk-padding-remove {{if modelMedium.loaded 'otb-image-loaded-bg' 'otb-image-loading-bg'}}"
-      tabindex="0"
-      data-id={{modelMedium.id}}
-      data-model={{modelMedium.constructor.modelName}}
-      id={{concat "medium-card-" @model.slug modelMedium.medium.id}}
-    >
-      {{#if modelMedium.medium.files.mobile}}
-        <img
-          id={{concat "medium-" @model.slug modelMedium.medium.id}}
-          loading="lazy"
-          src={{modelMedium.medium.files.mobile}}
-          alt={{concat "Image: " modelMedium.medium.caption}}
-          class="uk-tile uk-inline-clip uk-transition-toggle"
-          {{on "load" (toggle 'loaded' modelMedium)}}
+    {{#unless modelMedium.medium.reloading}}
+      {{#if modelMedium.medium.missing}}
+        <div class="uk-card uk-card-default uk-card-small uk-text-center otb-missing-image">
+          <p class="uk-card-title"><FaIcon @icon="times-circle" @prefix="far" /></p>
+          <p class="uk-card-body uk-padding-remove-vertical">Image Missing</p>
+          <p class="uk-card-footer">
+            <UkButton @size="small" @color="primary" @on-click={{perform this.reload modelMedium.medium.id}}>
+              <FaIcon @icon="redo" /> Reload
+            </UkButton>
+            <UkButton @size="small" class="uk-button-danger" @on-click={{perform @delete (hash parentObj=@model childObj=modelMedium.medium relationType="media")}}>
+              <FaIcon @icon="trash" /> {{t "buttons.delete"}}
+            </UkButton></p>
+        </div>
+      {{else}}
+        <div
+          class="uk-tile uk-inline-clip uk-transition-toggle uk-padding-remove otb-image-loaded-bg"
+          tabindex="0"
+          data-id={{modelMedium.id}}
+          data-model={{modelMedium.constructor.modelName}}
+          id={{concat "medium-card-" @model.slug modelMedium.medium.id}}
         >
-        {{#if modelMedium.medium.video}}
-          <div id={{concat "play-button-" modelMedium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">
-            <FaIcon @icon="play" />
+          {{#if modelMedium.medium.files.mobile}}
+              <img
+                id={{concat "medium-" @model.slug modelMedium.medium.id}}
+                loading="lazy"
+                src={{modelMedium.medium.files.mobile}}
+                alt={{concat "Image: " modelMedium.medium.caption}}
+                class="uk-tile uk-inline-clip uk-transition-toggle"
+                {{on "load" (toggle 'loaded' modelMedium.medium)}}
+                {{on "error" (fn this.imageError modelMedium.medium.id)}}
+              >
+              {{#if modelMedium.medium.video}}
+                <div id={{concat "play-button-" modelMedium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">
+                  <FaIcon @icon="play" />
+                </div>
+              {{/if}}
+            {{/if}}
+          {{!-- Overlay with edit and delete buttons. --}}
+          <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">
+            <OtbCrud::EditMediaModal @medium={{modelMedium}} @parentObj={{@model}} />&nbsp;
+            {{!-- Delete button --}}
+            <UkButton @color="text" @on-click={{perform @delete (hash parentObj=@model childObj=modelMedium.medium relationType="media")}}>
+              <FaIcon @icon="trash" /> {{t "buttons.delete"}}
+            </UkButton>
           </div>
-        {{/if}}
+        </div>
       {{/if}}
-      {{!-- Overlay with edit and delete buttons. --}}
-      <div class="uk-transition-slide-bottom uk-position-bottom uk-overlay uk-overlay-default">
-        <OtbCrud::EditMediaModal @medium={{modelMedium}} @parentObj={{@model}} />&nbsp;
-        {{!-- Delete button --}}
-        <UkButton @color="text" @on-click={{perform @delete (hash parentObj=@model childObj=modelMedium.medium relationType="media")}}>
-          <FaIcon @icon="trash" /> {{t "buttons.delete"}}
-        </UkButton>
-      </div>
-    </div>
+    {{/unless}}
   {{else}}
     <div class="uk-text-center uk-text-large uk-width-1-1 uk-padding">
       You have not added any images or videos.

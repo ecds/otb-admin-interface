@@ -92,6 +92,7 @@
         @zoom={{16}}
         @lat={{@model.bounds.centerLat}}
         @lng={{@model.bounds.centerLng}}
+        @onceOnIdle={{this.mapLoaded}}
       as |map|>
 
       {{#if @model.mapOverlay}}

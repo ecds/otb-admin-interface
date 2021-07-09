@@ -2,7 +2,7 @@
   {{#if this.container}}
     {{#in-element this.container}}
       <div style="position:absolute;" class={{@className}} id={{this.id}} ...attributes {{did-insert this.getOverlay}}>
-        <img src={{@image}} style="height:100%;width:100%;position:absolute;" {{on "load" @onLoad}} />
+        <img src={{@image}} style="height:100%;width:100%;position:absolute;" {{on "load" this.fitBounds}} />
         {{yield}}
       </div>
     {{/in-element}}

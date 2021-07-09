@@ -4,7 +4,7 @@ atlanta: "Atlanta"
 
 buttons:
   cancel: 'cancel'
-  confirmVideo: 'yes! add this video'
+  confirmVideo: 'yes! add this medium'
   delete: 'Delete'
   edit: 'Edit'
   newStop: "New Stop"
@@ -26,6 +26,7 @@ loading:
 latitude: 'Latitude'
 locate: "Locate"
 longitude: 'Longitude'
+manageAdmins: 'Manage Site Admins'
 manageAuthors: 'Manage Tour Authors'
 manageMedia: 'Manage Media'
 mediaCount: 'Media Count'

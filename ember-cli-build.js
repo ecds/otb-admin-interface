@@ -8,13 +8,9 @@ module.exports = function(defaults) {
     babel: {
       plugins: [ require.resolve('ember-auto-import/babel-plugin') ]
     },
-    // hinting: false,
-    // 'ember-cli-babel': {
-    //   includePolyfill: true
-    // },
 
     'ember-composable-helpers': {
-      only: ['toggle', 'next', 'pipe', 'contains']
+      only: ['toggle', 'next', 'pipe', 'contains', 'sort-by']
     },
 
     'ember-cli-string-helpers': {

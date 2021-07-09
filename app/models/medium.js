@@ -7,6 +7,7 @@ export default class Medium extends Model {
   @service tenant;
 
   @attr('string') title;
+  @attr('string') filename;
   @attr('string') caption;
   @attr('string') video;
   @attr('string') videoProvider;
@@ -20,16 +21,12 @@ export default class Medium extends Model {
   @attr('string') baseSixtyFour;
   @attr('boolean', { defaultValue: false }) orphaned;
   @attr() files;
-
-  // stop: attr(),
-  @hasMany('tour', { async: true })
-  tours;
-
-  @hasMany('stop', { async: true })
-  stops;
-
-  @attr('boolean', { defaultValue: false })
-  loadEmbed;
+  @hasMany('tour', { async: true }) tours;
+  @hasMany('stop', { async: true }) stops;
+  @attr('boolean', { defaultValue: false }) loaded;
+  @attr('boolean', { defaultValue: false }) loadEmbed;
+  @attr('boolean', { defaultValue: false }) missing;
+  @attr('boolean', { defaultValue: false }) reloading;
 
   get baseUrl() {
     return `${ENV.APP.API_HOST}`;

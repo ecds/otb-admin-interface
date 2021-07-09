@@ -3,35 +3,9 @@
     <p>{{t "loading.tour"}}</p>
   {{else}}
     <div class="uk-child-width-1-1" uk-grid>
-      {{#if currentUser.user.current_tenant_admin}}
+      {{#if currentUser.user.currentTenantAdmin}}
         <div>
-          {{!-- TODO: READD
-          <UkModal @modalName="tour-authors" as |modal|>
-            <modal.open>
-              {{t "manageAuthors"}}
-            </modal.open>
-            <modal.dialog>
-              <modal.body>
-                <DataLoader @queryType="all" @modelName="user" as |userLoader|>
-                  {{#if (lte userLoader.data.length 1)}}
-                    <p>{{t "loading.users"}}</p>
-                  {{else}}
-                    <h3 class="uk-heading">{{t "manageAuthors"}}</h3>
-                    <div class="uk-margin uk-grid-small uk-child-width-1-1 uk-grid">
-                      {{#each userLoader.data as |user|}}
-                        {{#unless user.super}}
-                          <div>
-                            <Input @id={{concat "user" user.id}} class="uk-checkbox" @type="checkbox" @name="tour_set" @change={{perform this.crudActions.toggleHasMany (hash relationType="author" parentObj=this.model.tour childObj=user)}} @checked={{includes user.tours model}} />
-                            <label for={{tourSet.subdir}}>{{user.display_name}}</label>
-                          </div>
-                        {{/unless}}
-                      {{/each}}
-                    </div>
-                  {{/if}}
-                </DataLoader>
-              </modal.body>
-            </modal.dialog>
-          </UkModal> --}}
+          <UkButton @color="secondary" @size="large" {{on "click" (action (mut this.visible) true)}}>{{t "manageAuthors"}}</UkButton>
         </div>
       {{/if}}
       <div>
@@ -268,3 +242,39 @@
       </div>
     </div>
   {{/if}}
+
+<UkModal @visible={{visible}} @stacked={{true}} as |modal|>
+  <modal.header class="uk-modal-header">
+    <h3 class="uk-modal-title">{{t "manageAuthors"}}</h3>
+  </modal.header>
+  <div class="uk-modal-body" uk-overflow-auto>
+    {{#each (sort-by "displayName" "email" this.model.users) as |user|}}
+      {{#unless user.super}}
+        <div class="uk-margin">
+          <Input
+            @id={{concat "user" user.id}}
+            class="uk-checkbox"
+            @type="checkbox"
+            @name="tour_set"
+            {{ on "change"
+              (
+                pipe
+              (
+                action (mut this.visible) true
+              )
+              (
+                perform this.crudActions.createHasManyThrough (hash user=user tour=model.tour existing=(includes model.tour.authorIds user.id)) 'tourAuthor'
+              )
+              (
+                action (mut this.visible) true
+              )
+            )
+            }}
+            @checked={{includes model.tour.authorIds user.id}}
+          />
+          <label for={{concat "user" user.id}}>{{if user.displayName user.displayName user.email}}</label>
+        </div>
+      {{/unless}}
+    {{/each}}
+  </div>
+</UkModal>

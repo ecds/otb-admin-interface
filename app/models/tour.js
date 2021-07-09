@@ -87,8 +87,8 @@ export default class TourModel extends Model {
   })
   mapType;
 
-  @hasMany('user')
-  authors;
+  @hasMany('user') users;
+  @hasMany('tour-author') tourAuthors;
 
   @attr({
     defaultValue() {
@@ -102,6 +102,10 @@ export default class TourModel extends Model {
       };
     }
   }) bounds;
+
+  get authorIds() {
+    return this.tourAuthors.map(a => a.get('user.id'));
+  }
 
   get safeDescription() {
     return new htmlSafe(this.description);

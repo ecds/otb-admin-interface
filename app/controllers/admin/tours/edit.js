@@ -3,8 +3,9 @@ import { action } from '@ember/object';
 import { task } from 'ember-concurrency-decorators';
 import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
-import UIkit from 'uikit';
 import { timeout } from 'ember-concurrency';
+import { tracked } from '@glimmer/tracking';
+import UIkit from 'uikit';
 
 export default class ToursController extends Controller{
   @service crudActions;
@@ -13,8 +14,8 @@ export default class ToursController extends Controller{
   @service taskMessage;
   @service tenant;
 
-  // @tracked
-  // taskMessage = null;
+  @tracked
+  visible = false;
 
   @task
   *waitForElement(element, accordion) {

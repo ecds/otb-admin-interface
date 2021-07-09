@@ -5,6 +5,7 @@ import { dropTask, task } from 'ember-concurrency-decorators';
 import { timeout } from 'ember-concurrency';
 import { isEmpty } from '@ember/utils';
 import { pluralize } from 'ember-inflector';
+import { dasherize } from '@ember/string';
 import UIkit from 'uikit';
 
 export default class CrudActionsService extends Service {
@@ -59,7 +60,7 @@ export default class CrudActionsService extends Service {
     }
     let attrs = isEmpty(options.attrs) ? {} : options.attrs;
     let childObj = isEmpty(options.childObj)
-      ? this.store.createRecord(options.relationType, attrs)
+      ? this.store.createRecord(dasherize(options.relationType).toLocaleLowerCase(), attrs)
       : options.childObj;
     if (childObj.hasDirtyAttributes) {
       yield this.saveRecord.perform(childObj);
@@ -72,7 +73,7 @@ export default class CrudActionsService extends Service {
   }
 
   @task
-  *deleteHasMany(options, skipConfirm=false) {
+  *deleteHasMany(options, skipConfirm=true) {
     let didConfirm = skipConfirm;
     if (!skipConfirm) {
       didConfirm = yield this.confirmDelete.perform(
@@ -112,10 +113,36 @@ export default class CrudActionsService extends Service {
 
   @task
   *toggleHasMany(options, event) {
-    if (event.target.checked) {
+    if ('checked' in options) {
+      if (options.checked) {
+        return yield this.deleteHasMany.perform(options);
+      } else {
+        return yield this.createHasMany.perform(options);
+      }
+    }
+    else if (event && event.target.checked) {
       return yield this.createHasMany.perform(options);
     } else {
       return yield this.deleteHasMany.perform(options);
+    }
+  }
+
+  @task
+  *createHasManyThrough(options, model) {
+    const [model1, model2, existing] = Object.keys(options);
+    if (existing) {
+      const models = yield this.store.findAll(dasherize(model));
+      const itemsToDelete = models.filter(item => item.get(`${model1}.id`) == options[model1].id && item.get(`${model2}.id`) == options[model2].id);
+      yield itemsToDelete.forEach(item =>this.deleteRecord.perform(item));
+    } else {
+      const hmt = this.store.createRecord(
+        model,
+        {
+          [model1]: options[model1],
+          [model2]: options[model2]
+        }
+      );
+      yield this.saveRecord.perform(hmt);
     }
   }
 
@@ -136,7 +163,7 @@ export default class CrudActionsService extends Service {
   *confirmDelete(title) {
     if (ENV.environment == 'test') return true;
     try {
-      yield UIkit.modal.confirm(`DELETE ${title}`, { status: 'danger' });
+      yield UIkit.modal.confirm(`DELETE ${title}`, { status: 'danger', stacked: true });
       return true;
     } catch (nah) {
       return false;
@@ -246,7 +273,8 @@ export default class CrudActionsService extends Service {
             attrs: {
               baseSixtyFour: encodedFile,
               [titleKey]: file.name,
-              tour: parentObj
+              tour: parentObj,
+              filename: file.name
             }
           });
         } else if (makeNew) {
@@ -254,15 +282,16 @@ export default class CrudActionsService extends Service {
             recordType,
             {
               baseSixtyFour: encodedFile,
-              [titleKey]: file.name
+              [titleKey]: file.name,
+              filename: file.name
             }
           );
         } else {
           parentObj.setProperties({
             baseSixtyFour: encodedFile,
-            [titleKey]: file.name
+            filename: file.name
           });
-          this.saveRecord.perform(parentObj);
+          newImage = yield this.saveRecord.perform(parentObj);
         }
         this.taskMessage.message = {
           message: 'Loading new file...',
@@ -271,7 +300,7 @@ export default class CrudActionsService extends Service {
         let savedImage = yield this.store.findRecord(recordType, newImage.id);
         // yield waitForProperty(savedImage, 'mobile', v => v !== null);
         return savedImage;
-      } catch {
+      } catch (error) {
         this.taskMessage.message = {
           message: 'Upload failed :(',
           type: 'danger'

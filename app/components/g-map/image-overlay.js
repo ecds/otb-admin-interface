@@ -24,7 +24,7 @@ export default class GMapImageOverlayComponent extends OverlayView {
   }
 
   onAdd() {
-    this.map.fitBounds(this.position);
+    // this.map.fitBounds(this.position);
 
     let panes = this.mapComponent.getPanes();
     this.targetPane = panes[this.paneName];
@@ -61,5 +61,14 @@ export default class GMapImageOverlayComponent extends OverlayView {
   @action
   getOverlay(element) {
     this.overlayElement = element;
+  }
+
+  @action
+  fitBounds() {
+    google.maps.event.addListenerOnce(this.map, 'idle', () => {
+      this.args.onLoad();
+    });
+
+    this.map.fitBounds(this.position);
   }
 }

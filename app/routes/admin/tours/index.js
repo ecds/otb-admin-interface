@@ -1,4 +1,5 @@
 import { inject as service } from '@ember/service';
+import RSVP from 'rsvp';
 import Route from '@ember/routing/route';
 
 export default class IndexRoute extends Route {
@@ -10,6 +11,9 @@ export default class IndexRoute extends Route {
   }
 
   model() {
-    return this.store.findAll('tour');
+    return RSVP.hash({
+      tour: this.store.findAll('tour'),
+      users: this.store.findAll('user')
+    });
   }
 }

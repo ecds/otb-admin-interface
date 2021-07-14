@@ -4,23 +4,23 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Sets</th>
+            <th>Sites</th>
             <th>Provider</th>
         </tr>
     </thead>
     <tbody>
-      {{#each model as |user|}}
+      {{#each (sort-by "displayName" "email" this.model) as |user|}}
         <tr>
             <td>
               <LinkTo @route="admin.users.user" @model={{user}}>
-                {{#if user.super}}{{fa-icon 'chess-queen'}}{{/if}} {{user.display_name}}
+                {{#if user.super}}{{fa-icon 'chess-queen'}}{{/if}} {{or user.displayName user.email}}
               </LinkTo>
             </td>
             <td>
               {{user.email}}
             </td>
             <td>
-              {{user.tour_sets.length}}
+              {{user.tourSetNames}}
             </td>
             <td>
                 {{user.provider}}

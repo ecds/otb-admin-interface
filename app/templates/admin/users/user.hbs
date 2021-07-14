@@ -1,7 +1,8 @@
 {{outlet}}
 <div class='uk-child-width-1-1' uk-grid>
     <div>
-      <h1 class='uk-primary-heading'>{{model.display_name}}</h1>
+      <h1 class='uk-primary-heading'>{{model.displayName}}</h1>
+      <h2 class='uk-primary-heading'>{{model.email}}</h2>
     </div>
     {{#if currentUser.user.super}}
       <div>

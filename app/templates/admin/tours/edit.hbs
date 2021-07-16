@@ -131,14 +131,16 @@
                           <h3 class="uk-heading">{{t "manageMedia"}}</h3>
                           <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
                           <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
-                          <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
-                          <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
-                            {{t "buttons.save"}}
-                          </UkButton>
-                          <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
-                          <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
-                            {{t "deleteFromTour"}}
-                          </UkButton>
+                          <section class="uk-margin">
+                            <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
+                            <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
+                              {{t "buttons.save"}}
+                            </UkButton>
+                            <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
+                            <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
+                              {{t "deleteFromTour"}}
+                            </UkButton>
+                          </section>
                         </div>
                     </div>
                   {{else}}
@@ -228,7 +230,7 @@
         <div style="height: 200px;"></div>
         </form>
       </div>
-      <div class="otb-crud-footer uk-padding-margin uk-child-width-auto" uk-grid>
+      <div class="otb-crud-footer uk-child-width-auto uk-grid-small" uk-grid>
         <div class="uk-width-1-1">&nbsp;</div>
         <div class="uk-flex-left">
           <OtbCrud::SubmitButtons @model={{this.model.tour}} />

@@ -4,7 +4,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/node:12.18-browsers
+      - image: cimg/node:14.17-browsers
         environment:
           JOBS: 2
           DBUS_SYSTEM_BUS_ADDRESS: unix:path=/host/run/dbus/system_bus_socket

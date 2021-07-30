@@ -7,6 +7,7 @@ export default class User extends Model {
   @attr('string') provider;
   @attr('boolean') currentTenantAdmin;
   @attr('boolean') super;
+  @attr() allTours;
 
   @hasMany('tour-set') tourSets;
   @hasMany('tour') tours;

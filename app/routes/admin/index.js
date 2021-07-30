@@ -10,12 +10,20 @@ export default class IndexRoute extends Route {
   }
 
   model() {
-    if (this.currentUser.user.super) {
-      return RSVP.hash({
-        // tours: this.store.findAll('tour'),
-        tourSets: this.store.findAll('tour-set')
-      });
-    }
-    return {};
+    return RSVP.hash({
+      // tours: this.store.findAll('tour'),
+      tourSets: this.store.findAll('tour-set')
+    });
   }
+
+  // async afterModel(model) {
+  //   if (!this.currentUser.user.super) {
+  //     model.tours = [];
+  //     await this.currentUser.user.allTours.forEach((tour) => {
+  //       model.tours.push(
+  //         this.store.queryRecord('tour', { tour: tour.tour, tourTenant: tour.tenant })
+  //       );
+  //     });
+  //   }
+  // }
 }

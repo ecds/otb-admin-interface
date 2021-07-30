@@ -53,10 +53,33 @@
         </td>
       </tr>
     {{else}}
-      <div class="uk-margin">
-        You have not been added to any tour sites. Please contact an administrator.
-      </div>
+      <p class="uk-margin">
+        You have not been added to any tour sites. Please contact an administrator.*
+      </p>
+      <p>
+        <strong>
+          *If you have had access to tour sites in the past, and should still have access, please check to make sure that you used the same GMail, Facebook, Twitter or GitHub account that you have previously used. If you use another account, your tour sites will not show!
+        </strong>
+      </p>
     {{/each}}
   </tbody>
 </table>
+{{#if this.currentUser.user.allTours}}
+  <table class="uk-table uk-table-striped">
+    <thead>
+      <tr>
+        <th>Tours</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each this.currentUser.user.allTours as |tour|}}
+        <tr>
+          <td>
+            <a href={{concat tour.tenant "/edit/" tour.id}}>{{tour.title}}</a>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{/if}}
 <div class='uk-section'></div>

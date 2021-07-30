@@ -3,19 +3,21 @@ import { task } from 'ember-concurrency-decorators';
 import { tracked } from '@glimmer/tracking';
 
 export default class CurrentUserService extends Service {
-  @service('session')
-  session;
-
-  @service
-  store;
+  @service ecdsSession;
+  @service session;
+  @service store;
 
   @tracked user = null;
 
   @task
   *load() {
     if (this.session.isAuthenticated) {
-      this.user = yield this.store.queryRecord('user', { me: true });
-      return this.user;
+      try {
+        this.user = yield this.store.queryRecord('user', { me: true });
+        return this.user;
+      } catch (error) {
+        this.ecdsSession.invalidate();
+      }
     }
     return false;
   }

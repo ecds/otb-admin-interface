@@ -1,10 +1,9 @@
+import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 import RSVP from 'rsvp';
-import Route from '@ember/routing/route';
 
 export default class IndexRoute extends Route {
-  @service
-  tenant;
+  @service tenant;
 
   beforeModel() {
     this.tenant.setTenant();

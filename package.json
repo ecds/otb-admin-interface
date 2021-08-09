@@ -100,7 +100,6 @@
   },
   "ember-addon": {
     "paths": [
-      "lib/ecds-auth-ember",
       "lib/ember-g-map"
     ]
   }

@@ -8,6 +8,6 @@ module('Integration | Component | video-embed', function(hooks) {
 
   test('it renders', async function(assert) {
     await render(hbs`<VideoEmbed @embed="//toots" />`);
-    assert.dom('iframe').hasProperty('src', 'https://toots/');
+    assert.dom('iframe').hasProperty('src', `${location.protocol}//toots/`);
   });
 });

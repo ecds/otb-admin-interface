@@ -108,7 +108,7 @@
         >
         </map.imageOverlay>
 
-        {{#if this.overlayLoaded}}
+        {{#if (and this.overlayLoaded this.showHandles)}}
 
         <map.circle
           @radius={{100}}
@@ -118,7 +118,10 @@
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
           @onDrag={{this.updateNorthEast}}
-          @onDragend={{this.dragEnd}}
+          @onDragend={{perform this.dragEnd}}
+          @fillColor="deeppink"
+          @strokeColor="deeppink"
+          @fillOpacity={{0.7}}
           as |circle|
         >
         </map.circle>
@@ -140,7 +143,10 @@
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
           @onDrag={{this.updateSouthWest}}
-          @onDragend={{this.dragEnd}}
+          @onDragend={{perform this.dragEnd}}
+          @fillColor="deeppink"
+          @strokeColor="deeppink"
+          @fillOpacity={{0.7}}
           as |circle|
         >
         </map.circle>
@@ -153,6 +159,38 @@
           @onCloseclick={{toggle 'showInfoWindow' this}}
           @content="Drag me to resize the image."
         />
+
+        <map.circle
+          @radius={{100}}
+          @lat={{@model.mapOverlay.south}}
+          @lng={{@model.mapOverlay.east}}
+          @onClick={{toggle 'showInfoWindow' this}}
+          @onDragstart={{this.dragStart}}
+          @draggable={{true}}
+          @onDrag={{this.updateSouthEast}}
+          @onDragend={{perform this.dragEnd}}
+          @fillColor="deeppink"
+          @strokeColor="deeppink"
+          @fillOpacity={{0.7}}
+          as |circle|
+        >
+        </map.circle>
+
+        <map.circle
+          @radius={{100}}
+          @lat={{@model.mapOverlay.north}}
+          @lng={{@model.mapOverlay.west}}
+          @onClick={{toggle 'showInfoWindow' this}}
+          @onDragstart={{this.dragStart}}
+          @draggable={{true}}
+          @onDrag={{this.updateNorthWest}}
+          @onDragend={{perform this.dragEnd}}
+          @fillColor="deeppink"
+          @strokeColor="deeppink"
+          @fillOpacity={{0.7}}
+          as |circle|
+        >
+        </map.circle>
         {{/if}}
       {{/if}}
 

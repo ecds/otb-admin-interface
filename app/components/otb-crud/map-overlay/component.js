@@ -7,7 +7,6 @@ import ENV from '../../../config/environment';
 
 export default class OtbCrudMapOverlayComponent extends Component {
   @service fileQueue;
-  @service store;
 
   @tracked
   showInfoWindow = true;
@@ -16,13 +15,13 @@ export default class OtbCrudMapOverlayComponent extends Component {
   overlayLoaded = false;
 
   @tracked
-  overlay = this.store.peekRecord('mapOverlay', this.args.model.get('mapOverlay.id'));
-
-  @tracked
   showMap = ENV.environment != 'test';
 
   @tracked
   map = null;
+
+  @tracked
+  showHandles = true;
 
   @task
   *upload(file) {
@@ -37,7 +36,7 @@ export default class OtbCrudMapOverlayComponent extends Component {
 
   @action
   updateNorthEast(event) {
-    this.overlay.setProperties({
+    this.args.model.mapOverlay.setProperties({
       north: event.circles.center.lat(),
       east: event.circles.center.lng()
     });
@@ -45,21 +44,39 @@ export default class OtbCrudMapOverlayComponent extends Component {
 
   @action
   updateSouthWest(event) {
-    this.overlay.setProperties({
+    this.args.model.mapOverlay.setProperties({
       south: event.circles.center.lat(),
       west: event.circles.center.lng()
     });
   }
 
   @action
-  dragStart() {
-    this.showInfoWindow = false;
-    this.overlay.setProperties({ resizing: true });
+  updateNorthWest(event) {
+    this.args.model.mapOverlay.setProperties({
+      north: event.circles.center.lat(),
+      west: event.circles.center.lng()
+    });
   }
 
   @action
-  dragEnd() {
-    this.overlay.setProperties({ resizing: false });
-    this.args.save.perform(this.overlay);
+  updateSouthEast(event) {
+    this.args.model.mapOverlay.setProperties({
+      south: event.circles.center.lat(),
+      east: event.circles.center.lng()
+    });
+  }
+
+  @action
+  dragStart() {
+    this.showInfoWindow = false;
+    this.args.model.mapOverlay.setProperties({ resizing: true });
+  }
+
+  @task
+  *dragEnd() {
+    this.showHandles = false;
+    this.args.model.mapOverlay.setProperties({ resizing: false });
+    yield this.args.save.perform(this.args.model.mapOverlay);
+    this.showHandles = true;
   }
 }

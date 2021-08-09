@@ -3,7 +3,7 @@ import { task } from 'ember-concurrency-decorators';
 import { tracked } from '@glimmer/tracking';
 
 export default class CurrentUserService extends Service {
-  @service ecdsSession;
+  // @service ecdsSession;
   @service session;
   @service store;
 
@@ -16,7 +16,7 @@ export default class CurrentUserService extends Service {
         this.user = yield this.store.queryRecord('user', { me: true });
         return this.user;
       } catch (error) {
-        this.ecdsSession.invalidate();
+        this.session.invalidate();
       }
     }
     return false;

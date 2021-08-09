@@ -29,7 +29,6 @@ export default class ApplicationRoute extends Route {
 
   __setTenant(transisition) {
     // The admin routes are the only ones where we will be switching tenants.
-    // Also, the rootUrl for non admin routes will always come after the tenant in the
     if (window.location.pathname.split('/')[1] === 'admin') {
       if (Object.hasOwnProperty.call(transisition, 'intent')) {
         if (

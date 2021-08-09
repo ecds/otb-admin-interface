@@ -39,6 +39,7 @@
   </thead>
   <tbody>
     {{#each this.model.tourSets as |tourSet|}}
+    {{#if (or this.currentUser.user.super (includes this.currentUser.user.tourSetNames tourSet.name))}}
       <tr>
         <td class='uk-table-link'>
           <a href={{concat tourSet.subdir "/"}}>
@@ -52,6 +53,7 @@
           </UkButton>
         </td>
       </tr>
+      {{/if}}
     {{else}}
       <p class="uk-margin">
         You have not been added to any tour sites. Please contact an <a href="mailto:ecds@emroy.edu">administrator</a>.*

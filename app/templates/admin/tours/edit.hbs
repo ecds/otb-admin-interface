@@ -11,14 +11,16 @@
       <div>
         <form class="uk-form-stacked otb-crud uk-padding uk-padding-bottom">
           <section>
-            <OtbTooltip @tooltipContent={{t "tooltip.externalLink"}} @ariaDescribedBy={{concat this.model.tour.slug "-" this.model.tour.id "meta-external-link-aria-describedby"}}>
               <legend class="uk-legend">Tour</legend>
-            </OtbTooltip>
             <OtbCrud::CommonForm @model={{this.model.tour}} @modelTitle="Tour" />
             <LanguageSelect @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
           </section>
 
-          <legend class="uk-legend">External Link</legend>
+          <legend class="uk-legend">
+            <OtbTooltip @tooltipContent={{t "tooltip.externalLink"}} @ariaDescribedBy={{concat this.model.tour.slug "-" this.model.tour.id "meta-external-link-aria-describedby"}}>
+              External Link
+            </OtbTooltip>
+          </legend>
           <OtbCrud::FormSection @label='externalLink'>
             <label class="uk-form-label" for={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}}>
               <OtbTooltip @tooltipContent={{t "tooltip.linkText"}} @ariaDescribedBy={{concat this.model.tour.slug "-" this.model.tour.id "meta-link-text-aria-describedby"}}>

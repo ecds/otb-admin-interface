@@ -48,7 +48,7 @@ tooltip:
   east: 'Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position.'
   enableDirections: 'Display directions between stops. Directions are provided by Google. You will be able to provide directions for walking, driving, biking, and transit.'
   enableGeo: 'Show stops on a map.'
-  externalLink: 'Link this will display along with the pages. This allows you to provide a link to an external site or page. The link will open in a new tab or window.'
+  externalLink: 'Link that will display along with the pages. This allows you to provide a link to an external site or page. The link will open in a new tab or window.'
   languageSelect: 'Select the language for the content. This will be used when a person has their device read the content. Please let us know if you would like a language added!'
   linkAddress: 'Address for the external link.'
   linkText: 'Text for the external link.'

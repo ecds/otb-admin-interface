@@ -7,12 +7,7 @@ export default class EditRoute extends Route {
   model(params) {
     return RSVP.hash({
       tour: this.store.findRecord('tour', params.tour_id),
-      modes: this.store.findAll('mode')
-    });
-  }
-
-  async afterModel(model) {
-    let extra = await RSVP.hash({
+      modes: this.store.findAll('mode'),
       flatPages: this.store.findAll('flatPage'),
       stops: this.store.findAll('stop'),
       media: this.store.findAll('medium'),
@@ -20,8 +15,13 @@ export default class EditRoute extends Route {
       users: this.store.findAll('user'),
       tourAuthors: this.store.findAll('tour-author')
     });
+  }
 
-    Object.assign(model, extra);
+  async afterModel(model) {
+    // let extra = await RSVP.hash({
+    // });
+
+    // Object.assign(model, extra);
 
     model.tour.tourMedia.forEach((tourMedium) => {
       if (tourMedium.id) {

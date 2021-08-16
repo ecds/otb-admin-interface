@@ -60,7 +60,7 @@ module.exports = environment => {
     };
     ENV['ember-google-maps'] = {
       key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
-      libraries: ['places'],
+      libraries: ['places', 'drawing'],
       language: 'en',
       protocol: 'https'
     };

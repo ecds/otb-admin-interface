@@ -12,6 +12,8 @@ export default class TourModel extends Model {
   @attr('number') stopCount;
   @attr('string') themeTitle;
   @attr('string') defaultLng;
+  @attr('string') linkAddress;
+  @attr('string') linkText;
   @attr('boolean') useDirections;
 
   @attr('boolean', {

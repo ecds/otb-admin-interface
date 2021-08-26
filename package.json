@@ -20,6 +20,7 @@
     "test:ember": "ember test"
   },
   "dependencies": {
+    "ecds-ember-auth": "git+https://github.com/ecds/ecds-auth-ember.git#develop",
     "ember-cli-htmlbars": "^4.2.3",
     "ember-data": "~3.24.0",
     "ember-try": "^1.0.0-beta.1",

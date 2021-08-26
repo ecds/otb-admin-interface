@@ -50,6 +50,13 @@ module.exports = environment => {
     }
   };
 
+  ENV['ember-google-maps'] = {
+    key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
+    libraries: ['places', 'drawing'],
+    language: 'en',
+    protocol: 'https'
+  };
+
   if (environment === 'development') {
     ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
     ENV.APP.API_HOST = 'https://otb.org:3000';
@@ -58,12 +65,7 @@ module.exports = environment => {
     ENV['ember-cli-mirage'] = {
       enabled: false
     };
-    ENV['ember-google-maps'] = {
-      key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
-      libraries: ['places', 'drawing'],
-      language: 'en',
-      protocol: 'https'
-    };
+
     ENV['g-map'] = ENV['ember-google-maps'];
     ENV['fauxOAuth'].tokenValidationUrl = 'https://otb.org:3000/auth/verify/';
     ENV['fauxOAuth'].tokenAuthUrl = 'https://otb.org:3000/auth/tokens/';
@@ -118,11 +120,11 @@ module.exports = environment => {
 
   if (environment === 'production') {
     ENV.APP.API_HOST = 'https://api.opentour.emory.edu';
-    ENV['g-map'] = {
-      key: 'AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE',
-      protocol: 'https'
-    };
-
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
+    ENV['g-map'] = ENV['ember-google-maps'];
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://api.opentour.emory.edu/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://api.opentour.emory.edu/auth/tokens/';
+    ENV['fauxOAuth'].redirectUrl = 'https://opentour.site/admin/torii/redirect.html';
   }
 
   if (environment === 'gsuWalkingTours') {

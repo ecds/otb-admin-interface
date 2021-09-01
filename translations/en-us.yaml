@@ -62,6 +62,7 @@ tooltip:
   published: 'Check this box to make the tour publicly available.'
   metaDescription: 'The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters.'
   selectIconColor: 'Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable.'
+  siteIcon: 'Upload an image to replace the OpenTour logo on your tours. Note: due to size and design considerations your image will be automatically proportionally resized to have a max width of 300 pixels and a max height of 80 pixels.'
   reorderImages: 'You can click and drag to reorder the images and videos. You can add as many images or videos as you want. Keep the file size small.'
   south: 'Southern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position.'
   west: 'Western longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position.'

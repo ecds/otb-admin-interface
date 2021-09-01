@@ -289,6 +289,7 @@ export default class CrudActionsService extends Service {
         } else {
           parentObj.setProperties({
             baseSixtyFour: encodedFile,
+            [titleKey]: file.name,
             filename: file.name
           });
           newImage = yield this.saveRecord.perform(parentObj);

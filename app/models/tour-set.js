@@ -6,6 +6,7 @@ export default class TourSet extends Model {
   @attr('string') baseSixtyFour;
   @attr('string') logoTitle;
   @attr('string') logoUrl;
+  @attr() logo;
   @hasMany('tour') tours;
   @hasMany('user') admins;
 }

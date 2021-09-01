@@ -28,7 +28,7 @@
       @onfileadd={{perform this.upload }}
     >
       <a tabindex="0">
-        <OtbTooltip @tooltipContent={{t "tooltip.addOverlay"}} @ariaDescribedBy="tour-site-logo-upload">
+        <OtbTooltip @tooltipContent={{t "tooltip.siteIcon"}} @ariaDescribedBy="tour-site-icon">
           <FaIcon @icon="upload" /> {{if this.tenant.tenantModel.logoUrl "Update " "Upload "}} Site Logo
         </OtbTooltip>
       </a>
@@ -37,7 +37,7 @@
 
   {{#if this.tenant.tenantModel.logoUrl}}
     <section class="uk-margin-small">
-      <UkButton @color="link"><FaIcon @icon="trash" /> Remove Site Logo</UkButton>
+      <UkButton @color="link" {{on "click" (perform this.removeSiteIcon)}}><FaIcon @icon="trash" /> Remove Site Logo</UkButton>
     </section>
     <section class="uk-margin-small">
       <figure>

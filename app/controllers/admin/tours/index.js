@@ -1,7 +1,7 @@
 import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
-import { task, timeout } from 'ember-concurrency';
+import { task } from 'ember-concurrency';
 import { tracked } from '@glimmer/tracking';
 import UIkit from 'uikit';
 
@@ -43,10 +43,8 @@ export default class IndexController extends Controller {
 
   @task
   *removeSiteIcon() {
-    this.tenant.tenantModel.setProperties({ logo: null, base_sixty_four: null })
-    this.tenant.tenantModel.save();
-    // yield this.crudActions.saveRecord.perform(this.tenant.tenantModel);
-    yield timeout(100);
+    this.tenant.tenantModel.setProperties({ logo: null, base_sixty_four: null });
+    yield this.tenant.tenantModel.save();
   }
 
   @action

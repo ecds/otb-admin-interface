@@ -104,13 +104,16 @@ export default class ToursController extends Controller{
         message: 'Adding new page to tour...',
         type: 'success'
       };
-      let newPage = yield this.crudActions.createHasMany.perform({
+      let newPage = this.store.createRecord('flatPage', {
+        title: `New Page - ${new Date().getTime().toString()}`
+      });
+      console.log("🚀 ~ file: edit.js ~ line 104 ~ ToursController ~ *newPage ~ this.taskMessag", this.taskMessag)
+      yield this.crudActions.createHasMany.perform({
         relationType: 'flatPage',
-        parentObj: tour
+        parentObj: tour,
+        childObj: newPage
       });
-      newPage.setProperties({
-        title: ''
-      });
+      console.log("🚀 ~ file: edit.js ~ line 111 ~ ToursController ~ *newPage ~ newPage", newPage)
       yield this.waitForElement.perform(`page-${newPage.id}`, accordion);
     } catch (error) {
       this.taskMessage = `ERROR: ${error.message}`;

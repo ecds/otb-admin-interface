@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
-import { task } from 'ember-concurrency-decorators';
+import { keepLatestTask, task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
 import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
 /* global google */
@@ -126,7 +126,7 @@ export default class Map extends Component {
   // }
 
   @task
-  *updateLocation() {
+  *updateAddress() {
     this.showMap = false;
     yield this.getAddress.perform();
     this.showMap = true;
@@ -145,8 +145,8 @@ export default class Map extends Component {
             let location = result[0].geometry.location;
             this.args.model.setProperties({
               address: result[0].formatted_address,
-              lat: location.lat(),
-              lng: location.lng()
+              lat: location.lat().toFixed(6),
+              lng: location.lng().toFixed(6)
             });
           } else {
             // debug(status);
@@ -163,8 +163,8 @@ export default class Map extends Component {
             let location = result[0].geometry.location;
             this.stop.setProperties({
               parkingAddress: result[0].formatted_address,
-              parkingLat: location.lat(),
-              parkingLng: location.lng()
+              parkingLat: location.lat().toFixed(6),
+              parkingLng: location.lng().toFixed(6)
             });
           } else {
             // debug(status);
@@ -175,27 +175,30 @@ export default class Map extends Component {
     this.showMap = true;
   }
 
-  @action
-  reLocate(event) {
-    const newLat = event.markers.position.lat();
-    const newLng = event.markers.position.lng();
+  @keepLatestTask
+  *updateLocation(event) {
     this.stop.setProperties({
-      lat: newLat,
-      lng: newLng
+      lat: event.markers.position.lat().toFixed(6),
+      lng: event.markers.position.lng().toFixed(6)
     });
+    yield timeout(10);
+  }
+
+  @action
+  relocate(event) {
     this.getAddress.perform();
     this.args.save.perform(this.stop, false);
   }
 
-  @action
-  reLocateParking(event) {
-    const newLat = event.markers.position.lat();
-    const newLng = event.markers.position.lng();
+  @keepLatestTask
+  *reLocateParking(event) {
+    const newLat = event.markers.position.lat().toFixed(6);
+    const newLng = event.markers.position.lng().toFixed(6);
     this.stop.setProperties({
       parkingLat: newLat,
       parkingLng: newLng
     });
-    this.getAddress.perform(false);
-    this.args.save.perform(this.stop, false);
+    yield this.getAddress.perform(false);
+    yield this.args.save.perform(this.stop, false);
   }
 }

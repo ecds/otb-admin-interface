@@ -26,7 +26,7 @@ export default class MapOverlayModel extends Model {
     }
   }) west;
 
-  @attr('string') imageUrl;
+  @attr('string') originalImageUrl;
   @attr('string') filename;
   @attr('string') baseSixtyFour;
   @attr('boolean', { defaultValue: false }) resizing;

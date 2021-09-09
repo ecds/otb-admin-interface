@@ -21,7 +21,7 @@
           {{t "latitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lat-" @model.id}} @value={{@model.lat}} {{on "change" (perform this.updateLocation)}} />
+          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lat-" @model.id}} @value={{@model.lat}} {{on "change" (perform this.updateAddress)}} />
         </section>
       </OtbCrud::FormSection>
 
@@ -30,7 +30,7 @@
           {{t "longitude"}}
         </label>
         <section class="uk-width-1-1">
-          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lng-" @model.id}} @value={{@model.lng}} {{on "change" (perform this.updateLocation)}} />
+          <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug "-stop-lng-" @model.id}} @value={{@model.lng}} {{on "change" (perform this.updateAddress)}} />
         </section>
       </OtbCrud::FormSection>
 
@@ -88,11 +88,12 @@
       as |map|>
         <map.marker
           @draggable={{true}}
-          @onDragend={{this.reLocate}}
+          @onDrag={{perform this.updateLocation}}
+          @onDragend={{this.relocate}}
           @lat={{@model.lat}}
           @lng={{@model.lng}}
           @label={{hash text=(concat @position) color="white" className="otb-marker-label"}}
-          @icon={{if @model.mapIcon @model.mapIcon.imageUrl this.markerIconSVG}}
+          @icon={{if @model.mapIcon @model.mapIcon.originalImageUrl this.markerIconSVG}}
         as |marker|>
           <marker.infoWindow
             @isOpen={{true}}
@@ -103,7 +104,7 @@
         {{#if (and @model.parkingLat @model.parkingLng)}}
           <map.marker
             @draggable={{true}}
-            @onDragend={{this.reLocateParking}}
+            @onDrag={{perform this.reLocateParking}}
             @lat={{@model.parkingLat}}
             @lng={{@model.parkingLng}}
             @icon={{this.parkingIconSVG}}

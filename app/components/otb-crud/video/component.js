@@ -66,7 +66,8 @@ export default class OtbCrudVideoComponent extends Component {
       {
         video: this.videoCode,
         videoProvider: this.videoProvider,
-        embed: this.embed
+        embed: this.embed,
+        filename: `${this.videoCode}.jpg`
       },
       this.args.model
     );
@@ -74,5 +75,6 @@ export default class OtbCrudVideoComponent extends Component {
     this.embed = null;
     this.videoProvider = null;
     this.error = null;
+    this.link = null;
   }
 }

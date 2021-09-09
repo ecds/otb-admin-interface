@@ -29,7 +29,7 @@ module('Integration | Component | otb-crud/media', function(hooks) {
     await render(hbs`<OtbCrud::Media @model={{this.tour}} />`);
     assert.dom('p').hasText('Media Count: 2');
     assert.dom(`img#medium-${this.tour.slug}1`).exists();
-    assert.dom('#play-button-2.otb-playbutton-overlay').exists();
+    assert.dom('#play-button-22.otb-playbutton-overlay').exists();
   });
 
   test('it reorders', async function(assert) {
@@ -42,7 +42,7 @@ module('Integration | Component | otb-crud/media', function(hooks) {
     await triggerEvent('.uk-sortable', 'stop');
     assert.dom('p').hasText('Media Count: 2');
     assert.dom(`img#medium-${this.tour.slug}1`).exists();
-    assert.dom('#play-button-2.otb-playbutton-overlay').exists();
+    assert.dom('#play-button-22.otb-playbutton-overlay').exists();
     assert.equal(this.store.peekRecord('tourMedium', 2).position, 1);
   });
 });

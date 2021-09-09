@@ -41,7 +41,7 @@
                 {{on "error" (fn this.imageError modelMedium.medium.id)}}
               >
               {{#if modelMedium.medium.video}}
-                <div id={{concat "play-button-" modelMedium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">
+                <div id={{concat "play-button-" modelMedium.id modelMedium.medium.id}} class="uk-position-center uk-panel otb-playbutton-overlay">
                   <FaIcon @icon="play" />
                 </div>
               {{/if}}

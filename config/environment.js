@@ -44,6 +44,10 @@ module.exports = environment => {
       baseUrl: 'https://auth.digitalscholarship.emory.edu/auth/'
     },
 
+    emoryTenants: [
+      ''
+    ],
+
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
@@ -100,6 +104,7 @@ module.exports = environment => {
 
   if (environment === 'staging') {
     ENV.APP.API_HOST = 'https://otb-api.ecdsdev.org';
+    ENV.APP.FRONTEND_HOST = 'opentour.site';
     ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
 
     ENV['ember-cli-mirage'] = {
@@ -111,6 +116,7 @@ module.exports = environment => {
       language: 'en',
       protocol: 'https'
     };
+
     ENV['g-map'] = ENV['ember-google-maps'];
     ENV['fauxOAuth'].tokenValidationUrl = 'https://otb-api.ecdsdev.org/auth/verify/';
     ENV['fauxOAuth'].tokenAuthUrl = 'https://otb-api.ecdsdev.org/auth/tokens/';

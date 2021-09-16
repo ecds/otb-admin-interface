@@ -1,14 +1,18 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import ENV from '../../config/environment';
 
 
 export default class PreviewButton extends Component {
   @service tenant;
 
   get previewUrl() {
-    let loc = window.location;
-    return `${loc.origin}/${this.tenant.tenant}/${this.args.model.slug}`;
+    if (ENV.emoryTenants.includes(this.tenant.tenant)) {
+      return `//${ENV.APP.FRONTEND_HOST}/${this.tenant.tenant}/${this.args.model.slug}`;
+    }
+
+    return `//${this.tenant.tenant}.${ENV.APP.FRONTEND_HOST}/${this.args.model.slug}`;
   }
 
   set previewUrl(v) {

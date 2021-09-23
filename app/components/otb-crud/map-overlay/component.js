@@ -76,7 +76,7 @@ export default class OtbCrudMapOverlayComponent extends Component {
   *dragEnd() {
     this.showHandles = false;
     this.args.model.mapOverlay.setProperties({ resizing: false });
-    yield this.args.save.perform(this.args.model.mapOverlay);
+    yield this.args.save.perform(this.args.model.mapOverlay, false);
     this.showHandles = true;
     this.overlayLoaded = true;
   }

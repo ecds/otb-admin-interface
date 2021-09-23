@@ -82,10 +82,25 @@
       <GMap
         @mapTypeId={{@tour.mapType}}
         @disableDefaultUI={{true}}
-        @zoom={{16}}
+        @zoom={{this.zoomLevel}}
         @lat={{@model.lat}}
         @lng={{@model.lng}}
+        @onZoomChanged={{this.updateZoomLevel}}
       as |map|>
+
+        {{#if @tour.mapOverlay}}
+          <map.imageOverlay
+            @south={{@tour.mapOverlay.south}}
+            @west={{@tour.mapOverlay.west}}
+            @north={{@tour.mapOverlay.north}}
+            @east={{@tour.mapOverlay.east}}
+            @image={{@tour.mapOverlay.originalImageUrl}}
+            @zIndex={{this.zIndex}}
+            @maintainBounds={{true}}
+          >
+          </map.imageOverlay>
+        {{/if}}
+
         <map.marker
           @draggable={{true}}
           @onDrag={{perform this.updateLocation}}
@@ -93,7 +108,7 @@
           @lat={{@model.lat}}
           @lng={{@model.lng}}
           @label={{hash text=(concat @position) color="white" className="otb-marker-label"}}
-          @icon={{if @model.mapIcon @model.mapIcon.originalImageUrl this.markerIconSVG}}
+          @icon={{@model.icon}}
         as |marker|>
           <marker.infoWindow
             @isOpen={{true}}
@@ -107,7 +122,7 @@
             @onDrag={{perform this.reLocateParking}}
             @lat={{@model.parkingLat}}
             @lng={{@model.parkingLng}}
-            @icon={{this.parkingIconSVG}}
+            @icon={{@model.parkingIconSVG}}
             @label={{hash text="P" color="white" className="otb-marker-label"}}
           />
         {{/if}}

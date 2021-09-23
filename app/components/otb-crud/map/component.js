@@ -3,7 +3,6 @@ import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { keepLatestTask, task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
-import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
 /* global google */
 
 const locator = new google.maps.Geocoder();
@@ -23,27 +22,8 @@ export default class Map extends Component {
   @tracked
   showMap = true;
 
-  get parkingIconSVG() {
-    return {
-      path: faIcon({ prefix: 'fas', iconName: 'map-marker' }).icon.lastObject,
-      fillColor: 'blue',
-      fillOpacity: 1,
-      scale: 0.075,
-      anchor: new google.maps.Point(200, 550),
-      labelOrigin: new google.maps.Point(200, 200)
-    };
-  }
-
-  get markerIconSVG() {
-    return {
-      path: faIcon({ prefix: 'fas', iconName: 'map-marker' }).icon.lastObject,
-      fillColor: this.stop.iconColor,
-      fillOpacity: 1,
-      scale: 0.075,
-      anchor: new google.maps.Point(200, 550),
-      labelOrigin: new google.maps.Point(200, 200)
-    };
-  }
+  @tracked
+  zoomLevel = 16;
 
   constructor() {
     super(...arguments);
@@ -51,6 +31,12 @@ export default class Map extends Component {
     if ((this.stop.lat && !this.stop.address) || (this.stop.parkingLat && !this.parkingAddress)) {
       this.getAddress.perform(!this.stop.address);
     }
+  }
+
+  @action
+  updateZoomLevel(event) {
+    // This prevents the map from zooming when the marker is dragged.
+    this.zoomLevel = event.map.getZoom();
   }
 
   @action
@@ -107,23 +93,6 @@ export default class Map extends Component {
     }
 
   }
-
-  // get parkingIcon() {
-  //   if (this.stop.parkingLat) {
-  //     return {
-  //       url: '/admin/assets/icons/parking.svg',
-  //       size: new google.maps.Size(90, 90),
-  //       scaledSize: new google.maps.Size(40, 40),
-  //       anchor: new google.maps.Point(15, 15),
-  //       origin: new google.maps.Point(0, 0)
-  //     };
-  //   }
-  //   return null;
-  // }
-
-  // set parkingIcon(v) {
-  //   return v;
-  // }
 
   @task
   *updateAddress() {

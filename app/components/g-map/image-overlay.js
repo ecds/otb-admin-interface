@@ -66,9 +66,9 @@ export default class GMapImageOverlayComponent extends OverlayView {
   @action
   fitBounds() {
     google.maps.event.addListenerOnce(this.map, 'idle', () => {
-      this.args.onLoad();
+      if (this.args.onLoad) this.args.onLoad();
     });
 
-    this.map.fitBounds(this.position);
+    if (!this.args.maintainBounds) this.map.fitBounds(this.position);
   }
 }

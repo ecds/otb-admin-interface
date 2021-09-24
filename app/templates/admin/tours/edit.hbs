@@ -28,7 +28,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
           <OtbCrud::FormSection @label='externalLink'>
@@ -38,7 +38,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
 
@@ -222,7 +222,7 @@
                         <OtbCrud::FormSection @label="Page Title">
                           <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{this.modelTitle}} Title</label>
                           <section class="uk-width-1-1">
-                            <Input class="uk-input" id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
+                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
                           </section>
                         </OtbCrud::FormSection>
 
@@ -280,7 +280,7 @@
       {{#unless user.super}}
         <div class="uk-margin">
           <Input
-            id={{concat "user" user.id}}
+            @id={{concat "user" user.id}}
             class="uk-checkbox"
             @type="checkbox"
             @name="tour_set"

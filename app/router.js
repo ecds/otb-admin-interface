@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-classic-classes */
 import EmberRouter from '@ember/routing/router';
 import { computed } from '@ember/object';
 
@@ -9,15 +10,15 @@ const Router = EmberRouter.extend({
     2) There is no path - meaning going to public tenant
     3) The path is a number - meaning tour on public tenant
   */
-  rootURL: computed('', () => {
+  rootURL: computed('', function() {
     let path = window.location.pathname.replace(/\/$/, '').split('/')[1];
     if (path === 'admin' || path === 'login' || !path || parseInt(path)) {
       return '/admin/';
     } else if (path) {
       return `/admin/${path}/`;
     }
+    return '/';
   })
-  // rootURL: '/'
 });
 
 Router.map(function() {
@@ -55,3 +56,4 @@ Router.map(function() {
 });
 
 export default Router;
+/* eslint-enable ember/no-classic-classes */

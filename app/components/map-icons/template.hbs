@@ -5,7 +5,7 @@
     </label>
   </OtbTooltip>
   <section class="uk-width-1-1">
-    <Input @type="color" id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
+    <Input @type="color" @id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
   </section>
 </OtbCrud::FormSection>
 

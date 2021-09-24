@@ -21,13 +21,13 @@
           <section class="uk-margin">
             <label class="uk-form-label" for={{concat "image-title-" @medium.id "-for-" @parentObj.slug}}>Image Title</label>
             <div class="uk-form-controls">
-                <Input class="uk-input" id={{concat "image-title-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image Title..." @value={{@medium.medium.title}} />
+                <Input class="uk-input" @id={{concat "image-title-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image Title..." @value={{@medium.medium.title}} />
             </div>
           </section>
           <section class="uk-margin">
             <label class="uk-form-label" for={{concat "image-caption-" @medium.id "-for-" @parentObj.slug}}>Image Caption</label>
             <div class="uk-form-controls">
-                <Textarea class="uk-input" id={{concat "image-caption-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image caption..." @value={{@medium.medium.caption}} />
+                <Textarea class="uk-input" @id={{concat "image-caption-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image caption..." @value={{@medium.medium.caption}} />
             </div>
           </section>
           {{#if @medium.medium.video}}

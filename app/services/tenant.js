@@ -64,7 +64,7 @@ export default class TenantService extends Service {
       this.tenant = context;
     } else if (isNaN(context[0]) && typeof context[0] === 'string') {
       this.tenant = context.firstObject;
-    } else if (context.params[context.targetName].hasOwnProperty('tenant')) {
+    } else if (Object.prototype.hasOwnProperty.call(context.params[context.targetName], 'tenant')) {
       this.tenant = context.params[context.targetName].tenant;
     } else {
       this.setTenant();

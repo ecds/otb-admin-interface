@@ -7,7 +7,7 @@
   <section class="uk-margin uk-width-1-1">
     <section class="uk-form-controls" uk-grid>
       <section class="uk-width-3-4">
-        <Input id={{concat @model.slug '-video-' @model.id}} class="uk-input uk-margin-bottom" placeholder="Add YouTube, Vimeo, on SoundCloud..." @value={{this.link}} {{on "keyup" this.getVideo}} {{on "change" this.getVideo}} />
+        <Input @id={{concat @model.slug '-video-' @model.id}} class="uk-input uk-margin-bottom" placeholder="Add YouTube, Vimeo, on SoundCloud..." @value={{this.link}} {{on "keyup" this.getVideo}} {{on "change" this.getVideo}} />
       </section>
       <section class="uk-width-1-4">
         <UkButton {{on "click" this.getVideo}}@color="secondary"><FaIcon @icon="search" /> Find Medium</UkButton>

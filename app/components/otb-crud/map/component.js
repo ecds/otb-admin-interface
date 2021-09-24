@@ -154,7 +154,7 @@ export default class Map extends Component {
   }
 
   @action
-  relocate(event) {
+  relocate() {
     this.getAddress.perform();
     this.args.save.perform(this.stop, false);
   }

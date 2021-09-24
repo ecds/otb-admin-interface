@@ -15,7 +15,7 @@
           {{#each model.tourSets as |tourSet|}}
             {{#if tourSet.subdir}}
               <div>
-                <Input id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
+                <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
                 <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
               </div>
             {{/if}}

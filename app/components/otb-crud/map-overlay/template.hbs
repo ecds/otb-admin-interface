@@ -110,8 +110,12 @@
 
         {{#if (and this.overlayLoaded this.showHandles)}}
 
-        <map.circle
-          @radius={{100}}
+        {{!-- <map.marker
+        @icon={{this.handle}}
+          as |marker|
+        >
+        </map.marker> --}}
+        <map.marker
           @lat={{@model.mapOverlay.north}}
           @lng={{@model.mapOverlay.east}}
           @onClick={{toggle 'showInfoWindow' this}}
@@ -119,12 +123,9 @@
           @draggable={{true}}
           @onDrag={{this.updateNorthEast}}
           @onDragend={{perform this.dragEnd}}
-          @fillColor="deeppink"
-          @strokeColor="deeppink"
-          @fillOpacity={{0.7}}
-          as |circle|
-        >
-        </map.circle>
+          @icon={{this.handle}}
+        as |marker|>
+        </map.marker>
 
         <map.infoWindow
           @lat={{@model.mapOverlay.north}}
@@ -135,8 +136,7 @@
           @content="Drag me to resize the image."
         />
 
-        <map.circle
-          @radius={{100}}
+        <map.marker
           @lat={{@model.mapOverlay.south}}
           @lng={{@model.mapOverlay.west}}
           @onClick={{toggle 'showInfoWindow' this}}
@@ -144,12 +144,10 @@
           @draggable={{true}}
           @onDrag={{this.updateSouthWest}}
           @onDragend={{perform this.dragEnd}}
-          @fillColor="deeppink"
-          @strokeColor="deeppink"
-          @fillOpacity={{0.7}}
-          as |circle|
+          @icon={{this.handle}}
+          as |marker|
         >
-        </map.circle>
+        </map.marker>
 
         <map.infoWindow
           @lat={{@model.mapOverlay.south}}
@@ -160,8 +158,7 @@
           @content="Drag me to resize the image."
         />
 
-        <map.circle
-          @radius={{100}}
+        <map.marker
           @lat={{@model.mapOverlay.south}}
           @lng={{@model.mapOverlay.east}}
           @onClick={{toggle 'showInfoWindow' this}}
@@ -169,15 +166,12 @@
           @draggable={{true}}
           @onDrag={{this.updateSouthEast}}
           @onDragend={{perform this.dragEnd}}
-          @fillColor="deeppink"
-          @strokeColor="deeppink"
-          @fillOpacity={{0.7}}
-          as |circle|
+          @icon={{this.handle}}
+          as |marker|
         >
-        </map.circle>
+        </map.marker>
 
-        <map.circle
-          @radius={{100}}
+        <map.marker
           @lat={{@model.mapOverlay.north}}
           @lng={{@model.mapOverlay.west}}
           @onClick={{toggle 'showInfoWindow' this}}
@@ -185,12 +179,10 @@
           @draggable={{true}}
           @onDrag={{this.updateNorthWest}}
           @onDragend={{perform this.dragEnd}}
-          @fillColor="deeppink"
-          @strokeColor="deeppink"
-          @fillOpacity={{0.7}}
-          as |circle|
+          @icon={{this.handle}}
+          as |marker|
         >
-        </map.circle>
+        </map.marker>
         {{/if}}
       {{/if}}
 

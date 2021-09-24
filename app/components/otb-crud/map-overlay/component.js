@@ -4,6 +4,8 @@ import { task } from 'ember-concurrency-decorators';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import ENV from '../../../config/environment';
+import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
+/* global google */
 
 export default class OtbCrudMapOverlayComponent extends Component {
   @service fileQueue;
@@ -29,6 +31,16 @@ export default class OtbCrudMapOverlayComponent extends Component {
     yield this.args.addToModel.perform(this.args.model, newOverlay, 'mapOverlay');
   }
 
+  get handle() {
+    return {
+      path: faIcon({ prefix: 'fas', iconName: 'circle' }).icon.lastObject,
+      fillColor: 'deeppink',
+      fillOpacity: 1,
+      scale: 0.075,
+      anchor: new google.maps.Point(200, 200)
+    };
+  }
+
   @action
   mapLoaded(event) {
     this.map = event.map;
@@ -37,32 +49,32 @@ export default class OtbCrudMapOverlayComponent extends Component {
   @action
   updateNorthEast(event) {
     this.args.model.mapOverlay.setProperties({
-      north: event.circles.center.lat(),
-      east: event.circles.center.lng()
+      north: event.markers.position.lat(),
+      east: event.markers.position.lng()
     });
   }
 
   @action
   updateSouthWest(event) {
     this.args.model.mapOverlay.setProperties({
-      south: event.circles.center.lat(),
-      west: event.circles.center.lng()
+      south: event.markers.position.lat(),
+      west: event.markers.position.lng()
     });
   }
 
   @action
   updateNorthWest(event) {
     this.args.model.mapOverlay.setProperties({
-      north: event.circles.center.lat(),
-      west: event.circles.center.lng()
+      north: event.markers.position.lat(),
+      west: event.markers.position.lng()
     });
   }
 
   @action
   updateSouthEast(event) {
     this.args.model.mapOverlay.setProperties({
-      south: event.circles.center.lat(),
-      east: event.circles.center.lng()
+      south: event.markers.position.lat(),
+      east: event.markers.position.lng()
     });
   }
 

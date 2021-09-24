@@ -1,4 +1,4 @@
-{{#if currentUser.user.super}}
+{{#if this.currentUser.user.super}}
   <h2 class='uk-heading-bullet'>Tour Sites</h2>
   {{!-- TODO: READD --}}
   <UkModal @visible={{this.showNewSiteModal}} @on-hide={{toggle 'showNewSiteModal' this}} as |modal|>
@@ -14,7 +14,7 @@
         <OtbCrud::FormSection @label="new-site-title">
           <label class="uk-form-label" for="new-site-name">Site name</label>
           <section class="uk-width-1-1">
-            <Input class="uk-input" @id="new-site-name" @value={{this.newSiteName}} />
+            <Input class="uk-input" id="new-site-name" @value={{this.newSiteName}} />
           </section>
         </OtbCrud::FormSection>
       </modal.body>

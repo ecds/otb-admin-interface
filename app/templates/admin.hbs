@@ -4,7 +4,7 @@
 
             <ul class="uk-navbar-nav">
                 <li><LinkTo @route="admin">Home</LinkTo></li>
-                {{#if currentUser.user.super}}
+                {{#if this.currentUser.user.super}}
                 <li><LinkTo @route="admin.users">Users</LinkTo></li>
                 {{/if}}
                 <li>

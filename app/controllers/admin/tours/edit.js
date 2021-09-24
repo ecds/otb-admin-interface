@@ -8,6 +8,7 @@ import { tracked } from '@glimmer/tracking';
 import UIkit from 'uikit';
 
 export default class ToursController extends Controller{
+  @service currentUser;
   @service crudActions;
   @service geocoder;
   @service store;

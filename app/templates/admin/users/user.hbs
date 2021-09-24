@@ -6,7 +6,7 @@
     </div>
     {{#if currentUser.user.super}}
       <div>
-        <Input @id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform this.crudActions.saveRecord model)}} />
+        <Input id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform this.crudActions.saveRecord model)}} />
         <label for='super'>Super User</label>
       </div>
       <div>
@@ -15,7 +15,7 @@
           {{#each model.tourSets as |tourSet|}}
             {{#if tourSet.subdir}}
               <div>
-                <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
+                <Input id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
                 <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
               </div>
             {{/if}}

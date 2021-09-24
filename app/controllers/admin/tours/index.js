@@ -7,6 +7,7 @@ import UIkit from 'uikit';
 
 export default class IndexController extends Controller {
   @service crudActions;
+  @service currentUser;
   @service router;
   @service tenant;
 

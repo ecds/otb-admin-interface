@@ -4,12 +4,12 @@
 <div uk-grid class="uk-child-width-1-1">
   <section class="uk-margin-small uk-child-width-auto" uk-grid>
     <div>
-      <UkButton @color="primary" @size="large" @on-click={{perform createTour}}>
+      <UkButton @color="primary" @size="large" @on-click={{perform this.createTour}}>
         New Tour
       </UkButton>
     </div>
     <div>
-      {{#if currentUser.user.currentTenantAdmin}}
+      {{#if this.currentUser.user.currentTenantAdmin}}
           <div>
             <UkButton @color="secondary" @size="large" {{on "click" (toggle "visible" this)}}>
               {{t "manageAdmins"}}
@@ -73,7 +73,7 @@
         </td>
         <td>
           <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
-            {{fa-icon (if tour.published "check" "times") aria-hidden="true"}}
+            <FaIcon @icon={{if tour.published "check" "times"}} />
             <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
           </UkButton>
         </td>
@@ -88,7 +88,7 @@
   </tbody>
 </table>
 <div class="uk-section"></div>
-<UkModal @visible={{visible}} @stacked={{true}} as |modal|>
+<UkModal @visible={{this.visible}} @stacked={{true}} as |modal|>
   <modal.header class="uk-modal-header">
     <h3 class="uk-modal-title">{{t "manageAdmins"}}</h3>
   </modal.header>
@@ -97,7 +97,7 @@
       {{#unless user.super}}
         <div class="uk-margin">
           <Input
-            @id={{concat "user" user.id}}
+            id={{concat "user" user.id}}
             class="uk-checkbox"
             @type="checkbox"
             @name="tour_set"

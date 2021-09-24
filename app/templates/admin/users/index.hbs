@@ -13,7 +13,7 @@
         <tr>
             <td>
               <LinkTo @route="admin.users.user" @model={{user}}>
-                {{#if user.super}}{{fa-icon 'chess-queen'}}{{/if}} {{or user.displayName user.email}}
+                {{#if user.super}}<FaIcon @icon="chess-queen" />{{/if}} {{or user.displayName user.email}}
               </LinkTo>
             </td>
             <td>

@@ -5,7 +5,7 @@
     </label>
   </OtbTooltip>
   <section class="uk-width-1-1">
-    <Input @type="color" @id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
+    <Input @type="color" id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
   </section>
 </OtbCrud::FormSection>
 
@@ -52,7 +52,7 @@
         <div class="uk-inline uk-modal-body" uk-overflow-auto>
           <div class="uk-flex-center uk-text-center" uk-grid="masonry: true">
             {{#each @icons as |icon|}}
-              {{#if (notin @model.media medium)}}
+              {{#if (notin @model.media icon)}}
                 <div>
                   <div class="uk-card uk-card-default uk-card-small">
                     <img loading="lazy" src={{icon.originalImageUrl}} />

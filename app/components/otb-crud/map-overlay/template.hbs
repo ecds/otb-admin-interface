@@ -11,7 +11,7 @@
                 Overlay North
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-north'}} @value={{@model.mapOverlay.north}} />
+            <Input class="uk-input" @type="number" @step="any" id={{concat @model.slug '-north'}} @value={{@model.mapOverlay.north}} />
           </section>
 
           <section>
@@ -20,7 +20,7 @@
                 Overlay South
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-south'}} @value={{@model.mapOverlay.south}} />
+            <Input class="uk-input" @type="number" @step="any" id={{concat @model.slug '-south'}} @value={{@model.mapOverlay.south}} />
           </section>
 
           <section>
@@ -29,7 +29,7 @@
                 Overlay East
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-east'}} @value={{@model.mapOverlay.east}} />
+            <Input class="uk-input" @type="number" @step="any" id={{concat @model.slug '-east'}} @value={{@model.mapOverlay.east}} />
           </section>
 
           <section>
@@ -38,7 +38,7 @@
                 Overlay West
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-west'}} @value={{@model.mapOverlay.west}} />
+            <Input class="uk-input" @type="number" @step="any" id={{concat @model.slug '-west'}} @value={{@model.mapOverlay.west}} />
           </section>
         </section>
         <section class="uk-width-1-1 uk-margin">
@@ -53,8 +53,8 @@
               {{else}}
                 {{t "invalid"}}
               {{/if}}
-            {{else if que.files.length}}
-              <p>Uploading {{que.files.length}} files. ({{queue.progress}}%)</p>
+            {{else if this.fileQueue.files.length}}
+              <p>Uploading {{this.fileQueue.files.length}} files. ({{queue.progress}}%)</p>
             {{else}}
               <p class="uk-text-middle">
                 {{#if dropzone.supported}}

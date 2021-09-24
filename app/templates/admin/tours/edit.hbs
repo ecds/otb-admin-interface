@@ -3,7 +3,7 @@
     <p>{{t "loading.tour"}}</p>
   {{else}}
     <div class="uk-child-width-1-1" uk-grid>
-      {{#if currentUser.user.currentTenantAdmin}}
+      {{#if this.currentUser.user.currentTenantAdmin}}
         <div>
           <UkButton @color="secondary" @size="large" {{on "click" (action (mut this.visible) true)}}>{{t "manageAuthors"}}</UkButton>
         </div>
@@ -28,7 +28,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
           <OtbCrud::FormSection @label='externalLink'>
@@ -38,13 +38,13 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
 
           <section>
             <legend class="uk-legend">Themes</legend>
-            <OtbCrud::ThemePicker @model={{this.model.tour}} @save={{crudActions.saveRecord}} />
+            <OtbCrud::ThemePicker @model={{this.model.tour}} @save={{this.crudActions.saveRecord}} />
           </section>
 
           <section>
@@ -155,14 +155,14 @@
                             <OtbCrud::Map @model={{stop.stop}} @position={{stop.position}} @icons={{this.model.mapIcons}} @tour={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @addToModel={{this.crudActions.addHasOne}} @removeFromModel={{this.crudActions.deleteHasOne}} />
                           {{/if}}
                           <h3 class="uk-heading">{{t "manageMedia"}}</h3>
-                          <OtbCrud::Video @model={{stop.stop}} @save={{addVideo}} />
+                          <OtbCrud::Video @model={{stop.stop}} @save={{this.addVideo}} />
                           <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
                           <section class="uk-margin">
                             <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
                             <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
                               {{t "buttons.save"}}
                             </UkButton>
-                            <UkButton @on-click={{cancel}}>{{t "buttons.cancel"}}</UkButton>
+                            <UkButton @on-click={{this.cancel}}>{{t "buttons.cancel"}}</UkButton>
                             <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
                               {{t "deleteFromTour"}}
                             </UkButton>
@@ -220,9 +220,9 @@
                         {{/if}}
 
                         <OtbCrud::FormSection @label="Page Title">
-                          <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{modelTitle}} Title</label>
+                          <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{this.modelTitle}} Title</label>
                           <section class="uk-width-1-1">
-                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
+                            <Input class="uk-input" id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
                           </section>
                         </OtbCrud::FormSection>
 
@@ -235,7 +235,7 @@
                         <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord page.flatPage)}}>
                           {{t "buttons.save"}}
                         </UkButton>
-                        <UkButton @on-click={{cancel}}>
+                        <UkButton @on-click={{this.cancel}}>
                           {{t "buttons.cancel"}}
                         </UkButton>
                         <UkButton @color="link" {{on "click" (perform this.removeChild page.flatPage page 'flatPage')}}>
@@ -271,7 +271,7 @@
     </div>
   {{/if}}
 
-<UkModal @visible={{visible}} @stacked={{true}} as |modal|>
+<UkModal @visible={{this.visible}} @stacked={{true}} as |modal|>
   <modal.header class="uk-modal-header">
     <h3 class="uk-modal-title">{{t "manageAuthors"}}</h3>
   </modal.header>
@@ -280,7 +280,7 @@
       {{#unless user.super}}
         <div class="uk-margin">
           <Input
-            @id={{concat "user" user.id}}
+            id={{concat "user" user.id}}
             class="uk-checkbox"
             @type="checkbox"
             @name="tour_set"
@@ -291,14 +291,14 @@
                 action (mut this.visible) true
               )
               (
-                perform this.crudActions.createHasManyThrough (hash user=user tour=model.tour existing=(includes model.tour.authorIds user.id)) 'tourAuthor'
+                perform this.crudActions.createHasManyThrough (hash user=user tour=this.model.tour existing=(includes this.model.tour.authorIds user.id)) 'tourAuthor'
               )
               (
                 action (mut this.visible) true
               )
             )
             }}
-            @checked={{includes model.tour.authorIds user.id}}
+            @checked={{includes this.model.tour.authorIds user.id}}
           />
           <label for={{concat "user" user.id}}>{{if user.displayName user.displayName user.email}}</label>
         </div>

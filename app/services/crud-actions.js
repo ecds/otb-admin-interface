@@ -312,12 +312,6 @@ export default class CrudActionsService extends Service {
   }
 
   @task
-  *setDefaultMod(tour, mode) {
-    tour.setProperties({ mode: mode });
-    yield this.saveRecord.perform(tour);
-  }
-
-  @task
   *setDefaultMode(tour, mode) {
     tour.setProperties({ mode: mode });
     yield tour.save();

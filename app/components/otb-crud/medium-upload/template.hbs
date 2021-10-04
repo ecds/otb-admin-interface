@@ -13,8 +13,8 @@
       {{else}}
         {{t "invalid"}}
       {{/if}}
-    {{else if this.fileQueue.files.length}}
-      <p>Uploading {{this.fileQueue.files.length}} files. ({{this.fileQueue.progress}}%)</p>
+    {{!-- {{else if this.fileQueue.files.length}}
+      <p>Uploading {{this.fileQueue.files.length}} files. ({{this.fileQueue.progress}}%)</p> --}}
     {{else}}
       <p class="uk-text-middle">
         {{#if dropzone.supported}}

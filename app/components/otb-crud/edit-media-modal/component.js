@@ -59,8 +59,8 @@ export default class OtbCrudEditMediaModalComponent extends Component {
 
   @task
   *saveMedium() {
-    yield this.crudActions.saveRecord.perform(this.args.medium);
-    yield this.crudActions.saveRecord.perform(this.medium);
+    yield this.crudActions.saveRecord.perform(this.args.medium, false);
+    yield this.crudActions.saveRecord.perform(this.medium, false);
     yield this.modal.hide();
   }
 

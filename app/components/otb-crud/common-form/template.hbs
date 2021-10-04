@@ -15,7 +15,7 @@
         checked={{@model.published}}
         class="uk-checkbox"
         {{on 'change' (toggle "published" @model)}}
-        {{on 'change' ( perform this.crudActions.saveRecord @model)}}
+        {{on 'change' ( perform this.crudActions.saveRecord @model false)}}
       >
     </span>
     <label class="uk-form-label" for={{concat @model.slug '-published'}}>

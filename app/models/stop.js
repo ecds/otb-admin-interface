@@ -57,6 +57,12 @@ export default class Stop extends Model {
     return this.stopMedia.sortBy('position');
   }
 
+  get hasParking() {
+    if (this.parkingLat && this.parkingLat) return true;
+
+    return false;
+  }
+
   get icon() {
     // if (this.mapIcon.get('originalImageUrl')) {
     //   return this.mapIcon.get('originalImageUrl');

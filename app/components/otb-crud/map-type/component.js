@@ -11,6 +11,6 @@ export default class OtbCrudMapTypeComponent extends Component {
   @action
   update(event) {
     this.args.model.setProperties({ mapType: event.target.value });
-    this.args.save.perform(this.args.model);
+    this.args.save.perform(this.args.model, false);
   }
 }

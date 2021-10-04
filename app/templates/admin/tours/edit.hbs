@@ -77,7 +77,7 @@
                   checked={{this.model.tour.useDirections}}
                   class="uk-checkbox"
                   {{on 'change' (toggle "useDirections" this.model.tour)}}
-                  {{on 'change' ( perform this.crudActions.saveRecord this.model.tour)}}
+                  {{on 'change' ( perform this.crudActions.saveRecord this.model.tour false)}}
                 >
               </span>
               <label class="uk-form-label" for="tour-use-directions">
@@ -112,19 +112,23 @@
           <section>
             <legend class="uk-legend">Stops</legend>
             <div class="uk-form-controls">
-              <section class="uk-margin">
-                <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newStop this.model.tour}}>
-                  {{t "buttons.newStop"}}
-                </OtbCrud::NewButton>
-                <OtbTooltip @tooltipContent={{t "tooltip.newStop"}} @ariaDescribedBy="new-stop-aria-describedby">
-                </OtbTooltip>
-              </section>
-              <section class="uk-margin">
-                {{#if (gt this.model.stops.length this.model.tour.stops.length)}}
-                  <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
-                    Add Other Stops
-                  </OtbCrud::ExtraStops>
-                {{/if}}
+              <section class="uk-margin uk-child-width-auto" uk-grid>
+                <section>
+                  <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newStop this.model.tour}}>
+                    {{t "buttons.newStop"}}
+                  </OtbCrud::NewButton>
+                  <OtbTooltip @tooltipContent={{t "tooltip.newStop"}} @ariaDescribedBy="new-stop-aria-describedby">
+                  </OtbTooltip>
+                </section>
+                <section>
+                  {{#if (gt this.model.stops.length this.model.tour.stops.length)}}
+                    <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
+                      Add Other Stops
+                    </OtbCrud::ExtraStops>
+                    <OtbTooltip @tooltipContent={{t "tooltip.otherStop"}} @ariaDescribedBy="add-other-aria-describedby">
+                    </OtbTooltip>
+                  {{/if}}
+                </section>
               </section>
 
               <UkAccordion @elementId='stopList' @targets="> div > *" {{did-insert this.initAccordion}}>
@@ -181,19 +185,23 @@
           <section>
             <legend class="uk-legend">Pages</legend>
             <div class="uk-form-controls">
-              <section class="uk-margin">
-                <OtbTooltip @tooltipContent={{t "tooltip.newPage"}} @ariaDescribedBy="new-page-aria-describedby">
-                  <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newPage this.model.tour}}>
-                    {{t "newPage"}}
-                  </OtbCrud::NewButton>
-                </OtbTooltip>
-              </section>
-              <section class="uk-margin">
-                {{#if (gt this.model.flatPages.length this.model.tour.flatPages.length)}}
-                  <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
-                    Add Other Pages
-                  </OtbCrud::ExtraStops>
-                {{/if}}
+              <section class="uk-margin uk-child-width-auto" uk-grid>
+                <section>
+                  <OtbTooltip @tooltipContent={{t "tooltip.newPage"}} @ariaDescribedBy="new-page-aria-describedby">
+                    <OtbCrud::NewButton @class="uk-margin" @onClick={{perform this.newPage this.model.tour}}>
+                      {{t "newPage"}}
+                    </OtbCrud::NewButton>
+                  </OtbTooltip>
+                </section>
+                <section>
+                  {{#if (gt this.model.flatPages.length this.model.tour.flatPages.length)}}
+                    <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
+                      Add Other Pages
+                    </OtbCrud::ExtraStops>
+                    <OtbTooltip @tooltipContent={{t "tooltip.otherPage"}} @ariaDescribedBy="add-other-page-aria-describedby">
+                    </OtbTooltip>
+                  {{/if}}
+                </section>
               </section>
               <UkAccordion @elementId="flatPageList" @targets="> div > *" {{did-insert this.initAccordion}}>
                 <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}}>

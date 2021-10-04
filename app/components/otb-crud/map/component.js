@@ -1,5 +1,5 @@
-import Component from '@glimmer/component';
 import { action } from '@ember/object';
+import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { keepLatestTask, task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
@@ -7,8 +7,11 @@ import { inject as service } from '@ember/service';
 
 const locator = new google.maps.Geocoder();
 
-export default class Map extends Component {
+export default class MapComponent extends Component {
   @service store;
+
+  @tracked
+  map = null;
 
   @tracked
   stop = null;
@@ -25,12 +28,27 @@ export default class Map extends Component {
   @tracked
   zoomLevel = 16;
 
+  @tracked
+  bounds = null;
+
   constructor() {
     super(...arguments);
     this.stop = this.store.peekRecord('stop', this.args.model.get('id'));
     if ((this.stop.lat && !this.stop.address) || (this.stop.parkingLat && !this.parkingAddress)) {
       this.getAddress.perform(!this.stop.address);
+      this.stop.save();
     }
+  }
+
+  @action
+  mapLoaded(event) {
+    this.map = event.map;
+    this.bounds = this.map.getBounds();
+    if (this.stop.hasParking) {
+      this.__includeParking();
+    }
+    this.map.setCenter({ lat: this.stop.lat, lng: this.stop.lng });
+    // console.log("🚀 ~ file: component.js ~ line 42 ~ Map ~ mapLoaded ~ this.map", this.map)
   }
 
   @action
@@ -114,8 +132,8 @@ export default class Map extends Component {
             let location = result[0].geometry.location;
             this.args.model.setProperties({
               address: result[0].formatted_address,
-              lat: location.lat().toFixed(6),
-              lng: location.lng().toFixed(6)
+              lat: location.lat(),
+              lng: location.lng()
             });
           } else {
             // debug(status);
@@ -132,8 +150,8 @@ export default class Map extends Component {
             let location = result[0].geometry.location;
             this.stop.setProperties({
               parkingAddress: result[0].formatted_address,
-              parkingLat: location.lat().toFixed(6),
-              parkingLng: location.lng().toFixed(6)
+              parkingLat: location.lat(),
+              parkingLng: location.lng()
             });
           } else {
             // debug(status);
@@ -146,28 +164,41 @@ export default class Map extends Component {
 
   @keepLatestTask
   *updateLocation(event) {
-    this.stop.setProperties({
-      lat: event.markers.position.lat().toFixed(6),
-      lng: event.markers.position.lng().toFixed(6)
-    });
-    yield timeout(10);
+    // this.map.setCenter({ lat: event.markers.position.lat(), lng:event.markers.position.lng() });
+    // console.log("🚀 ~ file: component.js ~ line 177 ~ Map ~ *updateLocation ~ this.map", this.map)
   }
 
-  @action
-  relocate() {
-    this.getAddress.perform();
-    this.args.save.perform(this.stop, false);
+  @task
+  *relocate(event) {
+    this.stop.setProperties({
+      lat: event.markers.position.lat(),
+      lng: event.markers.position.lng()
+    });
+    this.map.setCenter({lat: this.stop.lat, lng: this.stop.lng });
+    yield this.getAddress.perform();
+    yield this.args.save.perform(this.stop, false);
+    // this.showMap = false;
+    // yield timeout(10);
+    // this.showMap = true;
   }
 
   @keepLatestTask
   *reLocateParking(event) {
-    const newLat = event.markers.position.lat().toFixed(6);
-    const newLng = event.markers.position.lng().toFixed(6);
+    const newLat = event.markers.position.lat();
+    const newLng = event.markers.position.lng();
     this.stop.setProperties({
       parkingLat: newLat,
       parkingLng: newLng
     });
     yield this.getAddress.perform(false);
     yield this.args.save.perform(this.stop, false);
+  }
+
+  __includeParking() {
+    /* eslint-disable ember/require-tagless-components */
+    // Using the word `extend` seems to trigger the `ember/require-tagless-components` lint warning.
+    this.bounds = this.bounds.extend({ lat: this.stop.parkingLat, lng: this.stop.parkingLat });
+    // this.map.fitBounds(this.bounds);
+    /* eslint-enable ember/require-tagless-components */
   }
 }

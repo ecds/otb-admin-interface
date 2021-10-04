@@ -83,9 +83,10 @@
         @mapTypeId={{@tour.mapType}}
         @disableDefaultUI={{true}}
         @zoom={{this.zoomLevel}}
-        @lat={{@model.lat}}
-        @lng={{@model.lng}}
+        @lat="0"
+        @lng="0"
         @onZoomChanged={{this.updateZoomLevel}}
+        @onceOnIdle={{this.mapLoaded}}
       as |map|>
 
         {{#if @tour.mapOverlay}}
@@ -104,7 +105,7 @@
         <map.marker
           @draggable={{true}}
           @onDrag={{perform this.updateLocation}}
-          @onDragend={{this.relocate}}
+          @onDragend={{perform this.relocate}}
           @lat={{@model.lat}}
           @lng={{@model.lng}}
           @label={{hash text=(concat @position) color="white" className="otb-marker-label"}}

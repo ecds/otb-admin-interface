@@ -104,7 +104,7 @@
 
         <map.marker
           @draggable={{true}}
-          @onDrag={{perform this.updateLocation}}
+          @onDrag={{this.updateLocation}}
           @onDragend={{perform this.relocate}}
           @lat={{@model.lat}}
           @lng={{@model.lng}}
@@ -112,7 +112,7 @@
           @icon={{@model.icon}}
         as |marker|>
           <marker.infoWindow
-            @isOpen={{true}}
+            @isOpen={{this.showInfoWindow}}
             @content="Drag me to the this stop's location."
             @disableAutoPan={{true}}
           />

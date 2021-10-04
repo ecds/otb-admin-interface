@@ -1,7 +1,7 @@
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { keepLatestTask, task, timeout } from 'ember-concurrency';
+import { keepLatestTask, task } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
 /* global google */
 
@@ -24,6 +24,9 @@ export default class MapComponent extends Component {
 
   @tracked
   showMap = true;
+
+  @tracked
+  showInfoWindow = true;
 
   @tracked
   zoomLevel = 16;
@@ -112,6 +115,11 @@ export default class MapComponent extends Component {
 
   }
 
+  @action
+  updateLocation() {
+    this.showInfoWindow = false;
+  }
+
   @task
   *updateAddress() {
     this.showMap = false;
@@ -160,12 +168,6 @@ export default class MapComponent extends Component {
       );
     }
     this.showMap = true;
-  }
-
-  @keepLatestTask
-  *updateLocation(event) {
-    // this.map.setCenter({ lat: event.markers.position.lat(), lng:event.markers.position.lng() });
-    // console.log("🚀 ~ file: component.js ~ line 177 ~ Map ~ *updateLocation ~ this.map", this.map)
   }
 
   @task

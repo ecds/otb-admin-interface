@@ -14,9 +14,6 @@ export default class OtbCrudMapOverlayComponent extends Component {
   showInfoWindow = true;
 
   @tracked
-  overlayLoaded = false;
-
-  @tracked
   showMap = ENV.environment != 'test';
 
   @tracked
@@ -86,10 +83,7 @@ export default class OtbCrudMapOverlayComponent extends Component {
 
   @task
   *dragEnd() {
-    this.showHandles = false;
     this.args.model.mapOverlay.setProperties({ resizing: false });
     yield this.args.save.perform(this.args.model.mapOverlay, false);
-    this.showHandles = true;
-    this.overlayLoaded = true;
   }
 }

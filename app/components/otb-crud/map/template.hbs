@@ -103,10 +103,9 @@
 
         <map.marker
           @draggable={{true}}
-          @onDrag={{perform this.updateLocation}}
+          @onDrag={{this.closeInfoWindow}}
           @onDragend={{perform this.relocate}}
-          @lat={{@model.lat}}
-          @lng={{@model.lng}}
+          @position={{hash lat=@model.lat lng=@model.lng}}
           @label={{hash text=(concat @position) color="white" className="otb-marker-label"}}
           @icon={{@model.icon}}
         as |marker|>
@@ -119,10 +118,8 @@
         {{#if (and @model.parkingLat @model.parkingLng)}}
           <map.marker
             @draggable={{true}}
-            @onDrag={{perform this.updateParkingLocation}}
-            @onDragend={{perform this.reLocateParking}}
-            @lat={{@model.parkingLat}}
-            @lng={{@model.parkingLng}}
+            @onDragend={{perform this.relocateParking}}
+            @position={{hash lat=@model.parkingLat lng=@model.parkingLng}}
             @icon={{@model.parkingIconSVG}}
             @label={{hash text="P" color="white" className="otb-marker-label"}}
           />

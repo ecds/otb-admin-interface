@@ -1,7 +1,7 @@
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { keepLatestTask, restartableTask, task } from 'ember-concurrency';
+import { task } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
 /* global google */
 
@@ -113,22 +113,9 @@ export default class MapComponent extends Component {
 
   }
 
-  @restartableTask
-  *updateLocation(event) {
+  @action
+  closeInfoWindow() {
     this.showInfoWindow = false;
-    yield this.stop.setProperties({
-      lat: event.markers.position.lat(),
-      lng: event.markers.position.lng()
-    });
-  }
-
-  @restartableTask
-  *updateParkingLocation(event) {
-    this.showInfoWindow = false;
-    yield this.stop.setProperties({
-      parkingLat: event.markers.position.lat(),
-      parkingLng: event.markers.position.lng()
-    });
   }
 
   @task
@@ -182,13 +169,22 @@ export default class MapComponent extends Component {
   }
 
   @task
-  *relocate() {
+  *relocate(event) {
+    yield this.stop.setProperties({
+      lat: event.markers.position.lat(),
+      lng: event.markers.position.lng()
+    });
+    this.map.setCenter({ lat: this.stop.lat, lng: this.stop.lng });
     yield this.getAddress.perform();
     yield this.args.save.perform(this.stop, false);
   }
 
-  @keepLatestTask
-  *reLocateParking() {
+  @task
+  *relocateParking(event) {
+    yield this.stop.setProperties({
+      parkingLat: event.markers.position.lat(),
+      parkingLng: event.markers.position.lng()
+    });
     yield this.getAddress.perform(false);
     yield this.args.save.perform(this.stop, false);
   }

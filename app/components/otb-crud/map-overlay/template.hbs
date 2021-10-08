@@ -104,20 +104,11 @@
           @image={{@model.mapOverlay.originalImageUrl}}
           @zIndex={{this.zIndex}}
           @className={{if @model.mapOverlay.resizing "otb-map-overlay-resizing"}}
-          @onLoad={{toggle "overlayLoaded" this}}
         >
         </map.imageOverlay>
 
-        {{#if (and this.overlayLoaded this.showHandles)}}
-
-        {{!-- <map.marker
-        @icon={{this.handle}}
-          as |marker|
-        >
-        </map.marker> --}}
         <map.marker
-          @lat={{@model.mapOverlay.north}}
-          @lng={{@model.mapOverlay.east}}
+          @position={{hash lat=@model.mapOverlay.north lng=@model.mapOverlay.east}}
           @onClick={{toggle 'showInfoWindow' this}}
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
@@ -128,17 +119,15 @@
         </map.marker>
 
         <map.infoWindow
-          @lat={{@model.mapOverlay.north}}
-          @lng={{@model.mapOverlay.east}}
+          @position={{hash lat=@model.mapOverlay.north lng=@model.mapOverlay.east}}
           @isOpen={{this.showInfoWindow}}
           @onCloseclick={{toggle 'showInfoWindow' this}}
           @disableAutoPan={{true}}
-          @content="Drag me to resize the image."
+          @content="Drag the corners to resize the image."
         />
 
         <map.marker
-          @lat={{@model.mapOverlay.south}}
-          @lng={{@model.mapOverlay.west}}
+          @position={{hash lat=@model.mapOverlay.south lng=@model.mapOverlay.west}}
           @onClick={{toggle 'showInfoWindow' this}}
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
@@ -149,18 +138,8 @@
         >
         </map.marker>
 
-        <map.infoWindow
-          @lat={{@model.mapOverlay.south}}
-          @lng={{@model.mapOverlay.west}}
-          @isOpen={{this.showInfoWindow}}
-          @disableAutoPan={{true}}
-          @onCloseclick={{toggle 'showInfoWindow' this}}
-          @content="Drag me to resize the image."
-        />
-
         <map.marker
-          @lat={{@model.mapOverlay.south}}
-          @lng={{@model.mapOverlay.east}}
+          @position={{hash lat=@model.mapOverlay.south lng=@model.mapOverlay.east}}
           @onClick={{toggle 'showInfoWindow' this}}
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
@@ -172,8 +151,7 @@
         </map.marker>
 
         <map.marker
-          @lat={{@model.mapOverlay.north}}
-          @lng={{@model.mapOverlay.west}}
+          @position={{hash lat=@model.mapOverlay.north lng=@model.mapOverlay.west}}
           @onClick={{toggle 'showInfoWindow' this}}
           @onDragstart={{this.dragStart}}
           @draggable={{true}}
@@ -183,7 +161,6 @@
           as |marker|
         >
         </map.marker>
-        {{/if}}
       {{/if}}
 
       </GMap>

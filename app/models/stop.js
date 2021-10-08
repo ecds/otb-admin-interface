@@ -64,14 +64,8 @@ export default class Stop extends Model {
   }
 
   get icon() {
-    // if (this.mapIcon.get('originalImageUrl')) {
-    //   return this.mapIcon.get('originalImageUrl');
-    // }
     const icon = this.imageIcon ? this.imageIcon : this.markerIconSVG;
-    if (this.active) {
-      icon.scale = .125;
-      icon.scaledSize = new google.maps.Size(100, 100);
-    }
+
     return icon;
   }
 

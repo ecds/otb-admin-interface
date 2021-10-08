@@ -83,8 +83,7 @@
         @mapTypeId={{@tour.mapType}}
         @disableDefaultUI={{true}}
         @zoom={{this.zoomLevel}}
-        @lat="0"
-        @lng="0"
+        @center={{hash lat=@model.lat lng=@model.lng}}
         @onZoomChanged={{this.updateZoomLevel}}
         @onceOnIdle={{this.mapLoaded}}
       as |map|>
@@ -104,7 +103,7 @@
 
         <map.marker
           @draggable={{true}}
-          @onDrag={{this.updateLocation}}
+          @onDrag={{perform this.updateLocation}}
           @onDragend={{perform this.relocate}}
           @lat={{@model.lat}}
           @lng={{@model.lng}}
@@ -120,7 +119,8 @@
         {{#if (and @model.parkingLat @model.parkingLng)}}
           <map.marker
             @draggable={{true}}
-            @onDrag={{perform this.reLocateParking}}
+            @onDrag={{perform this.updateParkingLocation}}
+            @onDragend={{perform this.reLocateParking}}
             @lat={{@model.parkingLat}}
             @lng={{@model.parkingLng}}
             @icon={{@model.parkingIconSVG}}

@@ -1,7 +1,7 @@
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { keepLatestTask, task } from 'ember-concurrency';
+import { keepLatestTask, restartableTask, task } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
 /* global google */
 
@@ -50,8 +50,6 @@ export default class MapComponent extends Component {
     if (this.stop.hasParking) {
       this.__includeParking();
     }
-    this.map.setCenter({ lat: this.stop.lat, lng: this.stop.lng });
-    // console.log("🚀 ~ file: component.js ~ line 42 ~ Map ~ mapLoaded ~ this.map", this.map)
   }
 
   @action
@@ -115,9 +113,22 @@ export default class MapComponent extends Component {
 
   }
 
-  @action
-  updateLocation() {
+  @restartableTask
+  *updateLocation(event) {
     this.showInfoWindow = false;
+    yield this.stop.setProperties({
+      lat: event.markers.position.lat(),
+      lng: event.markers.position.lng()
+    });
+  }
+
+  @restartableTask
+  *updateParkingLocation(event) {
+    this.showInfoWindow = false;
+    yield this.stop.setProperties({
+      parkingLat: event.markers.position.lat(),
+      parkingLng: event.markers.position.lng()
+    });
   }
 
   @task
@@ -171,27 +182,13 @@ export default class MapComponent extends Component {
   }
 
   @task
-  *relocate(event) {
-    this.stop.setProperties({
-      lat: event.markers.position.lat(),
-      lng: event.markers.position.lng()
-    });
-    this.map.setCenter({lat: this.stop.lat, lng: this.stop.lng });
+  *relocate() {
     yield this.getAddress.perform();
     yield this.args.save.perform(this.stop, false);
-    // this.showMap = false;
-    // yield timeout(10);
-    // this.showMap = true;
   }
 
   @keepLatestTask
-  *reLocateParking(event) {
-    const newLat = event.markers.position.lat();
-    const newLng = event.markers.position.lng();
-    this.stop.setProperties({
-      parkingLat: newLat,
-      parkingLng: newLng
-    });
+  *reLocateParking() {
     yield this.getAddress.perform(false);
     yield this.args.save.perform(this.stop, false);
   }
@@ -200,7 +197,6 @@ export default class MapComponent extends Component {
     /* eslint-disable ember/require-tagless-components */
     // Using the word `extend` seems to trigger the `ember/require-tagless-components` lint warning.
     this.bounds = this.bounds.extend({ lat: this.stop.parkingLat, lng: this.stop.parkingLat });
-    // this.map.fitBounds(this.bounds);
     /* eslint-enable ember/require-tagless-components */
   }
 }

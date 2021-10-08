@@ -131,7 +131,7 @@
                 </section>
               </section>
 
-              <UkAccordion @elementId='stopList' @targets="> div > *" {{did-insert this.initAccordion}}>
+              <UkAccordion @elementId='stopList' @targets="> div > *" @onBeforeshow={{this.beforeshow}} @onHide={{this.beforeshow}} @onShown={{perform this.activateStop}} {{did-insert this.initAccordion}}>
                 <UkSortable @handle=".uk-accordion-title" @on-stop={{perform this.crudActions.reorder}}>
                   {{#each this.model.tour.sortedTourStops as |stop index|}}
                     {{#if stop.stop.slug}}
@@ -141,36 +141,42 @@
                       data-id={{stop.id}}
                       data-model="tour-stop"
                       data-index={{index}}
+                      data-stop-id={{stop.stop.id}}
                     >
                       <a class="uk-accordion-title" href="#">{{stop.position}}: {{if stop.stop.title stop.stop.title "Loading.."}}</a>
                         <div class="uk-accordion-content uk-card uk-card-default uk-card-body uk-card-small">
-                          {{#if stop.stop.isShared}}
-                            <section class="uk-margin">
-                              <section class="uk-alert-primary uk-text-center" uk-alert>
-                                <p>
-                                  {{t "tooltip.makeUniqueStop"}}
-                                </p>
-                                <UkButton @color="primary" {{on "click" (perform this.makeChildUnique stop 'stop')}}>Make Unique</UkButton>
+                          {{#if stop.stop.active}}
+                            {{#if stop.stop.isShared}}
+                              <section class="uk-margin">
+                                <section class="uk-alert-primary uk-text-center" uk-alert>
+                                  <p>
+                                    {{t "tooltip.makeUniqueStop"}}
+                                  </p>
+                                  <UkButton @color="primary" {{on "click" (perform this.makeChildUnique stop 'stop')}}>Make Unique</UkButton>
+                                </section>
                               </section>
+                            {{/if}}
+                            <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
+                            {{#if this.model.tour.isGeo}}
+                              <OtbCrud::Map @model={{stop.stop}} @position={{stop.position}} @icons={{this.model.mapIcons}} @tour={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @addToModel={{this.crudActions.addHasOne}} @removeFromModel={{this.crudActions.deleteHasOne}} />
+                            {{/if}}
+                            <h3 class="uk-heading">{{t "manageMedia"}}</h3>
+                            <OtbCrud::Video @model={{stop.stop}} @save={{this.addVideo}} />
+                            <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
+                            <section class="uk-margin">
+                              <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
+                              <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
+                                {{t "buttons.save"}}
+                              </UkButton>
+                              <UkButton @on-click={{this.cancel}}>{{t "buttons.cancel"}}</UkButton>
+                              <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
+                                {{t "deleteFromTour"}}
+                              </UkButton>
                             </section>
                           {{/if}}
-                          <OtbCrud::CommonForm @model={{stop.stop}} @modelTitle="Stop" />
-                          {{#if this.model.tour.isGeo}}
-                            <OtbCrud::Map @model={{stop.stop}} @position={{stop.position}} @icons={{this.model.mapIcons}} @tour={{this.model.tour}} @save={{this.crudActions.saveRecord}} @upload={{this.crudActions.uploadFile}} @addToModel={{this.crudActions.addHasOne}} @removeFromModel={{this.crudActions.deleteHasOne}} />
+                          {{#if this.willShow}}
+                            <div class="uk-margin-small uk-padding-small"><FaIcon @icon="spinner" @spin={{true}} /> Loading</div>
                           {{/if}}
-                          <h3 class="uk-heading">{{t "manageMedia"}}</h3>
-                          <OtbCrud::Video @model={{stop.stop}} @save={{this.addVideo}} />
-                          <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
-                          <section class="uk-margin">
-                            <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
-                            <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
-                              {{t "buttons.save"}}
-                            </UkButton>
-                            <UkButton @on-click={{this.cancel}}>{{t "buttons.cancel"}}</UkButton>
-                            <UkButton @color="link" {{on "click" (perform this.removeChild stop.stop stop 'stop')}}>
-                              {{t "deleteFromTour"}}
-                            </UkButton>
-                          </section>
                         </div>
                     </div>
                   {{else}}

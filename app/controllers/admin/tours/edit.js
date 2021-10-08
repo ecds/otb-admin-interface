@@ -1,9 +1,8 @@
 import Controller from '@ember/controller';
 import { action } from '@ember/object';
-import { task } from 'ember-concurrency-decorators';
 import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
-import { timeout } from 'ember-concurrency';
+import { task, timeout } from 'ember-concurrency';
 import { tracked } from '@glimmer/tracking';
 import UIkit from 'uikit';
 
@@ -17,6 +16,9 @@ export default class ToursController extends Controller{
 
   @tracked
   visible = false;
+
+  @tracked
+  willShow = true;
 
   @task
   *waitForElement(element, accordion) {
@@ -285,5 +287,23 @@ export default class ToursController extends Controller{
   @action
   updateMapType(event) {
     this.model.tour.setProperties({ mapType: event.target.value });
+  }
+
+  @task
+  *activateStop(event) {
+    if (event.target.attributes['data-stop-id']) {
+      this.model.tour.stops.forEach(stop => {
+        stop.setProperties({ active: false });
+      });
+      const stop = this.store.peekRecord('stop', event.target.attributes['data-stop-id'].value);
+      stop.setProperties({ active: true });
+      yield timeout(1000);
+      this.willShow = false;
+    }
+  }
+
+  @action
+  beforeshow() {
+    this.willShow = true;
   }
 }

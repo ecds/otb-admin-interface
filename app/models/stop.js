@@ -31,6 +31,7 @@ export default class Stop extends Model {
   @attr('string') direction_intro;
   @attr('string') directionNotes;
   @attr('boolean') orphaned;
+  @attr('boolean', { defaultValue: false }) active;
   @hasMany('tour') tours;
 
   @hasMany('tour-stop', {

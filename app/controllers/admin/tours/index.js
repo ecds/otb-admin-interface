@@ -44,7 +44,7 @@ export default class IndexController extends Controller {
 
   @task
   *removeSiteIcon() {
-    this.tenant.tenantModel.setProperties({ logo: null, base_sixty_four: null });
+    this.tenant.tenantModel.setProperties({ logo: null, baseSixtyFour: null, logoTitle: null });
     yield this.tenant.tenantModel.save();
   }
 

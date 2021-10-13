@@ -273,7 +273,9 @@
       <div class="otb-crud-footer uk-child-width-auto uk-grid-small" uk-grid>
         <div class="uk-width-1-1">&nbsp;</div>
         <div class="uk-flex-left">
-          <OtbCrud::SubmitButtons @model={{this.model.tour}} />
+          <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord this.model.tour)}} @disabled={{this.crudActions.saveRecord.isRunning}}>
+            <FaIcon @icon="save" /> {{if this.crudActions.saveRecord.isRunning 'saving' 'save'}}
+          </UkButton>
         </div>
           <div class="uk-width-expand">{{if this.crudActions.saveRecord.isRunning 'saving' ''}} {{this.crudActions.lastSaved}}</div>
         <div class="uk-flex-right">

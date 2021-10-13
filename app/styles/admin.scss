@@ -135,3 +135,10 @@ a.uk-accordion-title::after {
   cursor: help;
   font-size: 1rem;
 }
+
+.uk-button-primary {
+  &:disabled {
+    background-color: rgb(21 101 192 / 45%);
+    color: rgb(23 23 23 / 75%);
+  }
+}

@@ -4,47 +4,47 @@ import { action } from '@ember/object';
 export default class LanguageSelectComponent extends Component {
   languages = [
     {
-      code: 'en',
+      code: 'en-US',
       label: 'English'
     },
     {
-      code: 'fr',
+      code: 'fr-FR',
       label: 'French '
     },
     {
-      code: 'de',
+      code: 'de-DE',
       label: 'German '
     },
     {
-      code: 'pl',
+      code: 'pl-PL',
       label: 'Polish '
     },
     {
-      code: 'nl',
+      code: 'nl-NI',
       label: 'Dutch  '
     },
     {
-      code: 'fi',
+      code: 'fi-FI',
       label: 'Finnish'
     },
     {
-      code: 'sv',
+      code: 'sv-SE',
       label: 'Swedish'
     },
     {
-      code: 'it',
+      code: 'it-IT',
       label: 'Italian'
     },
     {
-      code: 'es',
+      code: 'es-ES',
       label: 'Spanish (Spain)'
     },
     {
-      code: 'pt',
+      code: 'pt-PT',
       label: 'Portuguese (Portugal)'
     },
     {
-      code: 'ru',
+      code: 'ru-RU',
       label: 'Russian'
     },
     {
@@ -64,11 +64,11 @@ export default class LanguageSelectComponent extends Component {
       label: 'Chinese (Taiwan)'
     },
     {
-      code: 'ja',
+      code: 'ja-JP',
       label: 'Japanese'
     },
     {
-      code: 'ko',
+      code: 'ko-KR',
       label: 'Korean '
     }
   ];

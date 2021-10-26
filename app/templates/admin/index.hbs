@@ -54,18 +54,19 @@
         </td>
       </tr>
       {{/if}}
-    {{else}}
-      <p class="uk-margin">
-        You have not been added to any tour sites. Please contact an <a href="mailto:ecds@emory.edu">administrator</a>.*
-      </p>
-      <p>
-        <strong>
-          *If you have had access to tour sites in the past, and should still have access, please check to make sure that you used the same GMail, Facebook, Twitter or GitHub account that you have previously used. If you use another account, your tour sites will not show!
-        </strong>
-      </p>
     {{/each}}
   </tbody>
 </table>
+{{#if this.currentUser.user.unassigned}}
+  <p class="uk-margin">
+    You have not been added to any tour sites. Please contact an <a href="mailto:ecds@emory.edu">administrator</a>.*
+  </p>
+  <p>
+    <strong>
+      *If you have had access to tour sites in the past, and should still have access, please check to make sure that you used the same GMail, Facebook, Twitter or GitHub account that you have previously used. If you use another account, your tour sites will not show!
+    </strong>
+  </p>
+{{/if}}
 {{#if this.currentUser.user.allTours}}
   <table class="uk-table uk-table-striped">
     <thead>

@@ -14,12 +14,16 @@ export default class User extends Model {
   @hasMany('tour-author') tourAuthors;
 
   get tourSetNames() {
-  if (this.super) {
-    return 'All';
-  }
-  else if (isEmpty(this.tourSets)) {
+    if (this.super) {
+      return 'All';
+    }
+    else if (isEmpty(this.tourSets)) {
       return "none";
     }
     return this.tourSets.map(tourSet => tourSet.name).join(', ');
+  }
+
+  get unassigned() {
+    return this.allTours.length == 0 && this.tourSets.length == 0 && !this.super;
   }
 }

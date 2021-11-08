@@ -7,4 +7,8 @@ export default class User extends Public {
 
     return options;
   }
+
+  shouldReloadAll() {
+    return true;
+  }
 }

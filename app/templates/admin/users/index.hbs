@@ -12,7 +12,7 @@
       {{#each (sort-by "displayName" "email" this.model) as |user|}}
         <tr>
             <td>
-              <LinkTo @route="admin.users.user" @model={{user}}>
+              <LinkTo @route="admin.users.user" @model={{user.id}}>
                 {{#if user.super}}<FaIcon @icon="chess-queen" />{{/if}} {{or user.displayName user.email}}
               </LinkTo>
             </td>

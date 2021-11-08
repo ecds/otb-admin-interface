@@ -93,6 +93,19 @@
     <h3 class="uk-modal-title">{{t "manageAdmins"}}</h3>
   </modal.header>
   <div class="uk-modal-body" uk-overflow-auto>
+    {{!--
+      Initially, `this.model.users` will just be the current site admins. It is possible the rest of
+      the users are still loading.
+      If the current user is super, they will not be included the initial count for `this.model.users`
+    --}}
+    {{#if (
+            or
+            (eq this.model.users.length (sum 1 this.tenant.tenantModel.admins.length))
+            (eq this.model.users.length this.tenant.tenantModel.admins.length)
+          )
+    }}
+      <div class="uk-alert-primary uk-padding"><FaIcon @icon="spinner" @spin={{true}} /> Loading more users</div>
+    {{/if}}
     {{#each (sort-by "displayName" "email" this.model.users) as |user|}}
       {{#unless user.super}}
         <div class="uk-margin">
@@ -105,16 +118,16 @@
             {{ on "change"
               (
                 pipe
-              (
-                action (mut this.visible) true
+                (
+                  action (mut this.visible) false
+                )
+                (
+                  perform this.crudActions.toggleHasMany (hash parentObj=user relationType="tourSet" childObj=this.tenant.tenantModel checked=(includes user.tourSets this.tenant.tenantModel) blocker=false)
+                )
+                (
+                  action (mut this.visible) true
+                )
               )
-              (
-                perform this.crudActions.toggleHasMany (hash parentObj=user relationType="tourSet" childObj=this.tenant.tenantModel checked=(includes user.tourSets this.tenant.tenantModel))
-              )
-              (
-                action (mut this.visible) true
-              )
-            )
             }}
           />
           <label for={{concat "user" user.id}}>{{if user.displayName user.displayName user.email}}</label>

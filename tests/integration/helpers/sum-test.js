@@ -8,10 +8,10 @@ module('Integration | Helper | sum', function(hooks) {
 
   // TODO: Replace this with your real tests.
   test('it renders', async function(assert) {
-    this.set('inputValue', '1234');
+    // this.set('inputValue', '1234');
 
-    await render(hbs`{{sum inputValue}}`);
+    await render(hbs`{{sum 5 3 2}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.equal(this.element.textContent.trim(), 10);
   });
 });

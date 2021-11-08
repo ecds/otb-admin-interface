@@ -1,12 +1,12 @@
 {{outlet}}
 <div class='uk-child-width-1-1' uk-grid>
     <div>
-      <h1 class='uk-primary-heading'>{{model.displayName}}</h1>
-      <h2 class='uk-primary-heading'>{{model.email}}</h2>
+      <h1 class='uk-primary-heading'>{{model.user.displayName}}</h1>
+      <h2 class='uk-primary-heading'>{{model.user.email}}</h2>
     </div>
     {{#if currentUser.user.super}}
       <div>
-        <Input id="super" @name="super" @type="checkbox" @checked={{model.super}} @change={{pipe (toggle "super" model) (perform this.crudActions.saveRecord model)}} />
+        <Input id="super" @name="super" @type="checkbox" @checked={{model.user.super}} @change={{pipe (toggle "super" model.user) (perform this.crudActions.saveRecord model.user)}} />
         <label for='super'>Super User</label>
       </div>
       <div>
@@ -15,7 +15,7 @@
           {{#each model.tourSets as |tourSet|}}
             {{#if tourSet.subdir}}
               <div>
-                <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model tourSet}} @checked={{includes model.tourSets tourSet}} />
+                <Input @id={{tourSet.subdir}} @type="checkbox" @name="tour_set" @change={{action "addRemoveSet" model.user tourSet}} @checked={{includes model.user.tourSets tourSet}} />
                 <label for={{tourSet.subdir}}>{{tourSet.name}}</label>
               </div>
             {{/if}}
@@ -25,7 +25,7 @@
     {{/if}}
     <div>
       <ul>
-        {{#each model.tours as |tour|}}
+        {{#each model.user.tours as |tour|}}
           <li>{{tour.title}}</li>
         {{/each}}
       </ul>

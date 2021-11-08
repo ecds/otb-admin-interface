@@ -4,7 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { enqueueTask, task, timeout } from 'ember-concurrency';
 import { isEmpty } from '@ember/utils';
 import { pluralize } from 'ember-inflector';
-import { dasherize } from '@ember/string';
+import { dasherize, camelize } from '@ember/string';
 import UIkit from 'uikit';
 
 export default class CrudActionsService extends Service {
@@ -64,7 +64,7 @@ export default class CrudActionsService extends Service {
     if (childObj.hasDirtyAttributes) {
       yield this.saveRecord.perform(childObj);
     }
-    let relation = yield options.parentObj.get(`${pluralize(options.relationType)}`);
+    let relation = yield options.parentObj.get(`${camelize(pluralize(options.relationType))}`);
     relation.pushObject(childObj);
     yield this.saveRecord.perform(options.parentObj);
     yield this.taskMessage.screenBlocker.hide();
@@ -88,7 +88,7 @@ export default class CrudActionsService extends Service {
     if (skipConfirm || didConfirm ) {
       try {
         parentObj
-          .get(`${pluralize(options.relationType)}`)
+          .get(`${camelize(pluralize(options.relationType))}`)
           .removeObject(childObj);
         if (options.save != false) {
           yield this.saveRecord.perform(parentObj);

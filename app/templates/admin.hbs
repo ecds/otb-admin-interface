@@ -4,14 +4,21 @@
 
             <ul class="uk-navbar-nav">
                 <li><LinkTo @route="admin">Home</LinkTo></li>
-                {{#if currentUser.user.super}}
+                {{#if this.currentUser.user.super}}
                 <li><LinkTo @route="admin.users">Users</LinkTo></li>
                 {{/if}}
+                <li>
+                  <a href="https://github.com/ecds/OpenTourBuilder/wiki/How-to-Use-OpenTour-v.-3.0" aria-label="OpenTour Documentation">
+                    Documentation
+                  </a>
+                </li>
             </ul>
         </div>
         <div class="uk-navbar-right">
           <ul class="uk-navbar-nav">
-            <LoginButton />
+            {{#if this.session.isAuthenticated}}
+              <UkButton {{on "click" this.signOut}}>Sign Out</UkButton>
+            {{/if}}
         </ul>
         </div>
     </nav>

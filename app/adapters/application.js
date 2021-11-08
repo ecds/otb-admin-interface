@@ -1,32 +1,26 @@
-import classic from 'ember-classic-decorator';
-import { inject as service } from '@ember/service';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { get, computed } from '@ember/object';
-import DataAdapterMixin from 'ember-simple-auth/mixins/data-adapter-mixin';
+import { inject as service } from '@ember/service';
+// import { computed } from '@ember/object';
 import ENV from '../config/environment';
 
-@classic
-export default class Application extends JSONAPIAdapter.extend(DataAdapterMixin) {
-  @service
-  fastboot;
+export default class Application extends JSONAPIAdapter {
+  @service tenant;
 
-  @service
-  tenant;
 
-  // @(computed('').volatile())
+  // @computed
   get host() {
+    this.tenant.setTenant();
     return `${ENV.APP.API_HOST}/${this.tenant.tenant}`;
   }
 
-  @computed('session.data.authenticated.access_token')
-  get headers() {
-    let { access_token } = this.get('session.data.authenticated');
-    return {
-      'Authorization': `Bearer ${access_token}`
-    }
+  ajaxOptions(/*defaultOptions, adapter*/) {
+    const options = super.ajaxOptions(...arguments);
+    options.credentials = 'include';
+
+    return options;
   }
 
-  set headers(v) {
-    return v
-  }
+  // set headers(v) {
+  //   return v
+  // }
 }

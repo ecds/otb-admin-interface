@@ -1,0 +1,33 @@
+<div class="uk-width-medium" uk-grid>
+  <div class="uk-width-1-2">
+    {{t "mode"}}
+  </div>
+  <div class="uk-width-1-4">
+    {{t "enable"}}
+  </div>
+  <div class="uk-width-1-4">
+    {{t "default"}}
+  </div>
+  {{#each @model.modes as |mode|}}
+    <div class="uk-width-1-2">
+      <label for={{mode.title}}>
+        <FaIcon @icon={{mode.icon}} /> {{titleize mode.title}}
+      </label>
+    </div>
+    <div class="uk-width-1-4">
+      <Input @id={{mode.title}} @type="checkbox" disabled={{eq @model.tour.mode.id mode.id}} class="uk-checkbox" @checked={{includes @model.tour.modeList mode.title }} @change={{perform this.crudActions.toggleHasMany (hash parentObj=@model.tour relationType="mode" childObj=mode)}} />
+    </div>
+    <div class="uk-width-1-4">
+      <input
+        class="uk-radio"
+        type="radio"
+        name="default"
+        value={{mode}}
+        checked={{eq @model.tour.mode.id mode.id}}
+        onchange={{perform this.crudActions.setDefaultMode @model.tour mode}}
+        disabled={{not (includes @model.tour.modeList mode.title)}}
+        id={{concat mode.title "-default"}}
+      >
+    </div>
+  {{/each}}
+</div>

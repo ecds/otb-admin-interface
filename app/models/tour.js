@@ -1,52 +1,37 @@
-import classic from 'ember-classic-decorator';
-import { sort } from '@ember/object/computed';
 import Model, { hasMany, belongsTo, attr } from '@ember-data/model';
-import { get, computed } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 import ENV from '../config/environment';
 
-@classic
-export default class Tour extends Model {
-  @attr('string')
-  title;
+export default class TourModel extends Model {
+  @attr('string') title;
+  @attr('string') slug;
+  @attr('string') sanitizedDescription;
+  @attr('string') metaDescription;
+  @attr('string') video;
+  @attr('number') position;
+  @attr('number') stopCount;
+  @attr('string') themeTitle;
+  @attr('string') defaultLng;
+  @attr('string') linkAddress;
+  @attr('string') linkText;
+  @attr('boolean') useDirections;
 
-  @attr('string')
-  slug;
+  @attr('boolean', {
+    defaultValue: true
+  }) isGeo;
 
   @attr('string', {
     defaultValue: ''
-  })
-  description;
+  }) description;
 
-  @attr('string')
-  sanitized_description;
-
-  @attr('string')
-  meta_description;
-
-  @attr('string')
-  sanitized_direction_notes;
-
-  @attr('string')
-  video;
-
-  @attr('number')
-  position;
-
-  @attr('number')
-  stop_count;
-
-  @attr('string')
-  theme_title;
-
-  @hasMany('mode')
-  modes;
+  @hasMany('tour-mode')
+  tourModes;
 
   @attr()
   splash;
 
   @attr('string')
-  external_url;
+  externalUrl;
 
   @belongsTo('mode', {
     async: true,
@@ -59,11 +44,13 @@ export default class Tour extends Model {
   })
   theme;
 
+  @belongsTo('mapOverlay') mapOverlay;
+
   @attr('string')
   tenant;
 
   @attr('string')
-  tenant_title;
+  tenantTitle;
 
   @attr('boolean')
   published;
@@ -71,10 +58,13 @@ export default class Tour extends Model {
   @hasMany('tour-stop', {
     async: true
   })
-  tour_stops;
+  tourStops;
+
+  @hasMany('mode')
+  modes;
 
   @hasMany('tour-medium')
-  tour_media;
+  tourMedia;
 
   @hasMany('medium', {
     async: true
@@ -89,20 +79,36 @@ export default class Tour extends Model {
   @hasMany('flat-page', {
     async: true
   })
-  flat_pages;
+  flatPages;
 
   @hasMany('tour-flat-page')
-  tour_flat_pages;
+  tourFlatPages;
 
   @attr('string', {
     defaultValue: 'hybrid'
   })
-  map_type;
+  mapType;
 
-  @hasMany('user')
-  authors;
+  @hasMany('user') users;
+  @hasMany('tour-author') tourAuthors;
 
-  @computed('description')
+  @attr({
+    defaultValue() {
+      return {
+        centerLat: ENV.defaultCenterLat,
+        centerLng: ENV.defaultCenterLng,
+        south: ENV.defaultSouth,
+        north: ENV.defaultNorth,
+        east: ENV.defaultEast,
+        west: ENV.defaultWest
+      };
+    }
+  }) bounds;
+
+  get authorIds() {
+    return this.tourAuthors.map(a => a.get('user.id'));
+  }
+
   get safeDescription() {
     return new htmlSafe(this.description);
   }
@@ -111,29 +117,30 @@ export default class Tour extends Model {
     return v;
   }
 
-  @computed('splash')
   get splashBackground() {
     return new htmlSafe(
       `background: url(${ENV.APP.API_HOST}/${this.splash.original_image.desktop.url}); background-size: cover;`
     );
   }
 
+  get modeList() {
+    return this.modes.map(m => m.get('title'));
+  }
+
   set splashBackground(v) {
     return v;
   }
 
-  @sort('tour_stops', '_positionSort')
-  sortedTourStops;
+  get sortedTourStops() {
+    return this.tourStops.sortBy('position');
+  }
 
-  _positionSort = ['position:asc'];
+  get sortedMedia() {
+    this.stops;
+    return this.tourMedia.sortBy('position');
+  }
 
-  @sort('tour_media', '_mediumPositionSort')
-  sortedMedia;
-
-  _mediumPositionSort = ['position:asc'];
-
-  @sort('tour_flat_pages', '_flatPagePositionSort')
-  sortedFlatPages;
-
-  _flatPagePositionSort = ['position:asc'];
+  get sortedFlatPages() {
+    return this.tourFlatPages.sortBy('position');
+  }
 }

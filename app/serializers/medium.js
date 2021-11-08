@@ -1,7 +1,5 @@
-import classic from 'ember-classic-decorator';
 import ApplicationSerializer from './application';
 
-@classic
 export default class Medium extends ApplicationSerializer {
   serialize() {
     let payload = super.serialize(...arguments);

@@ -1,9 +1,9 @@
+
 @import 'variables';
 @import 'mixins';
 @import 'themes';
 @import 'maps';
 @import 'ember-uikit';
-@import 'ember-power-select';
 @import 'desktop';
 @import 'admin';
 @import 'login-form';
@@ -261,7 +261,7 @@ ul {
 
 .otb-playbutton-overlay {
   color: $white;
-  font-size: 9em;
+  font-size: 3rem;
   opacity: .8;
   pointer-events: none;
 
@@ -355,3 +355,75 @@ ul {
 }
 
 img[data-src][src*='data:image'] { background: red; }
+
+label {
+  text-transform: capitalize;
+}
+
+.otb-tour-map {
+  .ember-google-map {
+    height: 500px;
+    width: 500px;
+  }
+}
+
+.uk-button-danger {
+  background-color: #dc3545;
+}
+
+.otb-marker-label {
+  color: white;
+}
+
+.uk-alert-primary {
+  color: black;
+  font-weight: 600;
+}
+
+.otb-map-overlay-resizing {
+  img {
+    opacity: .6;
+  }
+}
+
+.otb-missing-image {
+  .uk-card-title {
+    font-size: 3rem;
+  }
+
+  .uk-card-body {
+    font-size: 2rem;
+  }
+}
+
+.login-button {
+  color: white;
+  font-size: 2rem;
+
+  &.google {
+    background-color: #ea4435;
+  }
+
+  &.facebook {
+    background-color: #2d88ff;
+  }
+
+  &.github {
+    background-color: #302f2f;
+  }
+
+  &.twitter {
+    background-color: #1da1f1;
+  }
+}
+
+.uk-modal-page {
+  overflow: visible !important;
+}
+
+.uk-modal-page {
+  body {
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
+  }
+}

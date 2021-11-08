@@ -1,0 +1,55 @@
+<UkButton @color="text" {{did-insert this.initToggle}}><FaIcon @icon="pencil-alt" /> {{t "buttons.edit"}}</UkButton>
+
+<div id={{concat "edit-medium-for-" @parentObj.slug "-" @medium.id}} class="uk-flex-top" {{did-insert this.initModal}}>
+  <div class="uk-modal-dialog uk-margin-auto-vertical">
+    <form class="uk-form-stacked uk-padding">
+          {{#if this.crudActions.saveRecord.isRunning}}
+            <div class="uk-overlay-primary uk-position-cover"></div>
+            <div class="uk-overlay uk-position-center uk-light">
+              <p>SAVING</p>
+            </div>
+          {{/if}}
+      <div class="uk-inline">
+        {{#if (and @medium.medium.video this.modalShowing)}}
+          <VideoEmbed @embed={{@medium.medium.embed}} />
+        {{else}}
+          <img loading="lazy" src={{concat @medium.medium.files.desktop}} alt={{concat "Image: " @medium.medium.caption}} class="uk-tile uk-inline-clip uk-transition-toggle">
+        {{/if}}
+      </div>
+        <fieldset class="uk-fieldset">
+          <legend class="uk-legend">Edit Medium</legend>
+          <section class="uk-margin">
+            <label class="uk-form-label" for={{concat "image-title-" @medium.id "-for-" @parentObj.slug}}>Image Title</label>
+            <div class="uk-form-controls">
+                <Input class="uk-input" @id={{concat "image-title-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image Title..." @value={{@medium.medium.title}} />
+            </div>
+          </section>
+          <section class="uk-margin">
+            <label class="uk-form-label" for={{concat "image-caption-" @medium.id "-for-" @parentObj.slug}}>Image Caption</label>
+            <div class="uk-form-controls">
+                <Textarea class="uk-input" @id={{concat "image-caption-" @medium.id "-for-" @parentObj.slug}} @type="text" @placeholder="Image caption..." @value={{@medium.medium.caption}} />
+            </div>
+          </section>
+          {{#if @medium.medium.video}}
+            <section class="uk-margin">
+              <FileUpload
+                @name={{concat "replace-image-" @medium.id @medium.medium.id}}
+                @for={{concat "replace-image-" @medium.id @medium.medium.id}}
+                @accept="image/*"
+                @multiple={{false}}
+                @onfileadd={{this.replaceImage}}
+              >
+                <a tabindex="0">
+                    Replace Image
+                </a>
+              </FileUpload>
+            </section>
+          {{/if}}
+        </fieldset>
+        <div class="uk-modal-footer uk-text-right">
+          <button class="uk-button uk-button-default" type="button" {{on "click" (perform this.cancelEdit)}}>Cancel</button>
+          <button class="uk-button uk-button-primary" type="button" {{on "click" (perform this.saveMedium false)}}>Save</button>
+        </div>
+      </form>
+  </div>
+</div>

@@ -1,3 +1,8 @@
-<div class="ember-view">
-  {{outlet}}
+{{outlet}}
+<div id="task-running" class="uk-flex-top">
+  <div class="uk-modal-dialog uk-margin-auto-vertical uk-modal-body">
+    <p class="uk-text-{{this.taskMessage.message.type}} uk-text-large">
+      {{this.taskMessage.message.message}}
+    </p>
+  </div>
 </div>

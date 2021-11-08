@@ -1,0 +1,13 @@
+<ul class="uk-subnav uk-subnav-pill" uk-switcher>
+    <li><a href="#"><FaIcon @icon='file' /> Preview</a></li>
+    <li><a href="#"><FaIcon @icon='code' /> Source</a></li>
+  </ul>
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div tabindex="0" {{did-insert this.initPell}}></div>
+    </li>
+    <li>
+      <Textarea @rows={{10}} @id={{concat this.model.slug "-" @label "-source-" this.model.id}} class="uk-textarea" @value={{@content}} {{on 'keyup' this.updateSource}} aria-labelledby={{concat "Edit Source for " this.model.title " " @label this.model.id}} />
+    </li>
+  </ul>
+{{yield}}

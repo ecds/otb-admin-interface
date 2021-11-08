@@ -1,45 +1,29 @@
-import classic from 'ember-classic-decorator';
-import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
-import { task } from 'ember-concurrency';
+import RSVP from 'rsvp';
+import { inject as service } from '@ember/service';
 
-@classic
 export default class IndexRoute extends Route {
-  @service
-  currentUser;
+  @service currentUser;
 
-  @service
-  tenant;
+  async beforeModel() {
+    return await this.currentUser.load.perform();
+  }
 
-  // beforeModel() {
-  //   // this.get('tenant').setTenant();
-  //   return this.get('currentUser').load();
-  // },
+  model() {
+    return RSVP.hash({
+      // tours: this.store.findAll('tour'),
+      tourSets: this.store.findAll('tour-set')
+    });
+  }
 
-  // model() {
-  //   if (this.get('currentUser.user.super')) {
-  //     return {
-  //       tours: this.get('getTours').perform(),
-  //       tourSets: this.get('getTourSets').perform()
-  //     };
-  //   } else {
-  //     return {
-  //       tours: this.get('getTours').perform()
-  //     };
+  // async afterModel(model) {
+  //   if (!this.currentUser.user.super) {
+  //     model.tours = [];
+  //     await this.currentUser.user.allTours.forEach((tour) => {
+  //       model.tours.push(
+  //         this.store.queryRecord('tour', { tour: tour.tour, tourTenant: tour.tenant })
+  //       );
+  //     });
   //   }
-  // },
-
-  @task(function*() {
-    // if (!this.currentUser.user.current_tenant_admin) return;
-    return yield this.store.findAll('tour');
-  })
-  getTours;
-
-  @task(function*() {
-    if (!this.currentUser.user.tour_sets && !this.currentUser.user.super) {
-      return yield this.getTours.perform();
-    }
-    return yield this.store.findAll('tour-set');
-  })
-  getTourSets;
+  // }
 }

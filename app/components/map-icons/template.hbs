@@ -1,0 +1,74 @@
+<OtbCrud::FormSection @label="Icon Color">
+  <OtbTooltip @tooltipContent={{t "tooltip.selectIconColor"}} @ariaDescribedBy={{concat @model.slug "-icon-color-aria-describedby"}}>
+    <label class="uk-form-label" for={{concat @model.slug "-stop-icon-color-" @model.id}}>
+      {{t "iconColor"}}
+    </label>
+  </OtbTooltip>
+  <section class="uk-width-1-1">
+    <Input @type="color" @id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
+  </section>
+</OtbCrud::FormSection>
+
+<OtbCrud::FormSection @label="Upload Icon">
+  <section class="uk-width-1-1 uk-margin-small">
+    <FileUpload
+      @name={{concat "upload-icon-" @model.slug @model.id}}
+      @for={{concat "upload-icon-" @model.slug @model.id}}
+      @accept="image/*"
+      @multiple={{false}}
+      @onfileadd={{perform this.upload }}
+    >
+      <a tabindex="0">
+        <OtbTooltip @tooltipContent={{t "tooltip.addMapIcon"}} @ariaDescribedBy={{concat @model.slug "-add-stop-map-icon-aria-describedby"}}>
+          Upload new icon
+        </OtbTooltip>
+      </a>
+    </FileUpload>
+  </section>
+    {{#if (gt @icons.length 0)}}
+      <section class="uk-width-1-1 uk-margin-small">
+        <OtbTooltip @tooltipContent={{t "tooltip.north"}} @ariaDescribedBy={{concat @model.slug "-add-existing-icon-aria-describedby"}}>
+          <a href="#" {{did-insert this.initToggle}}>Use Existing Map Icon</a>
+        </OtbTooltip>
+      </section>
+    {{/if}}
+    {{#if @model.mapIcon}}
+      <section class="uk-width-1-1 uk-margin-small">
+          <OtbTooltip @tooltipContent={{t "tooltip.north"}} @ariaDescribedBy={{concat @model.slug "-remove-icon-aria-describedby"}}>
+            <UkButton class="uk-button-danger" {{on "click" (perform @removeFromModel @model @model.mapIcon 'mapIcon' false)}}>
+              <FaIcon @icon="trash" /> Remove Custom Icon
+            </UkButton>
+        </OtbTooltip>
+      </section>
+    {{/if}}
+</OtbCrud::FormSection>
+
+{{#if (gt @icons.length 0)}}
+  <div id={{concat "existing-icons-" @model.slug @model.id}} {{did-insert this.initModal}}>
+    <div class="uk-modal-dialog otb-extras-modal">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-header">Map Icons</h2>
+        <div class="uk-inline uk-modal-body" uk-overflow-auto>
+          <div class="uk-flex-center uk-text-center" uk-grid="masonry: true">
+            {{#each @icons as |icon|}}
+              {{#if (notin @model.media icon)}}
+                <div>
+                  <div class="uk-card uk-card-default uk-card-small">
+                    <img loading="lazy" src={{icon.originalImageUrl}} />
+                    <div class="uk-card-body">
+                        <p>{{icon.title}}</p>
+                      <div class="uk-card-footer uk-align-right">
+                        <UkButton {{on "click" (fn this.addIcon icon)}}>Use Icon</UkButton>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{{/if}}

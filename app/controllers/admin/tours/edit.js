@@ -1,28 +1,27 @@
 import Controller from '@ember/controller';
-import { task } from 'ember-concurrency';
-import { computed } from '@ember/object';
+import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import CrudActionsMixin from '../../../mixins/crud-actions';
+import { isEmpty } from '@ember/utils';
+import { task, timeout } from 'ember-concurrency';
+import { tracked } from '@glimmer/tracking';
 import UIkit from 'uikit';
-import ENV from '../../../config/environment';
 
-export default Controller.extend(CrudActionsMixin, {
-  store: service(),
-  tenant: service(),
-  geocoder: service(),
-  taskMessage: null,
-  env: ENV,
+export default class ToursController extends Controller{
+  @service currentUser;
+  @service crudActions;
+  @service geocoder;
+  @service store;
+  @service taskMessage;
+  @service tenant;
 
-  mapTypes: ['roadmap', 'satellite', 'hybrid', 'terrain'],
+  @tracked
+  visible = false;
 
-  screenBlocker: computed('taskMessage', () => {
-    return UIkit.modal(document.getElementById('task-running'), {
-      escClose: false,
-      bgClose: false
-    });
-  }),
+  @tracked
+  willShow = true;
 
-  waitForElement: task(function*(element, accordion) {
+  @task
+  *waitForElement(element, accordion) {
     // TODO: Use Ember Concurrency `waitForProperty`
     let checkExist = yield setInterval(() => {
       if (document.getElementById(element)) {
@@ -33,66 +32,70 @@ export default Controller.extend(CrudActionsMixin, {
       }
     }, 300);
     return checkExist;
-  }),
+  }
 
-  saveTour: task(function*(tour) {
-    yield this.saveRecord.perform(tour);
+  @task
+  *saveTour(tour) {
+    yield this.crudActions.saveRecord.perform(tour);
     tour.stops.forEach(stop => {
       if (stop.hasDirtyAttributes) {
         stop.save();
       }
     });
-  }),
+  }
 
-  showTaskMessage: task(function*(message) {
-    this.set('taskMessage', message);
-    return yield this.screenBlocker.show();
-  }),
-
-  clearTaskMessage: task(function*() {
-    this.set('taskMessage', null);
-    return yield this.screenBlocker.hide();
-  }),
-
-  newStop: task(function*(tour) {
-    yield this.showTaskMessage.perform({
+  @task
+  *newStop(tour) {
+    this.taskMessage.message = {
       message: 'Creating new stop...',
       type: 'success'
-    });
+    };
+    this.taskMessage.screenBlocker.show();
     const stopListElement = document.getElementById('stopList');
     const accordion = UIkit.accordion(stopListElement);
     // Close any open items in the accordion.
     accordion.toggle(-1);
     try {
-      this.set('taskMessage', {
+      this.taskMessage.message = {
         message: 'Adding new stop to tour...',
         type: 'success'
+      };
+      let newStop = this.store.createRecord('stop', {
+        title: `New Stop - ${new Date().getTime().toString()}`
       });
-      let newStop = yield this.createHasMany.perform({
+      if (!isEmpty(tour.stops)) {
+        let previousStop = [...tour.sortedTourStops].pop();
+        newStop.setProperties({
+          lat: previousStop.get('stop.lat'),
+          lng: previousStop.get('stop.lng')
+        });
+      }
+      this.taskMessage.screenBlocker.hide();
+      yield this.crudActions.createHasMany.perform({
         relationType: 'stop',
         parentObj: tour,
-        childObj: this.store.createRecord('stop', {})
+        childObj: newStop
       });
-      newStop.setProperties({
-        title: new Date().getTime().toString()
-      });
-      yield this.clearTaskMessage.perform();
       yield this.waitForElement.perform(
         `${newStop.slug}-${newStop.id}`,
         accordion
       );
     } catch (error) {
-      this.set('taskMessage', `ERROR: ${error.message}`);
+      this.taskMessage.message = {
+        message: `ERROR: ${error.message}`,
+        type: 'danger'
+      };
+    } finally {
+      // this.taskMessage = {};
     }
-    // Destroy the modal but leave the element for next time.
-    this.screenBlocker.$destroy;
-  }),
+  }
 
-  newPage: task(function*(tour) {
-    yield this.showTaskMessage.perform({
+  @task
+  *newPage(tour) {
+    this.taskMessage.message = {
       message: 'Creating new page...',
       type: 'success'
-    });
+    };
     const pageListElement = document.getElementById('pageList');
     const accordion = UIkit.accordion(pageListElement);
     // Close any open items in the accordion.
@@ -100,93 +103,207 @@ export default Controller.extend(CrudActionsMixin, {
       accordion.toggle(-1);
     }
     try {
-      this.set('taskMessage', {
+      this.taskMessage = {
         message: 'Adding new page to tour...',
         type: 'success'
+      };
+      let newPage = this.store.createRecord('flatPage', {
+        title: `New Page - ${new Date().getTime().toString()}`
       });
-      let newPage = yield this.createHasMany.perform({
-        relationType: 'flat_page',
-        parentObj: tour
+      yield this.crudActions.createHasMany.perform({
+        relationType: 'flatPage',
+        parentObj: tour,
+        childObj: newPage
       });
-      newPage.setProperties({
-        title: ''
-      });
-      yield this.clearTaskMessage.perform();
       yield this.waitForElement.perform(`page-${newPage.id}`, accordion);
     } catch (error) {
-      this.set('taskMessage', `ERROR: ${error.message}`);
+      this.taskMessage = `ERROR: ${error.message}`;
     }
     // Destroy the modal but leave the element for next time.
-    this.screenBlocker.$destroy;
-  }),
+  }
 
-  addVideo: task(function*(videoCode, parentObj) {
-    this.set('taskMessage', { message: 'Adding video...', type: 'success' });
-    const modal = this.screenBlocker;
-    modal.show();
-    if (parentObj.hasOwnProperty('content')) {
+  @task
+  *addVideo(videoProps, parentObj) {
+    this.taskMessage.message = { message: 'Adding video...', type: 'success' };
+
+    if (Object.hasOwnProperty.call(parentObj, 'content')) {
       parentObj = parentObj.content;
     }
     let options = {
       relationType: 'medium',
       parentObj: parentObj,
-      attrs: {
-        video: videoCode
-      }
+      attrs: videoProps
     };
-    yield this.createHasMany.perform(options);
-    modal.hide();
-    modal.$destroy;
-  }),
+    yield this.crudActions.createHasMany.perform(options);
+  }
 
-  actions: {
-    cancelChangesTour(tour) {
-      this.send('cancelChanges', tour);
-      tour.stops.forEach(stop => {
-        this.send('cancelChanges', stop);
-      });
-    },
+  @task
+  *removeChild(child, tourChild, itemType, skipConfirm=false) {
+    let didDeleteChild = yield this.crudActions.deleteHasMany.perform(
+      {
+        parentObj: this.model.tour,
+        relationType: itemType,
+        childObj: child
+      },
+      skipConfirm
+    );
 
-    cancelChanges(model) {
-      if (model.hasOwnProperty('_belongsToState')) {
-        model.then(m => {
-          this.send('cancelChanges', m);
-        });
+    if (didDeleteChild) {
+      // let tourStops = yield this.model.tour.get(`${itemType}s`);
+      // tourStops.removeObject(tourChild);
+      // This shouldn't be needed, but we need to be sure the stop
+      // has been removed from the list before updating the order.
+      let elToRemove = document.getElementById(`${child.get('slug')}-${child.get('id')}`);
+      if (elToRemove) {
+        elToRemove.remove();
       }
-      if (!model.get('hasDirtyAttributes')) return;
-      let changes = null;
-      if (typeof model.changedAttributes == 'function') {
-        changes = model.changedAttributes();
-      } else {
-        changes = model.changedAttributes;
-      }
-      for (const changed in changes) {
-        if (
-          model.editors &&
-          model.editors[changed] &&
-          model.changedAttributes()[changed]
-        ) {
-          const oldValue = changes[changed][0];
-          model.editors[changed].setEditorValue(oldValue);
-        }
-        model.rollbackAttributes();
-      }
-    },
-
-    doNothing() {
-      return true;
-    },
-
-    scrollElementToTop(event) {
-      let path = event.path || (event.composedPath && event.composedPath());
-      path[2].scrollIntoView();
-      window.scrollBy(0, -100);
-    },
-
-    addRemoveMode(options, event) {
-      if (event.target.checked) {
-        this.get();
-      }
+      yield timeout(300);
+      yield this.crudActions.reorder.perform(`${itemType}List`);
     }
   }
-});
+
+  @task
+  *makeChildUnique(tourChild, childType) {
+    let child = this.store.peekRecord(childType, tourChild.get(`${childType}.id`));
+    yield this.removeChild.perform(child, tourChild, childType, true);
+    yield this.copyChild.perform(child, childType);
+  }
+
+  @task
+  *addExistingItem(item, itemType) {
+    yield this.crudActions.createHasMany.perform({
+      relationType: itemType,
+      parentObj: this.model.tour,
+      childObj: item
+    });
+  }
+
+  @task
+  *copyChild(child, childType) {
+    let childToCopy = this.store.peekRecord(childType, child.get('id'));
+    let dataCopy = JSON.parse(JSON.stringify(childToCopy));
+
+    let childCopy = null;
+
+    if (childType == 'stop') {
+      let mediaToCopy = dataCopy.media;
+      delete dataCopy.media;
+      delete dataCopy.tours;
+      childCopy = yield this.store.createRecord(childType, dataCopy);
+      let stopMedia = childCopy.get('media');
+
+      yield mediaToCopy.forEach((mediumId) => {
+        const medium = this.store.peekRecord('medium', mediumId);
+        stopMedia.pushObject(medium);
+      });
+    } else {
+      delete dataCopy.tours;
+      childCopy = yield this.store.createRecord(childType, dataCopy);
+    }
+
+    yield this.crudActions.saveRecord.perform(childCopy);
+
+    yield this.crudActions.createHasMany.perform({
+      relationType: childType,
+      parentObj: this.model.tour,
+      childObj: childCopy
+    });
+  }
+
+  // @task
+  // *copyPage(page) {
+  //   let pageToCopy = this.store.peekRecord('flatPage', page.id);
+  //   let dataCopy = JSON.parse(JSON.stringify(pageToCopy));
+  //   let pageCopy = this.store.createRecord('flatPage', dataCopy);
+
+  //   yield this.crudActions.saveRecord.perform(pageCopy);
+  //   yield this.crudActions.createHasMany.perform({
+  //     relationType: 'flatPage',
+  //     parentObj: this.model.tour,
+  //     childObj: pageCopy
+  //   });
+  // }
+
+  @task
+  *deleteItem(item) {
+    if (!item.orphaned) return;
+    yield this.crudActions.deleteRecord.perform(item);
+  }
+
+  @action
+  cancelChangesTour(tour) {
+    this.cancelChanges(tour);
+    tour.stops.forEach(stop => {
+      this.cancelChanges(stop);
+    });
+  }
+
+  @action
+  cancelChanges(model) {
+    if (Object.hasOwnProperty.call(model, '_belongsToState')) {
+      model.then(m => {
+        this.cancelChanges(m);
+      });
+    }
+    if (!model.get('hasDirtyAttributes')) return;
+    let changes = null;
+    if (typeof model.changedAttributes == 'function') {
+      changes = model.changedAttributes();
+    } else {
+      changes = model.changedAttributes;
+    }
+    for (const changed in changes) {
+      if (
+        model.editors &&
+        model.editors[changed] &&
+        model.changedAttributes()[changed]
+      ) {
+        const oldValue = changes[changed][0];
+        model.editors[changed].setEditorValue(oldValue);
+      }
+      model.rollbackAttributes();
+    }
+  }
+
+  @action
+  doNothing() {
+    return true;
+  }
+
+  @action
+  scrollElementToTop(event) {
+    let path = event.path || (event.composedPath && event.composedPath());
+    path[2].scrollIntoView();
+    window.scrollBy(0, -100);
+  }
+
+  @action
+  addRemoveMode(options, event) {
+    if (event.target.checked) {
+      // this.get();
+    }
+  }
+
+  @action
+  updateMapType(event) {
+    this.model.tour.setProperties({ mapType: event.target.value });
+  }
+
+  @task
+  *activateStop(event) {
+    if (event.target.attributes['data-stop-id']) {
+      this.model.tour.stops.forEach(stop => {
+        stop.setProperties({ active: false });
+      });
+      const stop = this.store.peekRecord('stop', event.target.attributes['data-stop-id'].value);
+      stop.setProperties({ active: true });
+      yield timeout(1000);
+      this.willShow = false;
+    }
+  }
+
+  @action
+  beforeshow() {
+    this.willShow = true;
+  }
+}

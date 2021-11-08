@@ -132,7 +132,7 @@ declare module 'ember' {
      */
     function tryInvoke(obj: {}, methodName: string, args: Ember.Array): any;
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * Creates a computed property which operates on dependent arrays and is updated with "one at a time" semantics. When items are added or removed from the dependent array(s) a reduce computed only operates on the change instead of re-evaluating the entire array.
      */
     function reduceComputed(...dependentKeys: string[]): ComputedProperty;
@@ -163,18 +163,18 @@ declare module 'ember' {
     function $();
     export namespace Handlebars {
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Lookup both on root and on window. If the path starts with a keyword, the corresponding object will be looked up in the template's data hash and used to resolve the path.
        */
       function get(root: {}, path: string, options: {});
       export class helpers {
         /**
-         * DEPRECATED: 
+         * DEPRECATED:
          * `bind-attr` allows you to create a binding between DOM element attributes and Ember objects. For example:
          */
         'bind-attr'(options: {}): string;
         /**
-         * DEPRECATED: 
+         * DEPRECATED:
          * See `bind-attr`
          */
         bindAttr(context: Function, options: {}): string;
@@ -837,7 +837,7 @@ declare module 'ember' {
       isEnabled(feature: string): boolean;
     }
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * Defines some convenience methods for working with Enumerables. `Ember.EnumerableUtils` uses `Ember.ArrayPolyfills` when necessary.
      */
     export class EnumerableUtils {
@@ -862,27 +862,27 @@ declare module 'ember' {
        */
       indexOf(obj: {}, index: {});
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Returns an array of indexes of the first occurrences of the passed elements on the passed object.
        */
       indexesOf(obj: {}, elements: Ember.Array): Ember.Array;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Adds an object to an array. If the array already includes the object this method has no effect.
        */
       addObject(array: Ember.Array, item: {}): void;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Removes an object from an array. If the array does not contain the passed object this method has no effect.
        */
       removeObject(array: Ember.Array, item: {}): void;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Replaces objects in an array with the passed objects.
        */
       replace(array: Ember.Array, idx: number, amt: number, objects: Ember.Array): Ember.Array;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Calculates the intersection of two arrays. This method returns a new array filled with the records that the two passed arrays share with each other. If there is no intersection, an empty array will be returned.
        */
       intersection(array1: Ember.Array, array2: Ember.Array): Ember.Array;
@@ -1164,32 +1164,32 @@ declare module 'ember' {
     export class ReduceComputedProperty extends ComputedProperty {
     }
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * `Ember.ArrayController` provides a way for you to publish a collection of objects so that you can easily bind to the collection from a Handlebars `#each` helper, an `Ember.CollectionView`, or other controllers.
      */
     export class ArrayController extends ArrayProxy implements SortableMixin, ControllerMixin {
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * __Required.__ You must implement this method to apply this mixin.
        */
       addObject(object: {}): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Adds each object in the passed enumerable to the receiver.
        */
       addObjects(objects: Enumerable): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * __Required.__ You must implement this method to apply this mixin.
        */
       removeObject(object: {}): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Removes each object in the passed enumerable from the receiver.
        */
       removeObjects(objects: Enumerable): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Returns `true` if the passed property resolves to `true` for all items in the enumerable. This method is often simpler/faster than using a callback.
        */
       isEvery(key: string, value: string): boolean;
@@ -1203,33 +1203,33 @@ declare module 'ember' {
        */
       controllerFor();
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Stores the instances of other controllers available from within this controller. Any controller listed by name in the `needs` property will be accessible by name through this property.
        */
       controllers: {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Defines which query parameters the controller accepts. If you give the names ['category','page'] it will bind the values of these query parameters to the variables `this.category` and `this.page`
        */
       queryParams: any;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Transition the application into another route. The route may be either a single route or route path:
        */
       transitionToRoute(name: string, ...models: any[]);
       transitionToRoute(name: string, options: {});
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * The controller's current model. When retrieving or modifying a controller's model, this property should be used instead of the `content` property.
        */
       model: any;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * The collection of functions, keyed by name, available on this `ActionHandler` as action targets.
        */
       actions: {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Triggers a named action on the `ActionHandler`. Any parameters supplied after the `actionName` string will be passed as arguments to the action target function.
        */
       send(actionName: string, context: any);
@@ -1280,7 +1280,7 @@ declare module 'ember' {
       service(name: string): InjectedProperty;
     }
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * `Ember.ObjectController` is part of Ember's Controller layer. It is intended to wrap a single object, proxying unhandled attempts to `get` and `set` to the underlying model object, and to forward unhandled action attempts to its `target`.
      */
     export class ObjectController extends ObjectProxy implements ControllerMixin {
@@ -1294,33 +1294,33 @@ declare module 'ember' {
        */
       controllerFor();
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Stores the instances of other controllers available from within this controller. Any controller listed by name in the `needs` property will be accessible by name through this property.
        */
       controllers: {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Defines which query parameters the controller accepts. If you give the names ['category','page'] it will bind the values of these query parameters to the variables `this.category` and `this.page`
        */
       queryParams: any;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Transition the application into another route. The route may be either a single route or route path:
        */
       transitionToRoute(name: string, ...models: any[]);
       transitionToRoute(name: string, options: {});
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * The controller's current model. When retrieving or modifying a controller's model, this property should be used instead of the `content` property.
        */
       model: any;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * The collection of functions, keyed by name, available on this `ActionHandler` as action targets.
        */
       actions: {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Triggers a named action on the `ActionHandler`. Any parameters supplied after the `actionName` string will be passed as arguments to the action target function.
        */
       send(actionName: string, context: any);
@@ -2127,32 +2127,32 @@ declare module 'ember' {
     export class Service extends Object {
     }
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * An unordered collection of objects.
      */
     export class Set extends CoreObject implements MutableEnumerable, Copyable, Freezable {
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * __Required.__ You must implement this method to apply this mixin.
        */
       addObject(object: {}): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Adds each object in the passed enumerable to the receiver.
        */
       addObjects(objects: Enumerable): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * __Required.__ You must implement this method to apply this mixin.
        */
       removeObject(object: {}): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Removes each object in the passed enumerable from the receiver.
        */
       removeObjects(objects: Enumerable): {};
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Returns `true` if the passed property resolves to `true` for all items in the enumerable. This method is often simpler/faster than using a callback.
        */
       isEvery(key: string, value: string): boolean;
@@ -2172,7 +2172,7 @@ declare module 'ember' {
     export class _MetamorphView extends View implements _Metamorph {
     }
     /**
-     * DEPRECATED: 
+     * DEPRECATED:
      * `Ember.RenderBuffer` gathers information regarding the view and generates the final representation. `Ember.RenderBuffer` will generate HTML which can be pushed to the DOM.
      */
     export class RenderBuffer {
@@ -2241,12 +2241,12 @@ declare module 'ember' {
      */
     export class Component extends View {
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * A components template property is set by passing a block during its invocation. It is executed within the parent context.
        */
       template: any;
       /**
-       * DEPRECATED: 
+       * DEPRECATED:
        * Specifying a components `templateName` is deprecated without also providing the `layout` or `layoutName` properties.
        */
       templateName: any;
@@ -2431,9 +2431,9 @@ declare module 'ember' {
       elementId: string;
       /**
        * DEPRECATED: See http://emberjs.com/deprecations/v1.x/#toc_ember-view
-       * Tag name for the view's outer element. The tag name is only used when an element is first created. If you change the `tagName` for an element, you must destroy and recreate the view element.
+       * Tag name for the view's outer element. The tag name is only used when an element is first created. If you change the `
        */
-      tagName: string;
+
       /**
        * DEPRECATED: See http://emberjs.com/deprecations/v1.x/#toc_ember-view
        * Normally, Ember's component model is "write-only". The component takes a bunch of attributes that it got passed in, and uses them to render its template.

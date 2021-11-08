@@ -1,0 +1,14 @@
+<OtbCrud::FormSection @label="language">
+  <OtbTooltip @tooltipContent={{t "tooltip.languageSelect"}} @ariaDescribedBy={{concat @model.slug "-language-select-aria-describedby"}}>
+    <label class="uk-form-label" for="language-select">Select Default Language</label>
+  </OtbTooltip>
+  <section class="uk-width-1-1">
+    <select is="language-select" class="uk-select" {{on "change" this.update}}>
+      {{#each this.languages as |lang|}}
+        <option id={{concat "option-" lang.code}} value={{lang.code}} selected={{eq lang.code @model.defaultLng }}>
+          {{lang.label}}
+        </option>
+      {{/each}}
+    </select>
+  </section>
+</OtbCrud::FormSection>

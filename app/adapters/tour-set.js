@@ -1,6 +1,10 @@
-import classic from 'ember-classic-decorator';
-import ApplicationAdapter from './application';
-import ENV from '../config/environment';
+import Public from './public';
 
-@classic
-export default class TourSet extends ApplicationAdapter {}
+export default class TourSet extends Public {
+  ajaxOptions(/*defaultOptions, adapter*/) {
+    const options = super.ajaxOptions(...arguments);
+    options.credentials = 'include';
+
+    return options;
+  }
+}

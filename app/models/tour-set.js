@@ -1,17 +1,12 @@
-import classic from 'ember-classic-decorator';
 import Model, { hasMany, attr } from '@ember-data/model';
 
-@classic
 export default class TourSet extends Model {
-  @attr('string')
-  name;
-
-  @hasMany('tour')
-  tours;
-
-  @attr('string')
-  subdir;
-
-  @hasMany('user')
-  admins;
+  @attr('string') name;
+  @attr('string') subdir;
+  @attr('string') baseSixtyFour;
+  @attr('string') logoTitle;
+  @attr('string') logoUrl;
+  @attr() logo;
+  @hasMany('tour') tours;
+  @hasMany('user') admins;
 }

@@ -5,17 +5,16 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
   let app = new EmberApp(defaults, {
-    hinting: false,
-    'ember-cli-babel': {
-      includePolyfill: true
+    babel: {
+      plugins: [ require.resolve('ember-auto-import/babel-plugin') ]
     },
 
     'ember-composable-helpers': {
-      only: ['toggle', 'next', 'pipe', 'contains']
+      only: ['toggle', 'next', 'pipe', 'contains', 'sort-by']
     },
 
     'ember-cli-string-helpers': {
-      only: ['titleize']
+      only: ['titleize', 'humanize']
     },
 
     emberCliDropzonejs: {
@@ -31,7 +30,7 @@ module.exports = function(defaults) {
     }
   });
 
-  app.import('node_modules/jodit/build/jodit.min.js');
+  app.import('node_modules/pell/dist/pell.min.css');
 
   return app.toTree();
 };

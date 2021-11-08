@@ -1,5 +1,3 @@
-import classic from 'ember-classic-decorator';
-import Cookie from 'ember-simple-auth/session-stores/cookie';
+import CookieStore from 'ember-simple-auth/session-stores/cookie';
 
-@classic
-export default class Application extends Cookie {}
+export default class ApplicationSessionStore extends CookieStore {}

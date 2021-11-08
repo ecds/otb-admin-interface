@@ -7,11 +7,14 @@ module.exports = environment => {
     rootURL: '/admin',
     locationType: 'auto',
     historySupportMiddleware: true,
+    defaultCenterLat: 33.75432,
+    defaultCenterLng: -84.38979,
+    defaultSouth: 33.746101262568295,
+    defaultNorth: 33.7594628740807,
+    defaultEast: -84.38041814677302,
+    defaultWest: -84.39878106994395,
     'ember-cli-mirage': {
       enabled: false
-    },
-    torii: {
-      providers: {}
     },
 
     'ember-simple-auth': {
@@ -30,17 +33,20 @@ module.exports = environment => {
       }
     },
 
-    googleFonts: ['Open+Sans:300,400,700', 'Source+Sans+Pro:300'],
-
-    fastboot: {
-      hostWhitelist: [
-        /^.*lvh.me:4200+$/,
-        /^.*tours.org:4200+$/,
-        /^.*otb.org:3000+$/,
-        '*'
-      ],
-      disabled: true
+    torii: {
+      sessionServiceName: 'session',
+      providers: {
+        ecds: {}
+      }
     },
+
+    fauxOAuth: {
+      baseUrl: 'https://auth.digitalscholarship.emory.edu/auth/'
+    },
+
+    emoryTenants: [
+      ''
+    ],
 
     APP: {
       // Here you can pass flags/options to your application instance
@@ -48,30 +54,27 @@ module.exports = environment => {
     }
   };
 
+  ENV['ember-google-maps'] = {
+    key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
+    libraries: ['places', 'drawing'],
+    language: 'en',
+    protocol: 'https'
+  };
+
   if (environment === 'development') {
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
     ENV.APP.API_HOST = 'https://otb.org:3000';
-    ENV.fastboot.hostWhitelist.push('https://jay.otb.org:3000');
-    ENV.APP.LOG_TRANSITIONS = true;
-    ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
+    // ENV.APP.LOG_TRANSITIONS = true;
+    // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     ENV['ember-cli-mirage'] = {
       enabled: false
     };
-    ENV['g-map'] = {
-      key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
-      libraries: ['places'],
-      language: 'en'
-    };
 
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey: '391159993660-70se4jcll933rh4f896takormj0rnlbc.apps.googleusercontent.com',
-      redirectUri: 'https://lvh.me:4200/admin/torii/redirect.html',
-      scope: 'email'
-    };
+    ENV['g-map'] = ENV['ember-google-maps'];
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://otb.org:3000/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://otb.org:3000/auth/tokens/';
+    ENV['fauxOAuth'].redirectUrl = 'https://lvh.me:4200/admin/torii/redirect.html';
 
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '383939088765607',
-      redirectUri: 'https://lvh.me:4200/admin/torii/redirect.html'
-    };
   }
 
   if (environment === 'mobile') {
@@ -86,10 +89,8 @@ module.exports = environment => {
   }
 
   if (environment === 'test') {
-    ENV['ember-cli-mirage'] = {
-      enabled: true
-    };
-    ENV.APP.API_HOST = 'otb.org:3000';
+    ENV['ember-cli-mirage'] = { enabled: true, autostart: true };
+    ENV.APP.API_HOST = '';
     // Testem prefers this...
     ENV.locationType = 'none';
 
@@ -98,47 +99,38 @@ module.exports = environment => {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+    ENV.APP.autoboot = false;
   }
 
   if (environment === 'staging') {
-    ENV.APP.API_HOST = 'https://api.opentour.emory.edu';
+    ENV.APP.API_HOST = 'https://otb-api.ecdsdev.org';
+    ENV.APP.FRONTEND_HOST = 'opentour.site';
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
 
-    ENV['g-map'] = {
-      key: 'AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE',
+    ENV['ember-cli-mirage'] = {
+      enabled: false
+    };
+    ENV['ember-google-maps'] = {
+      key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
+      libraries: ['places'],
+      language: 'en',
       protocol: 'https'
     };
 
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '383939088765607',
-      redirectUri: 'https://obt.ecdsdev.org/admin/torii/redirect.html'
-    };
+    ENV['g-map'] = ENV['ember-google-maps'];
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://otb-api.ecdsdev.org/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://otb-api.ecdsdev.org/auth/tokens/';
+    ENV['fauxOAuth'].redirectUrl = 'https://otb.ecdsdev.org/admin/torii/redirect.html';
 
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey:
-        '171053764894-edtmjrjbnh8jukcbsgdue4sovqpe1l5f.apps.googleusercontent.com',
-      redirectUri: 'https://otb.ecdsdev.org/admin/torii/redirect.html',
-      scope: 'email'
-    };
   }
 
   if (environment === 'production') {
     ENV.APP.API_HOST = 'https://api.opentour.emory.edu';
-    ENV['g-map'] = {
-      key: 'AIzaSyC0l_y6pP0DK4oig0ile1XLbRx9HUQeryE',
-      protocol: 'https'
-    };
-
-    ENV.torii.providers['google-oauth2-bearer-v2'] = {
-      apiKey:
-        '583999668970-8t0a0k6lrop28kdgar02sq41gkhet9fa.apps.googleusercontent.com',
-      redirectUri: 'https://opentour.emory.edu/admin/torii/redirect.html',
-      scope: 'email'
-    };
-
-    ENV.torii.providers['facebook-oauth2'] = {
-      apiKey: '373879153234380',
-      redirectUri: 'https://opentour.emory.edu/admin/torii/redirect.html'
-    };
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
+    ENV['g-map'] = ENV['ember-google-maps'];
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://api.opentour.emory.edu/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://api.opentour.emory.edu/auth/tokens/';
+    ENV['fauxOAuth'].redirectUrl = 'https://opentour.site/admin/torii/redirect.html';
   }
 
   if (environment === 'gsuWalkingTours') {

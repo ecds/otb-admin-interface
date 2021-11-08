@@ -1,6 +1,11 @@
-import classic from 'ember-classic-decorator';
 import Route from '@ember/routing/route';
-import UnauthenticatedRouteMixin from 'ember-simple-auth/mixins/unauthenticated-route-mixin';
+import { inject as service } from '@ember/service';
 
-@classic
-export default class LoginRoute extends Route.extend(UnauthenticatedRouteMixin) {}
+export default class LoginRoute extends Route {
+  @service router;
+  @service session;
+
+  beforeModel(/*transition*/) {
+    this.session.prohibitAuthentication('admin');
+  }
+}

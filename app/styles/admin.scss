@@ -18,6 +18,8 @@
 
 .pell-content {
   background: $white;
+  outline-style: solid;
+  outline-width: 1px;
 }
 
 .uk-container {
@@ -64,13 +66,6 @@ a.uk-accordion-title::after {
   }
 }
 
-.otb-stop-media-modal {
-  iframe {
-    height: 75vh;
-    width: 75vw;
-  }
-}
-
 .otb-aria-describedby {
   opacity: 0;
   position: absolute;
@@ -105,12 +100,6 @@ a.uk-accordion-title::after {
   max-width: 25vw;
 }
 
-.ember-power-select-option,
-.ember-power-select-selected-item,
-.uk-form-label {
-  text-transform: capitalize;
-}
-
 .js-upload.uk-placeholder {
   background-color: lightgray;
   border-color: #454545;
@@ -120,4 +109,36 @@ a.uk-accordion-title::after {
 .uk-table-shrink {
   max-width: 1px;
   width: auto;
+}
+
+.otb-extras-modal {
+  width: unset;
+}
+
+.otb-image-loading-bg {
+  background-image: url('/admin/assets/images/loading.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 200px;
+  width: 200px;
+
+  img {
+    opacity: 0;
+  }
+}
+
+.otb-image-loaded-bg {
+  background-color: white;
+}
+
+.otb-tooltip {
+  cursor: help;
+  font-size: 1rem;
+}
+
+.uk-button-primary {
+  &:disabled {
+    background-color: rgb(21 101 192 / 45%);
+    color: rgb(23 23 23 / 75%);
+  }
 }

@@ -1,0 +1,10 @@
+<OtbCrud::FormSection @label="map-type">
+  <label class="uk-form-label" for="map-type-select">Select Map Type</label>
+  <section class="uk-width-1-1">
+    <select is="map-type-select" class="uk-select" {{on "change" this.update}}>
+      {{#each this.mapTypes as |type|}}
+        <option id={{concat "option-" type}} value={{type}} selected={{eq type @model.mapType }}>{{titleize type}}</option>
+      {{/each}}
+    </select>
+  </section>
+</OtbCrud::FormSection>

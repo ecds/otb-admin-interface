@@ -1,14 +1,15 @@
-import { Factory, faker, trait } from 'ember-cli-mirage';
+import { Factory, trait } from 'ember-cli-mirage';
+import faker from 'faker';
 
 export default Factory.extend({
     title() {
-        return faker.address.city()
+        return faker.address.city();
     },
     description() {
-        return  faker.lorem.paragraphs()
+        return  faker.lorem.paragraphs();
     },
     is_geo() {
-        return faker.random.boolean
+        return faker.random.boolean;
     },
 
     withStops: trait({

@@ -20,7 +20,7 @@ $themes: (
   )
 );
 
-$global-primary-background: #212121;
+$global-primary-background: #1565C0;
 
 // if theme service exists as addon - allow 3rd parties to merge into themes.
 @if variable-exists(theme-additional) {

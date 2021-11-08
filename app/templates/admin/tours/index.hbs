@@ -1,81 +1,139 @@
-<div uk-grid class="uk-child-width-auto">
-  <div>
-    <UkButton @color="primary" @size="large" @on-click={{perform createTour}}>
-      New Tour
-    </UkButton>
-  </div>
-  <div>
-    <UkModal @modalName="tour-authors" as |modal|>
-      <modal.open @class="" @tagName="div">
-        Manage Site Admins
-      </modal.open>
-      <modal.dialog>
-        <modal.body>
-          <DataLoader @queryType="search" @modelName="user" as |userLoader|>
-            {{#if (lte userLoader.data.length 1)}}
-              <p>Loading Users...</p>
-            {{else}}
-              <h3 class="uk-heading">Manage Site Admins</h3>
-              <div class="uk-margin uk-grid-small uk-child-width-1-1 uk-grid">
-                {{#each userLoader.data as |user|}}
-                  {{#unless user.super}}
-                    <div>
-                      <Input @id={{concat "user" user.id}} @type="checkbox" @name="tour_set" @change={{perform toggleHasMany (hash relationType="admins" parentObj=this.model childObj=user)}} @checked={{user.currentTenantAdmin}} />
-                      <label for={{tourSet.subdir}}>{{if user.display_name user.display_name user.login.identification}}</label>
-                    </div>
-                  {{/unless}}
-                {{/each}}
-              </div>
-            {{/if}}
-          </DataLoader>
-        </modal.body>
-      </modal.dialog>
-    </UkModal>
-  </div>
+{{#if this.transitioning}}
+  <FaIcon @icon="spinner" @spin={{true}} /> Loading
+{{else}}
+<div uk-grid class="uk-child-width-1-1">
+  <section class="uk-margin-small uk-child-width-auto" uk-grid>
+    <div>
+      <UkButton @color="primary" @size="large" @on-click={{perform this.createTour}}>
+        New Tour
+      </UkButton>
+    </div>
+    <div>
+      {{#if this.currentUser.user.currentTenantAdmin}}
+          <div>
+            <UkButton @color="secondary" @size="large" {{on "click" (toggle "visible" this)}}>
+              {{t "manageAdmins"}}
+            </UkButton>
+          </div>
+        {{/if}}
+    </div>
+  </section>
+
+  <section class="uk-margin-small">
+    <FileUpload
+      @name="tour-set-logo"
+      @for="tour-set-logo"
+      @accept="image/*"
+      @multiple={{false}}
+      @onfileadd={{perform this.upload }}
+    >
+      <a tabindex="0">
+        <OtbTooltip @tooltipContent={{t "tooltip.siteIcon"}} @ariaDescribedBy="tour-site-icon">
+          <FaIcon @icon="upload" /> {{if this.tenant.tenantModel.logoUrl "Update " "Upload "}} Site Logo
+        </OtbTooltip>
+      </a>
+    </FileUpload>
+  </section>
+
+  {{#if this.tenant.tenantModel.logoUrl}}
+    <section class="uk-margin-small">
+      <UkButton @color="link" {{on "click" (perform this.removeSiteIcon)}}><FaIcon @icon="trash" /> Remove Site Logo</UkButton>
+    </section>
+    <section class="uk-margin-small">
+      <figure>
+        <img src={{this.tenant.tenantModel.logoUrl}} alt={{concat "Logo for " this.tenant.tenantModel.name}} />
+        <figcaption>Logo for {{this.tenant.tenantModel.name}}</figcaption>
+      </figure>
+    </section>
+  {{/if}}
+
+
+
 </div>
 
-<DataLoader @queryType="all" @modelName="tour" as |toursLoader|>
-  {{#if toursLoader.fetchingAll}}
-    <p>Loading Tours...</p>
-  {{else}}
-    <UkTableStriped>
-      <thead>
-        <tr>
-          <th>Tour</th>
-          <th class="uk-table-shrink uk-text-center">
-            <OtbTooltip @tooltipContent="Until published the site can only be viewed when logged into OpenTour." @ariaDescribedBy="tour-published-aria-describedby">
-              Published
-            </OtbTooltip>
-          </th>
-          <th class="uk-table-shrink uk-text-center">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
+<table class="uk-table uk-table-striped uk-table uk-table-middle">
+  <thead>
+    <tr>
+      <th>Tour</th>
+      <th class="uk-table-shrink uk-text-center">
+        <OtbTooltip @tooltipContent="Until published the site can only be viewed when logged into OpenTour." @ariaDescribedBy="tour-published-aria-describedby">
+          Published
+        </OtbTooltip>
+      </th>
+      <th class="uk-table-shrink uk-text-center">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
 
-        {{#each toursLoader.data as |tour|}}
+    {{#each this.model.tour as |tour|}}
 
-          <tr>
-            <td>
-              {{!-- {{#link-to "admin.tours.edit" tour}} --}}
-              <a href={{concat "edit/" tour.id}}>{{tour.title}}</a>
-              {{!-- {{/link-to}} --}}
-            </td>
-            <td>
-              <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
-                {{fa-icon (if tour.published "check" "times") aria-hidden="true"}}
-                <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
-              </UkButton>
-            </td>
-            <td>
-              <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
-                {{fa-icon "trash" aria-hidden="true"}}
-                <span class="sr-only">Delete {{tour.title}}</span>
-              </UkButton>
-            </td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </UkTableStriped>
-  {{/if}}
-</DataLoader>
+      <tr>
+        <td>
+          <LinkTo @route="admin.tours.edit" @model={{tour.id}}>{{tour.title}}</LinkTo>
+        </td>
+        <td>
+          <UkButton @color="link" @on-click={{action "togglePublish" tour}} @class="uk-align-center">
+            <FaIcon @icon={{if tour.published "check" "times"}} />
+            <span class="sr-only">{{if tour.published "Click to publish" "Click to un-publish"}}</span>
+          </UkButton>
+        </td>
+        <td>
+          <UkButton @color="link" @on-click={{action "deleteTour" tour}} @class="uk-align-center">
+            <FaIcon @icon="trash" />
+            <span class="sr-only">Delete {{tour.title}}</span>
+          </UkButton>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
 <div class="uk-section"></div>
+<UkModal @visible={{this.visible}} @stacked={{true}} as |modal|>
+  <modal.header class="uk-modal-header">
+    <h3 class="uk-modal-title">{{t "manageAdmins"}}</h3>
+  </modal.header>
+  <div class="uk-modal-body" uk-overflow-auto>
+    {{!--
+      Initially, `this.model.users` will just be the current site admins. It is possible the rest of
+      the users are still loading.
+      If the current user is super, they will not be included the initial count for `this.model.users`
+    --}}
+    {{#if (
+            or
+            (eq this.model.users.length (sum 1 this.tenant.tenantModel.admins.length))
+            (eq this.model.users.length this.tenant.tenantModel.admins.length)
+          )
+    }}
+      <div class="uk-alert-primary uk-padding"><FaIcon @icon="spinner" @spin={{true}} /> Loading more users</div>
+    {{/if}}
+    {{#each (sort-by "displayName" "email" this.model.users) as |user|}}
+      {{#unless user.super}}
+        <div class="uk-margin">
+          <Input
+            @id={{concat "user" user.id}}
+            class="uk-checkbox"
+            @type="checkbox"
+            @name="tour_set"
+            @checked={{includes user.tourSets this.tenant.tenantModel}}
+            {{ on "change"
+              (
+                pipe
+                (
+                  action (mut this.visible) false
+                )
+                (
+                  perform this.crudActions.toggleHasMany (hash parentObj=user relationType="tourSet" childObj=this.tenant.tenantModel checked=(includes user.tourSets this.tenant.tenantModel) blocker=false)
+                )
+                (
+                  action (mut this.visible) true
+                )
+              )
+            }}
+          />
+          <label for={{concat "user" user.id}}>{{if user.displayName user.displayName user.email}}</label>
+        </div>
+      {{/unless}}
+    {{/each}}
+  </div>
+</UkModal>
+{{/if}}

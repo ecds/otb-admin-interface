@@ -1,0 +1,52 @@
+<UkButton @color="secondary" {{did-insert this.initToggle}}>{{yield}}</UkButton>
+
+<div id={{@modalId}} {{did-insert this.initModal}}>
+  <div class="uk-modal-dialog otb-extras-modal">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-header">Other available stops.</h2>
+      <div class="uk-modal-body" uk-overflow-auto>
+          <table class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>
+                      {{humanize @itemType}}
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.addExistingStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Add
+                      </OtbTooltip>
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.copyExistingStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Copy
+                      </OtbTooltip>
+                    </th>
+                    <th>
+                      <OtbTooltip @tooltipContent={{t "tooltip.deleteStop"}} @ariaDescribedBy={{concat @model.slug "address-aria-describedby"}}>
+                        Delete
+                      </OtbTooltip>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+              {{#each @items as |item|}}
+                {{#if (notin @current item)}}
+                  <tr>
+                    <td>{{item.title}}</td>
+                    <td><UkButton @color="primary" {{on "click" (perform @add item @itemType)}}><FaIcon @icon="plus" /> add</UkButton></td>
+                    <td><UkButton @color="primary" {{on "click" (perform @copy item @itemType)}}><FaIcon @icon="copy" /> copy</UkButton></td>
+                    <td>
+                      <UkButton class="uk-button-danger" disabled={{not item.orphaned}} {{on "click" (perform @delete item)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
+                    </td>
+                  </tr>
+                {{/if}}
+              {{else}}
+              <tr>All existing {{itemType}}s have been added to current tour.</tr>
+              {{/each}}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+</div>

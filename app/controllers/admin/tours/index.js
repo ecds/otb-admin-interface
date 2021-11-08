@@ -1,22 +1,52 @@
-import classic from 'ember-classic-decorator';
-import { action } from '@ember/object';
 import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+import { action } from '@ember/object';
 import { task } from 'ember-concurrency';
+import { tracked } from '@glimmer/tracking';
 import UIkit from 'uikit';
-import CrudActionsMixin from '../../../mixins/crud-actions';
 
-@classic
-export default class IndexController extends Controller.extend(CrudActionsMixin) {
+export default class IndexController extends Controller {
+  @service crudActions;
+  @service currentUser;
+  @service router;
+  @service tenant;
+
+  @tracked
+  transitioning = false;
+
+  constructor() {
+    super(...arguments);
+
+    this.router.on('routeWillChange', () => {
+      this.transitioning = true;
+    });
+
+    this.router.on('routeDidChange', () => {
+      this.transitioning = false;
+    });
+  }
+
   @task(function*() {
     let newTour = this.store.createRecord('tour');
     yield newTour.save();
     return this.transitionToRoute(
       'admin.tours.edit',
-      this.get('tenant.tenant'),
+      this.tenant.tenant,
       newTour.id
     );
-  })
-  createTour;
+  }) createTour;
+
+  @task
+  *upload(file) {
+    this.tenant.tenantModel.setProperties({ logo: null });
+    yield this.crudActions.uploadFile.perform(this.tenant.tenantModel, file, 'tour-set', false, 'logoTitle', false);
+  }
+
+  @task
+  *removeSiteIcon() {
+    this.tenant.tenantModel.setProperties({ logo: null, baseSixtyFour: null, logoTitle: null });
+    yield this.tenant.tenantModel.save();
+  }
 
   @action
   togglePublish() {
@@ -30,7 +60,7 @@ export default class IndexController extends Controller.extend(CrudActionsMixin)
         tour.destroyRecord();
       },
       () => {
-        console.log('Rejected.');
+        // console.log('Rejected.');
       }
     );
   }

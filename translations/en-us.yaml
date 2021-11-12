@@ -4,7 +4,7 @@ atlanta: "Atlanta"
 
 buttons:
   cancel: 'cancel'
-  confirmVideo: 'yes! add this medium'
+  confirmVideo: 'yes! add this content'
   delete: 'Delete'
   edit: 'Edit'
   newStop: "New Stop"
@@ -40,7 +40,7 @@ tooltip:
   addExistingStop: 'Add a stop from another tour. If you edit the stop in one tour, the changes will appear in other tours. If you would like to add the stop but only have changes affect a signal tour, use the copy function.'
   addMapIcon: 'You can upload an image to use as the as the icon on the map. Icons must be smaller than 80 by 80 pixels.'
   addOverlay: 'You can upload an image that will sit on top of the map. This is useful for adding a historic map or an interior floor plan. Once the image is added, you can adjust the position by setting the north, south, east and west bounds. You will also be able to drag the corners of the image to the desired position.'
-  addVideo: 'You can add a link to a video hosted on YouTube or Vimeo here. Other hosting will not currently work. The video should appear below automatically if the url is correct. If the video does not appear, double check the url. Once the video appears you can add it with the "Yes Add this Video" button.'
+  addVideo: 'You can add a link to a video hosted on YouTube, Vimeo, or SoundCloud here. Other hosting will not currently work. The embedded content  should appear below automatically if the url is correct. If the it does not appear, double check the url. Once the content appears you can add it with the "Yes Add this Content" button.'
   copyExistingStop: 'Copy a stop from another tour. if you edit the stop in one tour, the changes will not appear in other tours. If you would like to have edits apply to other tours, use the add function.'
   deleteStop: 'You can only delete a stop if it is not part of tour.'
   directionNotes: 'Directions are created through Google maps. Under Direction Notes you can add any specific details that Google maps would not be able to provide (e.g. turn right at the big tree). This field will not show on the tour if you leave it blank.'

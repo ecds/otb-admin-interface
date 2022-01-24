@@ -82,9 +82,8 @@
       <GMap
         @mapTypeId={{@tour.mapType}}
         @disableDefaultUI={{true}}
-        @zoom={{this.zoomLevel}}
+        @zoom={{15}}
         @center={{hash lat=@model.lat lng=@model.lng}}
-        @onZoomChanged={{this.updateZoomLevel}}
         @onceOnIdle={{this.mapLoaded}}
       as |map|>
 

@@ -29,9 +29,6 @@ export default class MapComponent extends Component {
   showInfoWindow = true;
 
   @tracked
-  zoomLevel = 16;
-
-  @tracked
   bounds = null;
 
   constructor() {
@@ -50,12 +47,6 @@ export default class MapComponent extends Component {
     if (this.stop.hasParking) {
       this.__includeParking();
     }
-  }
-
-  @action
-  updateZoomLevel(event) {
-    // This prevents the map from zooming when the marker is dragged.
-    this.zoomLevel = event.map.getZoom();
   }
 
   @action
@@ -174,7 +165,7 @@ export default class MapComponent extends Component {
       lat: event.markers.position.lat(),
       lng: event.markers.position.lng()
     });
-    this.map.setCenter({ lat: this.stop.lat, lng: this.stop.lng });
+    // this.map.setCenter({ lat: this.stop.lat, lng: this.stop.lng });
     yield this.getAddress.perform();
     yield this.args.save.perform(this.stop, false);
   }

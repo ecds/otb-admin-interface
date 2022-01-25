@@ -23,9 +23,6 @@ export default class MapComponent extends Component {
   parkingAddress = null;
 
   @tracked
-  showMap = true;
-
-  @tracked
   showInfoWindow = true;
 
   @tracked
@@ -111,14 +108,11 @@ export default class MapComponent extends Component {
 
   @task
   *updateAddress() {
-    this.showMap = false;
     yield this.getAddress.perform();
-    this.showMap = true;
   }
 
   @task
   *locateAddress(stop=true) {
-    this.showMap = false;
     if (stop) {
       yield locator.geocode(
         {
@@ -156,7 +150,6 @@ export default class MapComponent extends Component {
         }
       );
     }
-    this.showMap = true;
   }
 
   @task

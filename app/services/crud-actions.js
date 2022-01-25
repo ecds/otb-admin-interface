@@ -256,7 +256,7 @@ export default class CrudActionsService extends Service {
   *uploadFile(parentObj, file, recordType='medium', many=true, titleKey='title', makeNew=true) {
     let encodedFile = yield file.readAsDataURL();
     this.taskMessage.message = {
-      message: 'Uploading medium...',
+      message: `Uploading ${file.name}...`,
       type: 'success'
     };
     this.taskMessage.screenBlocker.show();

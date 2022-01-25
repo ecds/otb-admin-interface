@@ -254,6 +254,7 @@ export default class CrudActionsService extends Service {
 
   @task
   *uploadFile(parentObj, file, recordType='medium', many=true, titleKey='title', makeNew=true) {
+    console.log("🚀 ~ file: crud-actions.js ~ line 257 ~ CrudActionsService ~ *uploadFile ~ file", file, file.name)
     let encodedFile = yield file.readAsDataURL();
     this.taskMessage.message = {
       message: `Uploading ${file.name}...`,

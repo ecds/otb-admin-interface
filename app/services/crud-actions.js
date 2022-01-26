@@ -54,13 +54,15 @@ export default class CrudActionsService extends Service {
     this.taskMessage.screenBlocker.show();
     if (options.parentObj.promise) {
       const parentModel = options.parentObj._belongsToState.modelName;
-      // const parentModel = options.parentObj.belongsToState(`${pluralize(options.relationType)}`.meta());
       options.parentObj = this.store.peekRecord(parentModel, parseInt(options.parentObj.get('id')));
     }
     let attrs = isEmpty(options.attrs) ? {} : options.attrs;
     let childObj = isEmpty(options.childObj)
       ? this.store.createRecord(dasherize(options.relationType).toLocaleLowerCase(), attrs)
       : options.childObj;
+    // Sometimes the attributes don't get set, this has been a problem for map overlays.
+    // This just ensures everything gets set.
+    childObj.setProperties(attrs);
     if (childObj.hasDirtyAttributes) {
       yield this.saveRecord.perform(childObj);
     }
@@ -254,7 +256,6 @@ export default class CrudActionsService extends Service {
 
   @task
   *uploadFile(parentObj, file, recordType='medium', many=true, titleKey='title', makeNew=true) {
-    console.log("🚀 ~ file: crud-actions.js ~ line 257 ~ CrudActionsService ~ *uploadFile ~ file", file, file.name)
     let encodedFile = yield file.readAsDataURL();
     this.taskMessage.message = {
       message: `Uploading ${file.name}...`,
@@ -267,24 +268,25 @@ export default class CrudActionsService extends Service {
     try {
       let newImage = null;
         if (many) {
+          let attrs = {
+            baseSixtyFour: encodedFile,
+            [titleKey]: file.name,
+            tour: parentObj,
+            filename: file.name
+          };
           newImage = yield this.createHasMany.perform({
             relationType: recordType,
             parentObj: parentObj,
-            attrs: {
-              baseSixtyFour: encodedFile,
-              [titleKey]: file.name,
-              tour: parentObj,
-              filename: file.name
-            }
+            attrs
           });
         } else if (makeNew) {
+          let props = {
+            baseSixtyFour: encodedFile,
+            [titleKey]: file.name,
+            filename: file.name
+          };
           newImage = yield this.newRecord.perform(
-            recordType,
-            {
-              baseSixtyFour: encodedFile,
-              [titleKey]: file.name,
-              filename: file.name
-            }
+            recordType, props
           );
         } else {
           parentObj.setProperties({
@@ -299,7 +301,6 @@ export default class CrudActionsService extends Service {
           type: 'success'
         };
         let savedImage = yield this.store.findRecord(recordType, newImage.id);
-        // yield waitForProperty(savedImage, 'mobile', v => v !== null);
         return savedImage;
       } catch (error) {
         this.taskMessage.message = {

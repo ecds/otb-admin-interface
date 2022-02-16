@@ -5,7 +5,7 @@
     </label>
   </OtbTooltip>
   <section class="uk-width-1-1">
-    <Input @type="color" @id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
+    <Input @type="color" id={{concat @model.slug "-stop-icon-color-" @model.id}} @value={{@model.iconColor}} {{on "change" (perform @save @model false)}} />
   </section>
 </OtbCrud::FormSection>
 
@@ -16,7 +16,7 @@
       @for={{concat "upload-icon-" @model.slug @model.id}}
       @accept="image/*"
       @multiple={{false}}
-      @onfileadd={{perform this.upload }}
+      @@onFileAdd={{perform this.upload }}
     >
       <a tabindex="0">
         <OtbTooltip @tooltipContent={{t "tooltip.addMapIcon"}} @ariaDescribedBy={{concat @model.slug "-add-stop-map-icon-aria-describedby"}}>

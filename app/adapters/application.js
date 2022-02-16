@@ -9,7 +9,9 @@ export default class Application extends JSONAPIAdapter {
 
   // @computed
   get host() {
-    this.tenant.setTenant();
+    if (!this.tenant.tenant) {
+      this.tenant.setTenant();
+    }
     return `${ENV.APP.API_HOST}/${this.tenant.tenant}`;
   }
 

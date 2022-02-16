@@ -77,6 +77,5 @@ export default class OtbCrudEditMediaModalComponent extends Component {
     this.medium.setProperties({ loaded: false });
     yield this.store.
     this.medium.setProperties({ loaded: true });
-
   }
 }

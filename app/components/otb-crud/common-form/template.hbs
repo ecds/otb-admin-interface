@@ -1,7 +1,7 @@
 <OtbCrud::FormSection @label="title">
   <label class="uk-form-label" for={{concat @model.slug '-title-' @model.id}}>{{@modelTitle}} Title</label>
   <section class="uk-width-1-1">
-    <Input class="uk-input" @id={{concat @model.slug '-title-' @model.id}} @value={{@model.title}} {{on 'keyup' ( perform this.crudActions.saveRecord @model false)}} />
+    <Input class="uk-input" id={{concat @model.slug '-title-' @model.id}} @value={{@model.title}} {{on 'keyup' ( perform this.crudActions.saveRecord @model false)}} />
   </section>
 </OtbCrud::FormSection>
 
@@ -43,6 +43,6 @@
     </OtbTooltip>
   </label>
   <section class="uk-width-1-1">
-    <Textarea @id={{concat @model.slug '-' @modelTitle '-meta-description-' @model.id}} @rows={{6}} class="uk-textarea" @value={{@model.metaDescription}} {{on 'keyup' (perform this.crudActions.saveRecord @model false)}} />
+    <Textarea id={{concat @model.slug '-' @modelTitle '-meta-description-' @model.id}} rows={{6}} class="uk-textarea" @value={{@model.metaDescription}} {{on 'keyup' (perform this.crudActions.saveRecord @model false)}} />
   </section>
 </OtbCrud::FormSection>

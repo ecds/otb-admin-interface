@@ -3,6 +3,7 @@ import Route from '@ember/routing/route';
 
 export default class IndexRoute extends Route {
   @service currentUser;
+  @service store;
 
   model() {
     if (this.currentUser.user.super) {

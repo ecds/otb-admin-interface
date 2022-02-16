@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import { task } from 'ember-concurrency-decorators';
+import { task } from 'ember-concurrency';
 import pell from 'pell';
 import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
 import { addObserver } from '@ember/object/observers';

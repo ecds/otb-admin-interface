@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 import RSVP from 'rsvp';
 
 export default class IndexRoute extends Route {
+  @service store;
   @service tenant;
 
   beforeModel() {

@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 
 export default class IndexRoute extends Route {
   @service currentUser;
+  @service store;
 
   async beforeModel() {
     return await this.currentUser.load.perform();

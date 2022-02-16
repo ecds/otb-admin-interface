@@ -15,7 +15,7 @@
       </label>
     </div>
     <div class="uk-width-1-4">
-      <Input @id={{mode.title}} @type="checkbox" disabled={{eq @model.tour.mode.id mode.id}} class="uk-checkbox" @checked={{includes @model.tour.modeList mode.title }} @change={{perform this.crudActions.toggleHasMany (hash parentObj=@model.tour relationType="mode" childObj=mode)}} />
+      <Input id={{mode.title}} @type="checkbox" disabled={{eq @model.tour.mode.id mode.id}} class="uk-checkbox" @checked={{includes @model.tour.modeList mode.title }} {{on "change" (perform this.crudActions.toggleHasMany (hash parentObj=@model.tour relationType="mode" childObj=mode))}} />
     </div>
     <div class="uk-width-1-4">
       <input

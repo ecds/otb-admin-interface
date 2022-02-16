@@ -26,7 +26,8 @@ export default class IndexController extends Controller {
     });
   }
 
-  @task(function*() {
+  @task
+  *createTour() {
     let newTour = this.store.createRecord('tour');
     yield newTour.save();
     return this.transitionToRoute(
@@ -34,7 +35,7 @@ export default class IndexController extends Controller {
       this.tenant.tenant,
       newTour.id
     );
-  }) createTour;
+  }
 
   @task
   *upload(file) {

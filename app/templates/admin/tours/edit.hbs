@@ -28,7 +28,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-text-' this.model.tour.id}} @type="text" @value={{this.model.tour.linkText}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
           <OtbCrud::FormSection @label='externalLink'>
@@ -38,7 +38,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" @id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
 
@@ -54,14 +54,14 @@
                 <input
                   type="checkbox"
                   id={{concat this.model.tour.slug '-is-geo'}}
-                  name={{this.model.tour.isGeo}}
+                  name="is-geo"
                   checked={{this.model.tour.isGeo}}
                   class="uk-checkbox"
                   {{on 'change' (toggle "isGeo" this.model.tour)}}
                   {{on 'change' ( perform this.crudActions.saveRecord this.model.tour)}}
                 >
               </span>
-              <label class="uk-form-label" for="tour-is-geo">
+              <label class="uk-form-label" for={{concat this.model.tour.slug '-is-geo'}}>
                 <OtbTooltip @tooltipContent={{t "tooltip.enableGeo"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-is-geo-aria-describedby"}}>
                     Enable Map
                 </OtbTooltip>
@@ -73,16 +73,35 @@
                 <input
                   type="checkbox"
                   id={{concat this.model.tour.slug '-use-directions'}}
-                  name={{this.model.tour.useDirections}}
+                  name="use-directions"
                   checked={{this.model.tour.useDirections}}
                   class="uk-checkbox"
                   {{on 'change' (toggle "useDirections" this.model.tour)}}
                   {{on 'change' ( perform this.crudActions.saveRecord this.model.tour false)}}
                 >
               </span>
-              <label class="uk-form-label" for="tour-use-directions">
+              <label class="uk-form-label" for={{concat this.model.tour.slug '-use-directions'}}>
                 <OtbTooltip @tooltipContent={{t "tooltip.enableDirections"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-use-directions-aria-describedby"}}>
                   Provide Google Directions
+                </OtbTooltip>
+              </label>
+            </OtbCrud::FormSection>
+
+            <OtbCrud::FormSection @label="restrict-bounds">
+              <span class="uk-padding-remove-left uk-padding-remove-vertical uk-padding-small">
+                <input
+                  type="checkbox"
+                  id={{concat this.model.tour.slug '-restrict-bounds'}}
+                  name="restrict-bounds"
+                  checked={{this.model.tour.restrictBounds}}
+                  class="uk-checkbox"
+                  {{on 'change' (toggle "restrictBounds" this.model.tour)}}
+                  {{on 'change' ( perform this.crudActions.saveRecord this.model.tour false)}}
+                >
+              </span>
+              <label class="uk-form-label" for={{concat this.model.tour.slug '-restrict-bounds'}}>
+                <OtbTooltip @tooltipContent={{t "tooltip.enableDirections"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-restrict-bounds-aria-describedby"}}>
+                  Restrict Map Bounds
                 </OtbTooltip>
               </label>
             </OtbCrud::FormSection>
@@ -236,7 +255,7 @@
                         <OtbCrud::FormSection @label="Page Title">
                           <label class="uk-form-label" for={{concat page.flatPage.slug '-title' page.id}}>{{this.modelTitle}} Title</label>
                           <section class="uk-width-1-1">
-                            <Input class="uk-input" @id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
+                            <Input class="uk-input" id={{concat page.flatPage.slug '-title' page.id}} @value={{page.flatPage.title}} {{on "keyup" (perform this.crudActions.saveRecord page.flatPage false)}} />
                           </section>
                         </OtbCrud::FormSection>
 
@@ -296,10 +315,10 @@
       {{#unless user.super}}
         <div class="uk-margin">
           <Input
-            @id={{concat "user" user.id}}
+            id={{concat "user" user.id}}
             class="uk-checkbox"
             @type="checkbox"
-            @name="tour_set"
+            name="tour_set"
             {{ on "change"
               (
                 pipe

@@ -11,7 +11,7 @@
                 Overlay North
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-north'}} @value={{@model.mapOverlay.north}} />
+            <Input class="uk-input" @type="number" step="any" id={{concat @model.slug '-north'}} @value={{@model.mapOverlay.north}} />
           </section>
 
           <section>
@@ -20,7 +20,7 @@
                 Overlay South
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-south'}} @value={{@model.mapOverlay.south}} />
+            <Input class="uk-input" @type="number" step="any" id={{concat @model.slug '-south'}} @value={{@model.mapOverlay.south}} />
           </section>
 
           <section>
@@ -29,7 +29,7 @@
                 Overlay East
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-east'}} @value={{@model.mapOverlay.east}} />
+            <Input class="uk-input" @type="number" step="any" id={{concat @model.slug '-east'}} @value={{@model.mapOverlay.east}} />
           </section>
 
           <section>
@@ -38,9 +38,50 @@
                 Overlay West
               </OtbTooltip>
             </label>
-            <Input class="uk-input" @type="number" @step="any" @id={{concat @model.slug '-west'}} @value={{@model.mapOverlay.west}} />
+            <Input class="uk-input" @type="number" step="any" id={{concat @model.slug '-west'}} @value={{@model.mapOverlay.west}} />
           </section>
         </section>
+
+        <section id="poop" class="uk-margin-medium-top">
+          <OtbCrud::FormSection @label="restrict-bounds-to-overlay">
+            <span class="uk-padding-remove-left uk-padding-remove-vertical uk-padding-small">
+              <input
+                type="checkbox"
+                id={{concat this.model.tour.slug '-restrict-bounds-to-overlay'}}
+                name='restrict-bounds-to-overlay'
+                checked={{@model.restrictBoundsToOverlay}}
+                class="uk-checkbox"
+                {{on 'change' (toggle "restrictBoundsToOverlay" @model)}}
+                {{on 'change' ( perform this.crudActions.saveRecord @model false)}}
+              >
+            </span>
+            <label class="uk-form-label" for={{concat this.model.tour.slug '-restrict-bounds-to-overlay'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.restrictToOverlay"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-use-directions-aria-describedby"}}>
+                Restrict Map to Overlay
+              </OtbTooltip>
+            </label>
+          </OtbCrud::FormSection>
+
+          <OtbCrud::FormSection @label="blank-map">
+            <span class="uk-padding-remove-left uk-padding-remove-vertical uk-padding-small">
+              <input
+                type="checkbox"
+                id={{concat this.model.tour.slug '-blank-map'}}
+                name='blank-map'
+                checked={{@model.blankMap}}
+                class="uk-checkbox"
+                {{on 'change' (toggle "blankMap" @model)}}
+                {{on 'change' ( perform this.crudActions.saveRecord @model false)}}
+              >
+            </span>
+            <label class="uk-form-label" for={{concat this.model.tour.slug '-blank-map'}}>
+              <OtbTooltip @tooltipContent={{t "tooltip.blankMap"}} @ariaDescribedBy={{concat this.model.tour.slug "-tour-use-directions-aria-describedby"}}>
+                Blank Map
+              </OtbTooltip>
+            </label>
+          </OtbCrud::FormSection>
+        </section>
+
         <section class="uk-width-1-1 uk-margin">
           <UkButton class="uk-button-danger" {{on "click" (perform @delete @model @model.mapOverlay 'mapOverlay')}}><FaIcon @icon="trash" /> Remove Map Overlay</UkButton>
         </section>
@@ -67,7 +108,7 @@
                   @for="upload-photo"
                   @accept="image/*"
                   @multiple={{false}}
-                  @onfileadd={{perform this.upload }}
+                  @onFileAdd={{perform this.upload }}
                 >
                   <a tabindex="0">
                     <OtbTooltip @tooltipContent={{t "tooltip.addOverlay"}} @ariaDescribedBy={{concat this.model.tour.slug "-add-map-overlay-aria-describedby"}}>
@@ -92,10 +133,29 @@
         @zoom={{16}}
         @lat={{@model.bounds.centerLat}}
         @lng={{@model.bounds.centerLng}}
-        @onceOnIdle={{this.mapLoaded}}
+        @zoomControl={{true}}
       as |map|>
 
+        {{#each @model.tourStops as |tourStop|}}
+          <map.marker
+            @lat={{tourStop.stop.lat}}
+            @lng={{tourStop.stop.lng}}
+            @label={{hash text=(concat tourStop.position) color="white"}}
+          />
+
+        {{/each}}
+
       {{#if @model.mapOverlay}}
+        {{#if @model.blankMap}}
+          <map.imageOverlay
+            @south={{-85}}
+            @west={{180}}
+            @north={{85}}
+            @east={{0}}
+            @image="/admin/assets/images/blank.jpg"
+          >
+          </map.imageOverlay>
+        {{/if}}
         <map.imageOverlay
           @south={{@model.mapOverlay.south}}
           @west={{@model.mapOverlay.west}}

@@ -15,6 +15,9 @@ export default class TourModel extends Model {
   @attr('string') linkAddress;
   @attr('string') linkText;
   @attr('boolean') useDirections;
+  @attr('boolean', { defaultValue: false }) restrictBounds;
+  @attr('boolean') restrictBoundsToOverlay;
+  @attr('boolean') blankMap;
 
   @attr('boolean', {
     defaultValue: true

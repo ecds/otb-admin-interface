@@ -131,6 +131,19 @@ module.exports = environment => {
     ENV['fauxOAuth'].tokenValidationUrl = 'https://api.opentour.site/auth/verify/';
     ENV['fauxOAuth'].tokenAuthUrl = 'https://api.opentour.site/auth/tokens/';
     ENV['fauxOAuth'].redirectUrl = 'https://opentour.site/admin/torii/redirect.html';
+
+    ENV.APP.FRONTEND_HOST = 'opentour.site';
+    ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
+
+    ENV['ember-cli-mirage'] = {
+      enabled: false
+    };
+    ENV['ember-google-maps'] = {
+      key: 'AIzaSyD-G_lDtvChv-P3nchtQYHoCLfFzn9ylr8',
+      libraries: ['places'],
+      language: 'en',
+      protocol: 'https'
+    };
   }
 
   if (environment === 'gsuWalkingTours') {

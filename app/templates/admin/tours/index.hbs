@@ -25,7 +25,7 @@
       @for="tour-set-logo"
       @accept="image/*"
       @multiple={{false}}
-      @@onFileAdd={{perform this.upload }}
+      @onFileAdd={{perform this.upload }}
     >
       <a tabindex="0">
         <OtbTooltip @tooltipContent={{t "tooltip.siteIcon"}} @ariaDescribedBy="tour-site-icon">

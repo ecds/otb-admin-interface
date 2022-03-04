@@ -125,11 +125,11 @@ module.exports = environment => {
   }
 
   if (environment === 'production') {
-    ENV.APP.API_HOST = 'https://api.opentour.emory.edu';
+    ENV.APP.API_HOST = 'https://api.opentour.site';
     ENV['ember-cli-mirage'] = { enabled: false, autostart: false };
     ENV['g-map'] = ENV['ember-google-maps'];
-    ENV['fauxOAuth'].tokenValidationUrl = 'https://api.opentour.emory.edu/auth/verify/';
-    ENV['fauxOAuth'].tokenAuthUrl = 'https://api.opentour.emory.edu/auth/tokens/';
+    ENV['fauxOAuth'].tokenValidationUrl = 'https://api.opentour.site/auth/verify/';
+    ENV['fauxOAuth'].tokenAuthUrl = 'https://api.opentour.site/auth/tokens/';
     ENV['fauxOAuth'].redirectUrl = 'https://opentour.site/admin/torii/redirect.html';
   }
 

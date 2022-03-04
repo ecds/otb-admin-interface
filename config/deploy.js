@@ -32,9 +32,9 @@ module.exports = function(deployTarget) {
     ENV['simply-ssh'] = {
       connection: {
         // parameter hash accepted by SSH2, see https://github.com/mscdex/ssh2 for details
-        host: process.env.SSH_HOST,
-        port: process.env.SSH_PORT,
-        username: process.env.SSH_USER,
+        host: '3.233.221.109',
+        port: 22,
+        username: 'deploy',
         privateKey: process.env.SSH_KEY
       },
       dir: '/data/otb-admin-interface',

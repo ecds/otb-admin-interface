@@ -21,7 +21,6 @@ export default class OtbCrudMediaExtraMediaComponent extends BaseModalComponent 
     UIKit.util.on(element, 'beforeshow', () => this.fetchMedia.perform());
   }
 
-
   @action
   addImage(image) {
     this.crudActions.createHasMany.perform({
@@ -34,7 +33,6 @@ export default class OtbCrudMediaExtraMediaComponent extends BaseModalComponent 
   @task
   *fetchMedia() {
     const media = yield this.store.findAll('medium');
-    console.log("🚀 ~ file: component.js ~ line 37 ~ OtbCrudMediaExtraMediaComponent ~ *fetchMedia ~ media", media)
     this.media = media;
   }
 

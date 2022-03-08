@@ -32,7 +32,7 @@ module.exports = function(deployTarget) {
     ENV['simply-ssh'] = {
       connection: {
         // parameter hash accepted by SSH2, see https://github.com/mscdex/ssh2 for details
-        host: '3.233.221.109',
+        host: '34.239.167.5',
         port: 22,
         username: 'deploy',
         privateKey: process.env.SSH_KEY

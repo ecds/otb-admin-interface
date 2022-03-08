@@ -10,8 +10,6 @@ export default class EditRoute extends Route {
     return RSVP.hash({
       tour: this.store.findRecord('tour', params.tour_id),
       modes: this.store.findAll('mode'),
-      flatPages: this.store.findAll('flatPage'),
-      stops: this.store.findAll('stop'),
       mapIcons: this.store.findAll('mapIcon'),
       users: this.store.findAll('user'),
       tourAuthors: this.store.findAll('tour-author')

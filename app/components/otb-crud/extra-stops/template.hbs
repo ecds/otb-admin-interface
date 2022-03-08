@@ -5,6 +5,11 @@
     <button class="uk-modal-close-default" type="button" uk-close></button>
     <div class="uk-modal-header">
       <h2 class="uk-modal-header">Other available stops.</h2>
+      {{#if this.loading}}
+        <p>
+          <FaIcon @icon="spinner" @spin={{true}} /> Loading
+        </p>
+      {{/if}}
       <div class="uk-modal-body" uk-overflow-auto>
           <table class="uk-table uk-table-striped">
             <thead>
@@ -30,10 +35,10 @@
                 </tr>
             </thead>
             <tbody>
-              {{#each @items as |item|}}
+              {{#each this.items as |item|}}
                 {{#if (notin @current item)}}
                   <tr>
-                    <td>{{item.title}}</td>
+                    <td {{did-insert this.stopsLoaded}}>{{item.title}}</td>
                     <td><UkButton @color="primary" {{on "click" (perform @add item @itemType)}}><FaIcon @icon="plus" /> add</UkButton></td>
                     <td><UkButton @color="primary" {{on "click" (perform @copy item @itemType)}}><FaIcon @icon="copy" /> copy</UkButton></td>
                     <td>

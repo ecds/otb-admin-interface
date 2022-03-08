@@ -141,7 +141,7 @@
                 </section>
                 <section>
                   {{!-- {{#if (gt this.model.stops.length this.model.tour.stops.length)}} --}}
-                    <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @items={{this.model.stops}} @current={{this.model.tour.stops}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
+                    <OtbCrud::ExtraStops @modalId="extra-stops-modal" @itemType="stop" @current={{this.model.tour.stops}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteStop}}>
                       Add Other Stops
                     </OtbCrud::ExtraStops>
                     <OtbTooltip @tooltipContent={{t "tooltip.otherStop"}} @ariaDescribedBy="add-other-aria-describedby">
@@ -220,7 +220,7 @@
                 </section>
                 <section>
                   {{!-- {{#if (gt this.model.flatPages.length this.model.tour.flatPages.length)}} --}}
-                    <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @items={{this.model.flatPages}} @current={{this.model.tour.flatPages}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
+                    <OtbCrud::ExtraStops @modalId="extra-pages-modal" @itemType="flatPage" @current={{this.model.tour.flatPages}} @copy={{this.copyChild}} @add={{this.addExistingItem}} @delete={{this.deleteItem}}>
                       Add Other Pages
                     </OtbCrud::ExtraStops>
                     <OtbTooltip @tooltipContent={{t "tooltip.otherPage"}} @ariaDescribedBy="add-other-page-aria-describedby">

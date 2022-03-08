@@ -12,7 +12,6 @@ export default class EditRoute extends Route {
       modes: this.store.findAll('mode'),
       flatPages: this.store.findAll('flatPage'),
       stops: this.store.findAll('stop'),
-      media: this.store.findAll('medium'),
       mapIcons: this.store.findAll('mapIcon'),
       users: this.store.findAll('user'),
       tourAuthors: this.store.findAll('tour-author')

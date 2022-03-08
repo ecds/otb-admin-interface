@@ -125,7 +125,7 @@
 
             <OtbCrud::Video @model={{this.model.tour}} @save={{this.addVideo}} />
             <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{this.model.tour}} @modelName="tour" />
-            <OtbCrud::Media @model={{this.model.tour}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
+            <OtbCrud::Media @model={{this.model.tour}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
           </section>
 
           <section>
@@ -183,7 +183,7 @@
                             <OtbCrud::Video @model={{stop.stop}} @save={{this.addVideo}} />
                             <OtbCrud::MediumUpload @uploadTask={{this.crudActions.uploadFile}} @model={{stop.stop}} @modelName="stop" />
                             <section class="uk-margin">
-                              <OtbCrud::Media @model={{stop.stop}} @media={{this.model.media}} @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
+                              <OtbCrud::Media @model={{stop.stop}}  @reorder={{this.crudActions.reorder}} @save={{this.crudActions.saveRecord}} @delete={{this.crudActions.deleteHasMany}} @deleteOne={{this.crudActions.deleteRecord}} />
                               <UkButton @color="primary" {{on "click" (perform this.crudActions.saveRecord stop.stop)}}>
                                 {{t "buttons.save"}}
                               </UkButton>

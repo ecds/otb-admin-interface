@@ -9,22 +9,27 @@
       <h2 class="uk-modal-header">Other available media.</h2>
       <div class="uk-inline uk-modal-body" uk-overflow-auto>
       <div class="uk-grid-small uk-flex-center uk-text-center" uk-grid>
-        {{#each @media as |medium|}}
-          {{#if (notin @model.media medium)}}
-            <div class="uk-card uk-card-default uk-card-small">
-            <div class="uk-card-media-top">
-              <img loading="lazy" src={{medium.files.mobile}} />
-            </div>
-            <div class="uk-card-body">
-                <p>{{medium.title}}</p>
-            </div>
-            <div class="uk-card-footer uk-align-right">
-              <UkButton class="uk-button-danger" disabled={{not medium.orphaned}} {{on "click" (perform @delete medium)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
-              <UkButton {{on "click" (fn this.addImage medium)}}>Add</UkButton>
-            </div>
-        </div>
-          {{/if}}
-        {{/each}}
+        {{#if this.loading}}
+          <p>
+            <FaIcon @icon="spinner" @spin={{true}} /> Loading
+          </p>
+        {{/if}}
+          {{#each this.media as |medium|}}
+            {{#if (notin @model.media medium)}}
+              <div class="uk-card uk-card-default uk-card-small">
+              <div class="uk-card-media-top" {{did-insert this.imgLoaded}}>
+                <img loading="lazy" src={{medium.files.mobile}} />
+              </div>
+              <div class="uk-card-body">
+                  <p>{{medium.title}}</p>
+              </div>
+              <div class="uk-card-footer uk-align-right">
+                <UkButton class="uk-button-danger" disabled={{not medium.orphaned}} {{on "click" (perform @delete medium)}}><FaIcon @icon="trash-alt" /> delete</UkButton>
+                <UkButton {{on "click" (fn this.addImage medium)}}>Add</UkButton>
+              </div>
+          </div>
+            {{/if}}
+          {{/each}}
       </div>
         {{#if this.crudActions.saveRecord.isRunning}}
           <div class="uk-overlay-primary uk-position-cover"></div>

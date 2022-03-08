@@ -1,9 +1,26 @@
+import UIKit from 'uikit';
 import BaseModalComponent from '../../../../lib/base-modal';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { tracked } from '@glimmer/tracking';
+import { task } from 'ember-concurrency';
 
 export default class OtbCrudMediaExtraMediaComponent extends BaseModalComponent {
   @service crudActions;
+  @service store;
+
+  @tracked
+  media = null;
+
+  @tracked
+  loading = true;
+
+  @action
+  initModal(element) {
+    this.modal = UIKit.modal(element);
+    UIKit.util.on(element, 'beforeshow', () => this.fetchMedia.perform());
+  }
+
 
   @action
   addImage(image) {
@@ -12,6 +29,17 @@ export default class OtbCrudMediaExtraMediaComponent extends BaseModalComponent 
       childObj: image,
       relationType: 'medium'
     });
-    // this.modal.hide();
+  }
+
+  @task
+  *fetchMedia() {
+    const media = yield this.store.findAll('medium');
+    console.log("🚀 ~ file: component.js ~ line 37 ~ OtbCrudMediaExtraMediaComponent ~ *fetchMedia ~ media", media)
+    this.media = media;
+  }
+
+  @action
+  imgLoaded() {
+    this.loading = false;
   }
 }

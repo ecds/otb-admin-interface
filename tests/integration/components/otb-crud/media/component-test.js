@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { find, render, triggerEvent } from '@ember/test-helpers';
+import { find, render, triggerEvent, waitFor } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | otb-crud/media', function(hooks) {
@@ -27,7 +27,8 @@ module('Integration | Component | otb-crud/media', function(hooks) {
 
   test('it renders', async function(assert) {
     await render(hbs`<OtbCrud::Media @model={{this.tour}} />`);
-    assert.dom('p').hasText('Media Count: 2');
+    await waitFor('.media-count', { timeout: 20000 });
+    assert.dom('p.media-count').hasText('Media Count: 2');
     assert.dom(`img#medium-${this.tour.slug}1`).exists();
     assert.dom('#play-button-22.otb-playbutton-overlay').exists();
   });
@@ -40,7 +41,8 @@ module('Integration | Component | otb-crud/media', function(hooks) {
     imageOne.parentNode.replaceChild(imageOne, imageTwo);
     imageOne.parentNode.insertBefore(imageTwo, imageOne);
     await triggerEvent('.uk-sortable', 'stop');
-    assert.dom('p').hasText('Media Count: 2');
+    await waitFor('.media-count', { timeout: 20000 });
+    assert.dom('p.media-count').hasText('Media Count: 2');
     assert.dom(`img#medium-${this.tour.slug}1`).exists();
     assert.dom('#play-button-22.otb-playbutton-overlay').exists();
     assert.equal(this.store.peekRecord('tourMedium', 2).position, 1);

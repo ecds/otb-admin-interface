@@ -1,6 +1,6 @@
 <section>
   <OtbCrud::Media::ExtraMedia @model={{@model}} @media={{@media}} @modalId={{concat "extra-media-" @model.slug "-" @model.id}} @delete={{@deleteOne}} />
-  <p>{{t "mediaCount"}}: {{@model.sortedMedia.length}}</p>
+  <p class="media-count">{{t "mediaCount"}}: {{@model.sortedMedia.length}}</p>
 </section>
 
 <UkSortable

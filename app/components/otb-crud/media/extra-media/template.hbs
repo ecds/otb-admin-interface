@@ -30,6 +30,57 @@
         </div>
           {{/if}}
         {{/each}}
+        <div class="uk-width-1-1 uk-margin-medium">
+          <ul class="uk-pagination uk-flex-center" uk-margin>
+            {{#if this.prev}}
+              <li>
+                <UkButton @color="link" {{on "click" (perform this.fetchMedia this.prev)}}>
+                  <span uk-pagination-previous></span>
+                </UkButton>
+              </li>
+            {{/if}}
+            {{#if (gt this.current 1)}}
+              <li>
+                <UkButton @color="link" {{on "click" (perform this.fetchMedia 1)}}>
+                  1
+                </UkButton>
+              </li>
+            {{/if}}
+            {{#if (gte this.current 2)}}
+              <li class="uk-disabled"><span>...</span></li>
+            {{/if}}
+              <li>
+                <UkButton @color="link" class="uk-active">
+                  {{this.current}}
+                </UkButton>
+              </li>
+
+            {{#if (and (not-eq this.current this.last) (lte this.next this.last))}}
+              <li class="uk-disabled"><span>...</span></li>
+              <li>
+                <UkButton @color="link" {{on "click" (perform this.fetchMedia this.last)}}>
+                  {{this.last}}
+                </UkButton>
+              </li>
+            {{/if}}
+            {{!-- <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li><a href="#">6</a></li>
+            <li class="uk-active"><span>7</span></li>
+            <li><a href="#">8</a></li>
+            <li><a href="#">9</a></li>
+            <li><a href="#">10</a></li>
+            <li class="uk-disabled"><span>...</span></li>
+            <li><a href="#">20</a></li> --}}
+            {{#if this.next}}
+              <li>
+                <UkButton @color="link" {{on "click" (perform this.fetchMedia this.next)}}>
+                  <span uk-pagination-next></span>
+                </UkButton>
+              </li>
+            {{/if}}
+          </ul>
+        </div>
       </div>
         {{#if this.crudActions.saveRecord.isRunning}}
           <div class="uk-overlay-primary uk-position-cover"></div>

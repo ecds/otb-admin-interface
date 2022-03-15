@@ -65,6 +65,7 @@ tooltip:
   parking: 'You can add a separate parking location by address or Latitude and Longitude and it will show separately on the map for the stop.'
   published: 'Check this box to make the tour publicly available.'
   metaDescription: 'The Meta Description shows up as a text description when the link is shared on social media. Keep it clean of special characters.'
+  restrictBounds: 'Select to prevent people from zooming out far from your tour or scrolling far away. This restricts the desktop/laptop map to the area around the tour stops.'
   restrictOverlay: 'This will restrict the map to the bounds of the overlay. Someone will be able to pan and zoom the area covered by the overlay, but will not be able to zoom or pan beyond it.'
   selectIconColor: 'Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable.'
   siteIcon: 'Upload an image to replace the OpenTour logo on your tours. Note: due to size and design considerations your image will be automatically proportionally resized to have a max width of 300 pixels and a max height of 80 pixels.'

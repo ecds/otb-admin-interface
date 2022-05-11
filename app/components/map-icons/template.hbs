@@ -16,7 +16,7 @@
       @for={{concat "upload-icon-" @model.slug @model.id}}
       @accept="image/*"
       @multiple={{false}}
-      @@onFileAdd={{perform this.upload }}
+      @onFileAdd={{perform this.upload }}
     >
       <a tabindex="0">
         <OtbTooltip @tooltipContent={{t "tooltip.addMapIcon"}} @ariaDescribedBy={{concat @model.slug "-add-stop-map-icon-aria-describedby"}}>

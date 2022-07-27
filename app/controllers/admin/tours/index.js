@@ -28,7 +28,9 @@ export default class IndexController extends Controller {
 
   @task
   *createTour() {
-    let newTour = this.store.createRecord('tour');
+    let newTour = this.store.createRecord('tour', {
+      title: `New Tour - ${new Date().getTime().toString()}`
+    });
     yield newTour.save();
     return this.transitionToRoute(
       'admin.tours.edit',

@@ -1,7 +1,7 @@
 import Service, { inject as service } from '@ember/service';
 import ENV from '../config/environment';
 import { tracked } from '@glimmer/tracking';
-import { enqueueTask, task, timeout } from 'ember-concurrency';
+import { enqueueTask, task, timeout, restartableTask } from 'ember-concurrency';
 import { isEmpty } from '@ember/utils';
 import { pluralize } from 'ember-inflector';
 import { dasherize, camelize } from '@ember/string';
@@ -215,11 +215,13 @@ export default class CrudActionsService extends Service {
     window.onbeforeunload = null;
   }
 
-  @enqueueTask
+  @restartableTask
   *saveRecord(obj, showBlocker=true) {
+    console.log("🚀 ~ file: crud-actions.js ~ line 220 ~ CrudActionsService ~ *saveRecord ~ obj", obj)
     if (showBlocker) {
       this.taskMessage.screenBlocker.show();
     }
+    yield timeout(1000);
     this.lastSaved = null;
     this.tenant.setTenant();
     this.taskMessage.message = {

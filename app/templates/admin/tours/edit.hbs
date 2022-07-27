@@ -38,7 +38,7 @@
               </OtbTooltip>
             </label>
             <section class="uk-width-1-1">
-              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} this.type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
+              <Input class="uk-input" id={{concat this.model.tour.slug '--meta-link-address-' this.model.tour.id}} @type="url" @value={{this.model.tour.linkAddress}} {{on 'keyup' (perform this.crudActions.saveRecord this.model.tour false)}} />
             </section>
           </OtbCrud::FormSection>
 

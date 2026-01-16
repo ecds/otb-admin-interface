@@ -1,20 +1,18 @@
-# unconventional js
-/blueprints/*/files/
-/vendor/
+**/build/
+**/tests/__snapshots/
+**/node_modules/
+.tmp
+pnpm-lock.yaml
+/playground
+**/__tests__/fixtures
+**/__tests__/**/*/fixtures
+/packages/*/dist/
 
-# compiled output
-/dist/
-/tmp/
+# Deno
+integration/helpers/deno-template
+packages/remix-deno
+templates/deno
 
-# dependencies
-/bower_components/
-/node_modules/
-
-# misc
-/coverage/
-!.*
-
-# ember-try
-/.node_modules.ember-try/
-/bower.json.ember-try
-/package.json.ember-try
+packages/remix-dev/config/defaults
+templates/remix-tutorial/app/data.ts
+templates/cloudflare-workers/worker-configuration.d.ts

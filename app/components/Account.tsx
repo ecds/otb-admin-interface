@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "~/context";
-import { signOut } from "~/utils/fetchers";
+import { signOut } from "~/utils/requests";
 
 const Account = () => {
   const { signedIn, setCurrentUser } = useContext(AuthContext);

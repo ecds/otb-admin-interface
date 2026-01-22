@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { Description, Input, Textarea } from "@headlessui/react";
-import { sendUpdate } from "~/utils/fetchers";
+import { sendUpdate } from "~/utils/requests";
 import InputWrapper from "./InputWrapper";
 import { RecordContext } from "~/contexts";
 import type { InputProps } from "~/types";
@@ -78,10 +78,6 @@ const TextInput = ({
     if (!inputRef.current) return;
     setCurrentValue(inputRef.current.value);
   };
-
-  // const handleRichTextChange = (value) => {
-  //   setCurrentValue
-  // }
 
   return (
     <InputWrapper className="flex flex-wrap space-x-3">

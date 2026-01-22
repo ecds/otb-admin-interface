@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router";
 import { useContext } from "react";
 import { AuthContext } from "~/context";
-import { fetchData } from "~/utils/fetchers";
+import { request } from "~/utils/requests";
 import type { TTourSet } from "~/types";
 import List from "~/components/List";
 
@@ -13,7 +13,7 @@ export const meta = () => {
 };
 
 export const clientLoader = async () => {
-  const { data } = await fetchData({ path: "public/tour-sets" });
+  const { data } = await request({ path: "public/tour-sets" });
   return { tourSets: data.data };
 };
 

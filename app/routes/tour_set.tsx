@@ -1,13 +1,13 @@
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { fetchData } from "~/utils/fetchers";
+import { request } from "~/utils/requests";
 import type { TTourSet, TTour } from "~/types";
 import List from "~/components/List";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
-  const { data: tourSet } = await fetchData({
+  const { data: tourSet } = await request({
     path: `public/tour-sets?subdir=${params.tourSet}`,
   });
-  const { data: tours } = await fetchData({ path: `${params.tourSet}/tours` });
+  const { data: tours } = await request({ path: `${params.tourSet}/tours` });
   return { tourSet: tourSet.data[0], tours: tours.data };
 };
 

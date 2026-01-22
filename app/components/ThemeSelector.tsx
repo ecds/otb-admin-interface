@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Field, Legend, Radio, RadioGroup } from "@headlessui/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { themes } from "~/choices";
-import { sendUpdate } from "~/utils/fetchers";
+import { sendUpdate } from "~/utils/requests";
 import { RecordContext } from "~/contexts";
 
 interface Props {

@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { useLoaderData, useParams } from "react-router";
-import { fetchData } from "~/utils/fetchers";
+import { useLoaderData } from "react-router";
+import { request } from "~/utils/requests";
 import TextInput from "~/components/inputs/TextInput";
 import Toggle from "~/components/inputs/Toggle";
-import { RecordContext } from "~/contexts";
+import { RecordContext, RelatedContext } from "~/contexts";
 import SelectInput from "~/components/inputs/SelectInput";
 import { languages } from "~/choices";
 import { Fieldset, Legend } from "@headlessui/react";
@@ -11,10 +10,10 @@ import ToolTip from "~/components/inputs/ToolTip";
 import ThemeSelector from "~/components/ThemeSelector";
 import type { TTour } from "~/types";
 import type { LoaderFunctionArgs } from "react-router";
-import MediaGrid from "~/components/MediaGrid";
+import MediaGrid from "~/components/media_grid/MediaGrid";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
-  const { data: tour } = await fetchData({
+  const { data: tour } = await request({
     path: `${params.tourSet}/v4/public/tours/${params.tour_id}`,
   });
   return { tour };
@@ -61,9 +60,9 @@ const TourRoute = () => {
   if (tour) {
     return (
       <RecordContext.Provider
-        value={{ recordId: tour.id, tenant: tour.tenant }}
+        value={{ recordId: tour.id, tenant: tour.tenant, recordModel: "tour" }}
       >
-        <div className="mt-24 px-8 md:px-12 mx-auto max-full md:max-w-7xl text-black/75">
+        <div className="mt-24 px-8 md:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
           <TextInput
             type="text"
             label="Tour Title"
@@ -155,19 +154,12 @@ const TourRoute = () => {
             />
           </Fieldset>
           <div>
-            <MediaGrid media={tour.media} />
+            <RelatedContext
+              value={{ relatedModel: "tour_medium", relatedType: "many" }}
+            >
+              <MediaGrid media={tour.media} model="tour_medium" />
+            </RelatedContext>
           </div>
-          {/* <div>
-            {tour.media.map((medium) => {
-              return (
-                <img
-                  key={medium.id}
-                  src={medium.files.mobile}
-                  alt={medium.caption}
-                />
-              );
-            })}
-          </div> */}
         </div>
       </RecordContext.Provider>
     );

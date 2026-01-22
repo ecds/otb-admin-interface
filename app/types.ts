@@ -52,6 +52,10 @@ type TMapOverlay = TBounds & {
   image_url: string;
 };
 
+export type TModel = "tour" | "stop" | "medium";
+
+export type TRelateModel = "tour_medium" | "stop_medium";
+
 export type TMapType = "hybrid" | "road" | "satellite";
 
 export type TMedium = {
@@ -72,6 +76,7 @@ export type TMedium = {
   original_image: string;
   position: number;
   provider?: "youtube" | "vimeo" | "soundcloud";
+  relation_id: number;
   tablet_width: number;
   title: string;
   video?: string;

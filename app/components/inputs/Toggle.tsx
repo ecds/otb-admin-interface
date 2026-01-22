@@ -1,7 +1,7 @@
 import InputWrapper from "./InputWrapper";
 import { useContext, useEffect, useRef, useState } from "react";
 import { RecordContext } from "~/contexts";
-import { sendUpdate } from "~/utils/fetchers";
+import { sendUpdate } from "~/utils/requests";
 import ToolTip from "./ToolTip";
 import { Checkbox, Description, Label } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

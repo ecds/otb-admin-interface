@@ -1,11 +1,27 @@
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 type UpdateBody = {
-  attribute: string;
+  attribute?: string;
   model: string;
   value: string | number | boolean;
   related_model?: string;
   related_type?: "belongs_to" | "many";
+  reindex?: {
+    model: string;
+    id: number;
+  };
+};
+
+type CreateBody = {
+  model: string;
+  attributes?:
+    | {
+        tour_id?: number;
+        stop_id?: number;
+        medium_id?: number;
+        file?: File;
+      }
+    | FormData;
 };
 
 type UpdateOptions = {
@@ -19,9 +35,9 @@ type FetchOptions = {
   method?: Method;
   headers?: HeadersInit;
   credentials?: "include" | "omit" | "same-origin";
-  body?: UpdateBody;
+  body?: UpdateBody | CreateBody | FormData;
 };
-export const fetchData = async ({
+export const request = async ({
   path,
   method,
   headers = {},
@@ -35,7 +51,10 @@ export const fetchData = async ({
       method: method ?? "GET",
       mode: "cors",
       credentials,
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
     });
 
     if (method === "DELETE") {
@@ -50,12 +69,12 @@ export const fetchData = async ({
 };
 
 export const fetchCurrentUser = async () => {
-  const { data } = await fetchData({ path: "public/users?me=true" });
+  const { data } = await request({ path: "public/users?me=true" });
   return data.data;
 };
 
 export const verifyToken = async (token: string) => {
-  const { response, data } = await fetchData({
+  const { response, data } = await request({
     path: `auth/verify`,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -70,16 +89,64 @@ export const verifyToken = async (token: string) => {
 };
 
 export const signOut = async () => {
-  return await fetchData({ path: "auth/tokens", method: "DELETE" });
+  return await request({ path: "auth/tokens", method: "DELETE" });
+};
+
+export const sendCreate = async ({
+  tenant,
+  body,
+}: {
+  tenant: string;
+  body: CreateBody;
+}) => {
+  return await request({
+    path: `${tenant}/v4/admin/crud`,
+    body,
+    method: "POST",
+  });
 };
 
 export const sendUpdate = async ({ tenant, record, body }: UpdateOptions) => {
-  return await fetchData({
+  return await request({
     path: `${tenant}/v4/admin/crud/${record}`,
     body,
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  });
+};
+
+export const sendUpload = async ({
+  tenant,
+  body,
+}: {
+  tenant: string;
+  body: FormData;
+}) => {
+  const response = await fetch(
+    `https://api.opentour.site/${tenant}/v4/admin/crud`,
+    {
+      body,
+      method: "POST",
+      credentials: "include",
+    }
+  );
+
+  const data = await response.json();
+
+  return { response, data };
+};
+
+export const sendDelete = async ({
+  tenant,
+  record,
+  model,
+}: {
+  tenant: string;
+  record: number;
+  model: string;
+}) => {
+  return await request({
+    path: `${tenant}/v4/admin/crud/${record}`,
+    method: "DELETE",
+    body: { model },
   });
 };

@@ -4,7 +4,6 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useLoaderData,
   useNavigate,
   useSearchParams,
@@ -12,7 +11,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { fetchCurrentUser, verifyToken } from "./utils/fetchers";
+import { fetchCurrentUser, verifyToken } from "./utils/requests";
 import { AuthContext } from "./context";
 import { useEffect, useState } from "react";
 import type { TUser } from "./types";
@@ -38,7 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <ScrollRestoration />
+        {/* <ScrollRestoration /> */}
         <Scripts />
       </body>
     </html>

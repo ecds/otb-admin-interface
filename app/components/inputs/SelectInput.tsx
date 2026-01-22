@@ -3,7 +3,7 @@ import InputWrapper from "./InputWrapper";
 import type { InputProps, TChoices } from "~/types";
 import ToolTip from "./ToolTip";
 import { useContext, useEffect, useRef, useState } from "react";
-import { sendUpdate } from "~/utils/fetchers";
+import { sendUpdate } from "~/utils/requests";
 import { RecordContext } from "~/contexts";
 
 type SelectProps = {

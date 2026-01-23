@@ -42,6 +42,10 @@ export const joinImage = async ({
   imageId,
   tenant,
 }: ImageJoinProps) => {
+  const reindex = {
+    model: recordModel,
+    id: recordId,
+  };
   const body =
     relatedType === "many"
       ? {
@@ -50,9 +54,11 @@ export const joinImage = async ({
             [`${recordModel}_id`]: recordId,
             medium_id: imageId,
           },
+          reindex,
         }
       : {
           model: recordModel,
+          reindex,
         };
   return await sendCreate({
     tenant,

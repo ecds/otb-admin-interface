@@ -64,7 +64,7 @@ export const request = async ({
     const data = response.ok ? await response.json() : {};
     return { response, data };
   } catch (error) {
-    return { response: { ok: false }, data: {}, error };
+    return { response: { ok: false }, id: 0, data: {}, error };
   }
 };
 
@@ -138,15 +138,15 @@ export const sendUpload = async ({
 export const sendDelete = async ({
   tenant,
   record,
-  model,
+  body,
 }: {
   tenant: string;
   record: number;
-  model: string;
+  body: UpdateBody;
 }) => {
   return await request({
     path: `${tenant}/v4/admin/crud/${record}`,
     method: "DELETE",
-    body: { model },
+    body,
   });
 };

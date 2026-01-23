@@ -150,3 +150,22 @@ export const modes = [
     label: "WALKING",
   },
 ];
+
+export const mapTypes = [
+  {
+    value: "hybrid",
+    label: "Hybrid",
+  },
+  {
+    value: "roadmap",
+    label: "Roadmap",
+  },
+  {
+    value: "satellite",
+    label: "Satellite",
+  },
+  {
+    value: "terrain",
+    label: "Terrain",
+  },
+];

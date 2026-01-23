@@ -8,8 +8,13 @@ import {
 } from "@headlessui/react";
 import { useContext, useEffect, useState } from "react";
 import { FormContext } from "~/contexts";
+import type { Dispatch, SetStateAction } from "react";
 
-const EditButton = () => {
+interface Props {
+  onClick: Dispatch<SetStateAction<boolean>>;
+}
+
+const EditButton = ({ onClick }: Props) => {
   const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
   const [confirmed, setConfirmed] = useState<boolean>(false);
@@ -25,7 +30,7 @@ const EditButton = () => {
     <>
       <button
         className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
-        onClick={() => setAskConfirm(true)}
+        onClick={() => onClick(true)}
       >
         <FontAwesomeIcon icon={faPencil} /> Edit
       </button>

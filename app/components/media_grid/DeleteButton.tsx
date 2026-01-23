@@ -39,9 +39,19 @@ const DeleteButton = () => {
           <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
             <Description>Remove this image or video?</Description>
             <p>Are you sure you want to this image or video from the tour.</p>
-            <div className="flex gap-4">
-              <button onClick={() => setAskConfirm(false)}>Cancel</button>
-              <button onClick={() => setConfirmed(true)}>Delete</button>
+            <div className="flex gap-4 justify-end">
+              <button
+                className="p-2 rounded-md border border-black/75 cursor-pointer"
+                onClick={() => setAskConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-400 text-white p-2 rounded-md cursor-pointer"
+                onClick={() => setConfirmed(true)}
+              >
+                Delete
+              </button>
             </div>
           </DialogPanel>
         </div>

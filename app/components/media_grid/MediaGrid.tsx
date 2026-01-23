@@ -14,17 +14,17 @@ import {
 } from "@dnd-kit/sortable";
 import { useContext, useEffect, useState } from "react";
 import { sendDelete, sendUpdate } from "~/utils/requests";
-import { FormContext, RecordContext } from "~/contexts";
-import { useNavigate } from "react-router";
+import { FormContext, RecordContext, RelatedContext } from "~/contexts";
 import SortableMedium from "./SortableMedium";
 import FileDrop from "./FileDrop";
+import Embed from "./Embed";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
 
-const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
+const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const [items, setItems] = useState(media);
   const { tenant, recordId, recordModel } = useContext(RecordContext);
-  const navigate = useNavigate();
+  const { relatedModel } = useContext(RelatedContext);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -34,12 +34,12 @@ const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
 
   useEffect(() => {
     const sendRequest = async (newPosition: number, item: TMedium) => {
-      const { response } = await sendUpdate({
+      await sendUpdate({
         tenant,
         record: item.relation_id,
         body: {
           attribute: "position",
-          model,
+          model: relatedModel,
           value: newPosition,
           reindex: {
             model: recordModel,
@@ -47,8 +47,6 @@ const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
           },
         },
       });
-
-      if (response.ok) navigate(".", { replace: true });
     };
 
     items.forEach((item, index) => {
@@ -58,7 +56,7 @@ const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
         sendRequest(newPosition, item);
       }
     });
-  }, [items, tenant, model, recordId, recordModel, navigate]);
+  }, [items, tenant, relatedModel, recordId, recordModel]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -83,7 +81,14 @@ const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
     const { response } = await sendDelete({
       tenant,
       record: id,
-      model: "tour_medium",
+      body: {
+        model: "tour_medium",
+        value: "",
+        reindex: {
+          model: recordModel,
+          id: recordId,
+        },
+      },
     });
     if (response.ok)
       setItems((items) => items.filter((item) => item.relation_id !== id));
@@ -96,7 +101,9 @@ const MediaGrid = ({ media, model }: { media: TMedium[]; model: string }) => {
   return (
     <div>
       <div className="text-2xl flex space-x-3 my-8">Media</div>
+      <Embed onSuccess={itemAdded} />
       <FileDrop onSuccess={itemAdded} />
+      <div className="text-lg flex space-x-3 my-8">Images</div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

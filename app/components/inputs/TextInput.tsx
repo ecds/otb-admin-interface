@@ -10,9 +10,10 @@ import { Description, Input, Textarea } from "@headlessui/react";
 import { sendUpdate } from "~/utils/requests";
 import InputWrapper from "./InputWrapper";
 import { RecordContext } from "~/contexts";
-import type { InputProps } from "~/types";
 import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
+import type { InputProps, TServerResponse } from "~/types";
+import { useRevalidator } from "react-router";
 
 const JoditEditor = lazy(() => import("jodit-react"));
 
@@ -37,8 +38,12 @@ const config = {
 };
 
 type TextInputProps = {
-  value: string;
+  value: string | number;
   type: "text" | "text-area" | "rich-text";
+  itemId?: number;
+  updateCallback?: (data: TServerResponse) => void;
+  size?: "small" | "large";
+  valueType?: "text" | "number" | "url" | "button" | "file";
 };
 
 const TextInput = ({
@@ -48,23 +53,64 @@ const TextInput = ({
   model,
   value,
   type,
+  onChange,
+  itemId,
+  updateCallback,
+  size = "large",
+  valueType = "text",
 }: InputProps & TextInputProps) => {
-  const [currentValue, setCurrentValue] = useState<string>(value);
+  console.log("🚀 ~ TextInput ~ value:", value);
+  const [currentValue, setCurrentValue] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
-  const valueRef = useRef<string>(value);
+  const valueRef = useRef<string | number>(value);
 
-  const { recordId, tenant } = useContext(RecordContext);
+  const padding = () => {
+    switch (size) {
+      case "large":
+        return "px-4 py-3.5";
+      case "small":
+        return "px-3 py-2.5";
+      default:
+        break;
+    }
+  };
+
+  const { recordId, tenant, recordModel } = useContext(RecordContext);
+  const revalidator = useRevalidator();
 
   const update = useCallback(async () => {
-    await sendUpdate({
+    const { response, data } = await sendUpdate({
       tenant,
-      record: recordId,
-      body: { model, attribute: id, value: currentValue },
+      record: itemId ?? recordId,
+      body: {
+        model,
+        attribute: id,
+        value: currentValue,
+        reindex: { id: recordId, model: recordModel },
+      },
     });
     valueRef.current = currentValue;
-  }, [tenant, recordId, model, currentValue, id]);
+    if (response.ok && updateCallback) {
+      updateCallback(data as TServerResponse);
+    }
+  }, [
+    tenant,
+    recordId,
+    model,
+    currentValue,
+    id,
+    itemId,
+    recordModel,
+    updateCallback,
+  ]);
 
   useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (onChange) return;
+
     if (currentValue === valueRef.current) return;
 
     const timeoutId = setTimeout(() => {
@@ -72,11 +118,17 @@ const TextInput = ({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [currentValue, id, model, recordId, tenant, update]);
+  }, [currentValue, id, model, recordId, tenant, update, onChange]);
 
   const handleChange = () => {
     if (!inputRef.current) return;
     setCurrentValue(inputRef.current.value);
+    if (onChange) onChange(inputRef.current.value);
+  };
+
+  const handleBlur = async () => {
+    await update();
+    revalidator.revalidate();
   };
 
   return (
@@ -92,16 +144,16 @@ const TextInput = ({
           <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
         </Description>
       )}
-      <div className="basis-full">
+      <div className="basis-full me-0">
         {type === "text" && (
           <Input
             ref={inputRef}
-            type="text"
+            type={valueType}
             id={`${model}-${id}`}
-            className="w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md px-4 py-3.5 shadow-xs placeholder:text-body"
+            className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding()} shadow-xs placeholder:text-body`}
             value={currentValue ?? ""}
             onInput={handleChange}
-            onBlur={update}
+            onBlur={handleBlur}
           ></Input>
         )}
         {type === "text-area" && (
@@ -110,14 +162,16 @@ const TextInput = ({
             ref={inputRef}
             onInput={handleChange}
             value={currentValue ?? ""}
+            onBlur={handleBlur}
           />
         )}
         {type === "rich-text" && (
           <ClientOnly>
             <JoditEditor
-              value={currentValue ?? ""}
+              value={currentValue.toString() ?? ""}
               config={config}
               onChange={(newValue) => setCurrentValue(newValue)}
+              onBlur={handleBlur}
             />
           </ClientOnly>
         )}

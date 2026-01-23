@@ -39,6 +39,7 @@ const FileUpload = ({ onSuccess, children }: Props) => {
       }
     }
   };
+
   return (
     <label className="text-sm text-white hover:text-black mr-5 file:py-2 px-4 py-2 rounded-full border-0 font-semibold file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer">
       {children ?? "Upload Files"}

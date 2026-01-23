@@ -49,14 +49,19 @@ type TFlatPage = {
 };
 
 type TMapOverlay = TBounds & {
+  id: number;
   image_url: string;
+  east: number;
+  north: number;
+  south: number;
+  west: number;
 };
 
 export type TModel = "tour" | "stop" | "medium";
 
 export type TRelateModel = "tour_medium" | "stop_medium";
 
-export type TMapType = "hybrid" | "road" | "satellite";
+export type TMapType = "hybrid" | "roadmap" | "satellite" | "terrain";
 
 export type TMedium = {
   caption: string;
@@ -107,12 +112,16 @@ export type TStop = {
   direction_notes?: string;
   icon?: string;
   icon_color: string;
+  id: number;
   lat: number;
   lng: number;
   map_icon?: string;
+  related_id: number;
+  title: string;
 };
 
 export type TTour = {
+  blank_map: boolean;
   bounds: TBounds;
   default_lng: string;
   description: string;
@@ -133,6 +142,7 @@ export type TTour = {
   };
   published: boolean;
   restrict_bounds: boolean;
+  restrict_bounds_to_overlay: boolean;
   slug: string;
   stop_count: number;
   stops: TStop[];
@@ -180,14 +190,40 @@ export type TTourSet = {
 };
 
 export type InputProps = {
-  id: string;
+  id: TValue;
   label: string;
   model: string;
   value: string | boolean | number;
   helpText?: string;
+  onChange?: (value: string) => void;
 };
 
 export type TChoices = {
   value: string;
   label: string;
 };
+
+export type TEmbedProvider = "vimeo" | "youtube" | "soundcloud";
+
+export type TServerResponse = TTour | TStop | TMedium;
+
+export type TValue =
+  | "blank_map"
+  | "caption"
+  | "default_lng"
+  | "description"
+  | "east"
+  | "id"
+  | "is_geo"
+  | "link_address"
+  | "link_text"
+  | "map_type"
+  | "meta_description"
+  | "north"
+  | "published"
+  | "restrict_bounds"
+  | "restrict_bounds_to_overlay"
+  | "south"
+  | "title"
+  | "use_directions"
+  | "west";

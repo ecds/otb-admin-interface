@@ -8,9 +8,12 @@ import { languages } from "~/choices";
 import { Fieldset, Legend } from "@headlessui/react";
 import ToolTip from "~/components/inputs/ToolTip";
 import ThemeSelector from "~/components/ThemeSelector";
+import MediaGrid from "~/components/media_grid/MediaGrid";
+import MapControls from "~/components/MapControls";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import type { TTour } from "~/types";
 import type { LoaderFunctionArgs } from "react-router";
-import MediaGrid from "~/components/media_grid/MediaGrid";
+import StopsList from "~/components/stops/StopsList";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tour } = await request({
@@ -23,44 +26,16 @@ clientLoader.hydrate = true as const;
 
 const TourRoute = () => {
   const { tour } = useLoaderData<{ tour: TTour }>();
-  // const [relatedRecords, setRelatedRecords] = useState();
-  // const [stops, setStops] = useState();
-
-  // useEffect(() => {
-  //   const collectRelated = async () => {
-  //     const relations = {};
-
-  //     for (const key of Object.keys(tour.relationships)) {
-  //       relations[key] = [];
-  //       if (tour.relationships[key].data instanceof Array) {
-  //         for (const record of tour.relationships[key].data) {
-  //           const { data } = await fetchData({
-  //             path: `${tour?.tenant}/${key.replaceAll("_", "-")}/${record.id}`,
-  //           });
-  //           relations[key].push(data.data);
-  //         }
-  //       }
-  //     }
-  //     return relations;
-  //   };
-
-  //   if (tour) collectRelated();
-  // }, [tour]);
-
-  // useEffect(() => {
-  //   const fetchTour = async () => {
-  //     const { data, response } = await fetchData({
-  //       path: `${params.tourSet}/tours/${params.tour_id}`,
-  //     });
-  //     if (response.ok) setTour(data.data);
-  //   };
-  //   fetchTour();
-  // }, [params]);
 
   if (tour) {
     return (
       <RecordContext.Provider
-        value={{ recordId: tour.id, tenant: tour.tenant, recordModel: "tour" }}
+        value={{
+          recordId: tour.id,
+          tenant: tour.tenant,
+          recordModel: "tour",
+          tour: tour,
+        }}
       >
         <div className="mt-24 px-8 md:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
           <TextInput
@@ -153,12 +128,16 @@ const TourRoute = () => {
               helpText="Select to prevent people from zooming out far from your tour or scrolling far away. This restricts the desktop/laptop map to the area around the tour stops."
             />
           </Fieldset>
+          <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+            <MapControls />
+          </APIProvider>
           <div>
             <RelatedContext
               value={{ relatedModel: "tour_medium", relatedType: "many" }}
             >
-              <MediaGrid media={tour.media} model="tour_medium" />
+              <MediaGrid media={tour.media} />
             </RelatedContext>
+            <StopsList stops={tour.stops} />
           </div>
         </div>
       </RecordContext.Provider>

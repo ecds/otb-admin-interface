@@ -13,6 +13,7 @@ const FileDrop = ({ onSuccess }: Props) => {
   const { tenant, recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
   const [isOver, setIsOver] = useState<boolean>(false);
+
   const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(false);

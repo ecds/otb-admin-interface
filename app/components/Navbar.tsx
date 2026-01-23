@@ -3,7 +3,7 @@ import Account from "./Account";
 
 const Navbar = () => {
   return (
-    <nav className="bg-gray-200 fixed top-0 w-screen px-6 h-20 flex justify-between items-center z-50 drop-shadow-md">
+    <nav className="bg-gray-200 fixed top-0 w-screen px-6 h-12 flex justify-between items-center z-50 drop-shadow-md">
       <div className="flex flex-row space-x-6 items-center ml-6 text-black/80">
         <NavLink
           to="/admin"

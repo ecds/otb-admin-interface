@@ -20,16 +20,18 @@ import FileDrop from "./FileDrop";
 import Embed from "./Embed";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
+import FileUpload from "../inputs/FileUpload";
 
 const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const [items, setItems] = useState(media);
+  const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
   const { tenant, recordId, recordModel } = useContext(RecordContext);
   const { relatedModel } = useContext(RelatedContext);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -65,11 +67,11 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
       setItems((items) => {
         const oldIndex = items.indexOf(
           // @ts-expect-error: We know it will be there.
-          items.find((medium) => medium.id == active.id)
+          items.find((medium) => medium.id == active.id),
         );
         const newIndex = items.indexOf(
           // @ts-expect-error: We know it will be there.
-          items.find((medium) => medium.id == over.id)
+          items.find((medium) => medium.id == over.id),
         );
 
         return arrayMove(items, oldIndex, newIndex);
@@ -94,15 +96,25 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
       setItems((items) => items.filter((item) => item.relation_id !== id));
   };
 
-  const itemAdded = (newItem: TMedium) => {
-    setItems((items) => [...items, newItem]);
+  const itemAdded = (newItem: unknown) => {
+    setItems((items) => [...items, newItem as TMedium]);
   };
 
   return (
     <div>
       <div className="text-2xl flex space-x-3 my-8">Media</div>
       <Embed onSuccess={itemAdded} />
-      <FileDrop onSuccess={itemAdded} />
+      <FileDrop
+        onSuccess={itemAdded}
+        fileSaving={fileSaving}
+        setFileSaving={setFileSaving}
+      >
+        <FileUpload
+          onSuccess={itemAdded}
+          fileUploading={setFileSaving}
+          btnText="Upload Images"
+        />
+      </FileDrop>
       <div className="text-lg flex space-x-3 my-8">Images</div>
       <DndContext
         sensors={sensors}

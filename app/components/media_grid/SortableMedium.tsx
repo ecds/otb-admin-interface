@@ -59,7 +59,7 @@ const SortableMedium = ({ medium }: Props) => {
         </div>
         <div className="mb-6 flex space-x-2 justify-around items-end text-sm">
           <EditButton onClick={setModalOpen} />
-          <DeleteButton />
+          <DeleteButton removing="image or video" />
         </div>
       </div>
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
@@ -68,11 +68,24 @@ const SortableMedium = ({ medium }: Props) => {
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="max-w-lg space-y-4 bg-white p-12 flex flex-col">
             <div>
-              <img
-                src={medium.files.tablet}
-                alt={medium.caption ?? ""}
-                className="mx-auto"
-              />
+              {medium.embed ? (
+                <div className="mx-auto my-6 px-6 pb-[56.25%] relative block w-full">
+                  <iframe
+                    className="m-auto absolute top-0 left-0"
+                    width="100%"
+                    height="100%"
+                    title="Embed to add"
+                    src={medium.embed}
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <img
+                  src={medium.files.tablet}
+                  alt={medium.caption ?? ""}
+                  className="mx-auto"
+                />
+              )}
               <TextInput
                 type="text"
                 id="title"

@@ -1,6 +1,6 @@
 export const debounce = <T extends unknown[]>(
   callback: (...args: T) => void,
-  wait: number
+  wait: number,
 ): ((...args: T) => void) => {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 

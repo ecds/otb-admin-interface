@@ -17,4 +17,16 @@ body {
   .jodit-wysiwyg p {
     margin-bottom: 1rem;
   }
+
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details summary {
+    list-style: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
 }

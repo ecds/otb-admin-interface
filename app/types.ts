@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type TUser = {
   id: string;
   type: string;
@@ -48,7 +50,7 @@ type TFlatPage = {
   title: string;
 };
 
-type TMapOverlay = TBounds & {
+export type TMapOverlay = TBounds & {
   id: number;
   image_url: string;
   east: number;
@@ -59,7 +61,13 @@ type TMapOverlay = TBounds & {
 
 export type TModel = "tour" | "stop" | "medium";
 
-export type TRelateModel = "tour_medium" | "stop_medium";
+export type TRelateModel =
+  | "tour_stop"
+  | "tour_medium"
+  | "stop_medium"
+  | "map_overlay"
+  | "map_icon"
+  | "stop";
 
 export type TMapType = "hybrid" | "roadmap" | "satellite" | "terrain";
 
@@ -116,7 +124,13 @@ export type TStop = {
   lat: number;
   lng: number;
   map_icon?: string;
-  related_id: number;
+  media: TMedium[];
+  meta_description: string;
+  parking_address: string | undefined;
+  parking_lat: number | undefined;
+  parking_lng: number | undefined;
+  relation_id: number;
+  slug: string;
   title: string;
 };
 
@@ -191,7 +205,7 @@ export type TTourSet = {
 
 export type InputProps = {
   id: TValue;
-  label: string;
+  label: string | ReactNode;
   model: string;
   value: string | boolean | number;
   helpText?: string;
@@ -207,23 +221,48 @@ export type TEmbedProvider = "vimeo" | "youtube" | "soundcloud";
 
 export type TServerResponse = TTour | TStop | TMedium;
 
-export type TValue =
+export type TSelectableProps =
   | "blank_map"
-  | "caption"
   | "default_lng"
-  | "description"
-  | "east"
-  | "id"
   | "is_geo"
-  | "link_address"
-  | "link_text"
   | "map_type"
-  | "meta_description"
-  | "north"
   | "published"
   | "restrict_bounds"
   | "restrict_bounds_to_overlay"
+  | "use_directions";
+
+export type TValue =
+  | TSelectableProps
+  | "address"
+  | "caption"
+  | "description"
+  | "direction_notes"
+  | "east"
+  | "embed"
+  | "icon"
+  | "icon_color"
+  | "id"
+  | "lat"
+  | "link_address"
+  | "link_text"
+  | "lng"
+  | "meta_description"
+  | "north"
+  | "parking_address"
+  | "parking_lat"
+  | "parking_lng"
   | "south"
   | "title"
   | "use_directions"
   | "west";
+
+export type TV3MapIcon = {
+  id: number;
+  attributes: {
+    original_image_url: string;
+  };
+};
+
+export type TV3MapIconResponse = {
+  data: TV3MapIcon[];
+};

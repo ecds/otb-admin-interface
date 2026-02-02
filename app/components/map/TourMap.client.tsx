@@ -1,11 +1,24 @@
-import { Map } from "@vis.gl/react-google-maps";
-import { useContext } from "react";
-import { RecordContext } from "~/contexts";
+import { Map, useMap } from "@vis.gl/react-google-maps";
+import { useContext, useEffect } from "react";
+import { RecordContext, StopMapContext } from "~/contexts";
 import MapMarker from "./MapMarker";
 import type { ReactNode } from "react";
 
 const TourMap = ({ children }: { children: ReactNode }) => {
   const { tour } = useContext(RecordContext);
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !tour) return;
+
+    map.fitBounds({
+      east: tour.bounds.east,
+      south: tour.bounds.south,
+      north: tour.bounds.north,
+      west: tour.bounds.west,
+    });
+  }, [map, tour]);
+
   if (tour) {
     return (
       <Map
@@ -31,7 +44,23 @@ const TourMap = ({ children }: { children: ReactNode }) => {
       >
         {children}
         {tour.stops.map((stop) => {
-          return <MapMarker key={stop.id} stop={stop} />;
+          if (!stop.lat || !stop.lng) return <></>;
+          return (
+            <StopMapContext.Provider
+              key={stop.id}
+              value={{
+                stop: stop,
+                lat: stop.lat,
+                lng: stop.lng,
+                mapIcon: stop.map_icon,
+                iconColor: stop.icon_color,
+                position: stop.position,
+                address: stop.address ?? "",
+              }}
+            >
+              <MapMarker />
+            </StopMapContext.Provider>
+          );
         })}
       </Map>
     );

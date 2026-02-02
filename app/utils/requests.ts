@@ -1,11 +1,11 @@
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
-type UpdateBody = {
+export type UpdateBody = {
   attribute?: string;
   model: string;
-  value: string | number | boolean;
+  value?: string | number | boolean | null;
   related_model?: string;
-  related_type?: "belongs_to" | "many";
+  related_type?: "belongs_to" | "many" | undefined;
   reindex?: {
     model: string;
     id: number;
@@ -127,7 +127,7 @@ export const sendUpload = async ({
       body,
       method: "POST",
       credentials: "include",
-    }
+    },
   );
 
   const data = await response.json();

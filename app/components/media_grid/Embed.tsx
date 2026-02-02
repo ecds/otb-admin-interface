@@ -14,9 +14,9 @@ const Embed = ({ onSuccess }: Props) => {
   const [embedCode, setEmbedCode] = useState<string | undefined>(undefined);
   const [link, setLink] = useState<string | undefined>(undefined);
   const [provider, setProvider] = useState<TEmbedProvider | undefined>(
-    undefined
+    undefined,
   );
-  const { tenant, recordId, recordModel } = useContext(RecordContext);
+  const { tenant, recordId, recordModel, tour } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
 
   useEffect(() => {
@@ -62,6 +62,7 @@ const Embed = ({ onSuccess }: Props) => {
         recordId,
         imageId: createData.id,
         tenant,
+        tourId: tour?.id,
       });
       if (response.ok && onSuccess) {
         onSuccess(data);
@@ -83,6 +84,7 @@ const Embed = ({ onSuccess }: Props) => {
         id="embed"
         helpText='You can add a video hosted on YouTube or Vimeo by entering the link here. You can add SoundCloud audio by entering the share embed here. Other hosting will not work. The video or audio should appear below automatically if the url or embed is correct. If the media does not appear, double check the url or embed. Once the media appears you can add it to your tour with the "Yes! ADD THIS MEDIUM" button.'
         onChange={handleInput}
+        placeholder="Add link to embed media from YouTube, Vimeo, or SoundCloud."
       />
 
       {embedUrl && (

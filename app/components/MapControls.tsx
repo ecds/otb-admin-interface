@@ -2,21 +2,36 @@ import { useContext, useEffect, useState } from "react";
 import ClientOnly from "./ClientOnly";
 import SelectInput from "./inputs/SelectInput";
 import TourMap from "./map/TourMap.client";
-import { OverlayContext, RecordContext } from "~/contexts";
+import {
+  FormContext,
+  OverlayContext,
+  RecordContext,
+  RelatedContext,
+} from "~/contexts";
 import { mapTypes } from "~/choices";
 import TextInput from "./inputs/TextInput";
-import Toggle from "./inputs/Toggle";
 import MapOverlay from "./map/MapOverlay";
 import { useMap } from "@vis.gl/react-google-maps";
+import FileUpload from "./inputs/FileUpload";
+import { sendDelete, sendUpdate } from "~/utils/requests";
+import { useRevalidator } from "react-router";
+import { Deleting, Saving } from "./Saving";
+import DeleteButton from "./media_grid/DeleteButton";
+import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
-  const { tour } = useContext(RecordContext);
+  const { tour, tenant } = useContext(RecordContext);
   const [south, setSouth] = useState<number | undefined>(undefined);
   const [north, setNorth] = useState<number | undefined>(undefined);
   const [east, setEast] = useState<number | undefined>(undefined);
   const [west, setWest] = useState<number | undefined>(undefined);
+  const [newOverlay, setNewOverlay] = useState<TMapOverlay | undefined>(
+    undefined,
+  );
+  const [saving, setSaving] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const revalidator = useRevalidator();
   const map = useMap();
-  console.log("🚀 ~ MapControls ~ map:", map);
 
   useEffect(() => {
     if (!tour || !tour.map_overlay) return;
@@ -26,7 +41,55 @@ const MapControls = () => {
     setWest(tour.map_overlay.west);
   }, [tour]);
 
-  useEffect(() => {}, [south]);
+  useEffect(() => {
+    if (!newOverlay) return;
+    let intervalId: ReturnType<typeof setInterval>;
+    if (tour && tour.map_overlay?.id !== newOverlay?.id) {
+      setSaving(true);
+      intervalId = setInterval(revalidator.revalidate, 1000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      setSaving(false);
+    };
+  }, [tour, newOverlay, revalidator]);
+
+  useEffect(() => {
+    if (tour?.map_overlay) setNewOverlay(undefined);
+  }, [tour]);
+
+  const overlayAdded = (updatedTour: unknown) => {
+    setNewOverlay((updatedTour as TTour).map_overlay);
+  };
+
+  const deleteOverlay = async (id: number) => {
+    if (!tour) return;
+    setDeleting(true);
+    await sendUpdate({
+      record: tour.id,
+      tenant,
+      body: {
+        model: "tour",
+        attribute: "blank_map",
+        value: false,
+      },
+    });
+
+    const { response } = await sendDelete({
+      tenant,
+      record: id,
+      body: {
+        model: "map_overlay",
+        reindex: { id: tour.id, model: "tour" },
+      },
+    });
+
+    if (response.ok) {
+      revalidator.revalidate();
+      setDeleting(false);
+    }
+  };
 
   if (tour) {
     return (
@@ -62,6 +125,22 @@ const MapControls = () => {
               value={tour?.map_type}
               options={mapTypes}
             />
+            {!tour.map_overlay && (
+              <RelatedContext
+                value={{ relatedModel: "map_overlay", relatedType: "one" }}
+              >
+                {saving ? (
+                  <Saving />
+                ) : (
+                  <FileUpload
+                    model="map_overlay"
+                    onSuccess={overlayAdded}
+                    onStart={() => setSaving(true)}
+                    btnText="Upload Map Overlay"
+                  />
+                )}
+              </RelatedContext>
+            )}
             <div
               className={`${tour.map_overlay ? "grid" : "hidden"} grid-cols-2 gap-4`}
             >
@@ -74,6 +153,7 @@ const MapControls = () => {
                     id="north"
                     type="text"
                     valueType="number"
+                    itemId={tour.map_overlay.id}
                     helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                   />
                   <TextInput
@@ -83,6 +163,7 @@ const MapControls = () => {
                     id="south"
                     type="text"
                     valueType="number"
+                    itemId={tour.map_overlay.id}
                     helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                   />
                   <TextInput
@@ -92,6 +173,7 @@ const MapControls = () => {
                     id="east"
                     type="text"
                     valueType="number"
+                    itemId={tour.map_overlay.id}
                     helpText="Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                   />
                   <TextInput
@@ -101,10 +183,11 @@ const MapControls = () => {
                     id="west"
                     type="text"
                     valueType="number"
+                    itemId={tour.map_overlay.id}
                     helpText="Western longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                   />
                   <div className="col-span-2">
-                    <Toggle
+                    <SelectInput
                       label="Restrict Map to Overlay"
                       id="restrict_bounds_to_overlay"
                       value={tour.restrict_bounds_to_overlay}
@@ -113,7 +196,7 @@ const MapControls = () => {
                     />
                   </div>
                   <div className="col-span-2">
-                    <Toggle
+                    <SelectInput
                       label="Blank Map"
                       id="blank_map"
                       value={tour.blank_map}
@@ -121,9 +204,20 @@ const MapControls = () => {
                       helpText="Covers the Google Map with a gray background."
                     />
                   </div>
-                  <button className="bg-red-500 text-white p-2 rounded-md">
-                    Remove Overlay
-                  </button>
+                  <FormContext.Provider
+                    value={{
+                      handleDelete: deleteOverlay,
+                      recordId: tour.map_overlay.id,
+                    }}
+                  >
+                    {deleting ? (
+                      <Deleting />
+                    ) : (
+                      <DeleteButton removing="map overlay">
+                        Remove Overlay{" "}
+                      </DeleteButton>
+                    )}
+                  </FormContext.Provider>
                 </>
               )}
             </div>

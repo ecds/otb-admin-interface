@@ -1,9 +1,15 @@
 import type { TModel, TRelateModel } from "~/types";
-import { sendCreate, sendUpload } from "./requests";
+import {
+  sendCreate,
+  sendUpdate,
+  sendUpload,
+  type UpdateBody,
+} from "./requests";
 
 interface ImageUploadProps {
   file: File;
   tenant: string;
+  model?: "medium" | "map_overlay" | "map_icon";
 }
 
 interface ImageJoinProps {
@@ -13,11 +19,16 @@ interface ImageJoinProps {
   recordId: number;
   imageId: number;
   tenant: string;
+  tourId: number | undefined;
 }
 
 const imageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-export const imageUpload = async ({ file, tenant }: ImageUploadProps) => {
+export const imageUpload = async ({
+  file,
+  tenant,
+  model = "medium",
+}: ImageUploadProps) => {
   if (!imageTypes.includes(file.type))
     return {
       response: { ok: false },
@@ -25,9 +36,9 @@ export const imageUpload = async ({ file, tenant }: ImageUploadProps) => {
     };
 
   const body = new FormData();
-  body.append("model", "medium");
-  body.append("medium[file]", file);
-  body.append("medium[filename]", file.name);
+  body.append("model", model);
+  body.append(`${model}[file]`, file);
+  body.append(`${model}[filename]`, file.name);
   return await sendUpload({
     tenant,
     body,
@@ -41,27 +52,36 @@ export const joinImage = async ({
   recordId,
   imageId,
   tenant,
+  tourId,
 }: ImageJoinProps) => {
   const reindex = {
-    model: recordModel,
-    id: recordId,
+    model: "tour",
+    id: tourId ?? 0,
   };
-  const body =
-    relatedType === "many"
-      ? {
-          model: relatedModel,
-          [relatedModel]: {
-            [`${recordModel}_id`]: recordId,
-            medium_id: imageId,
-          },
-          reindex,
-        }
-      : {
-          model: recordModel,
-          reindex,
-        };
-  return await sendCreate({
-    tenant,
-    body,
-  });
+
+  if (relatedType == "many") {
+    const body = {
+      model: relatedModel,
+      [relatedModel]: {
+        [`${recordModel}_id`]: recordId,
+        medium_id: imageId,
+      },
+      reindex,
+    };
+    return await sendCreate({
+      tenant,
+      body,
+    });
+  }
+
+  const body: UpdateBody = {
+    model: recordModel,
+    attribute: relatedModel,
+    value: imageId,
+    related_model: relatedModel,
+    related_type: "belongs_to",
+    reindex,
+  };
+
+  return await sendUpdate({ tenant, record: recordId, body });
 };

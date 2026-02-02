@@ -1,23 +1,31 @@
 import { useContext, useState } from "react";
-import FileUpload from "../inputs/FileUpload";
 import { RecordContext, RelatedContext } from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
-import type { TMedium } from "~/types";
-import type { DragEvent } from "react";
+import type { Dispatch, DragEvent, ReactNode, SetStateAction } from "react";
 
 interface Props {
-  onSuccess: (data: TMedium) => void;
+  onSuccess: (args: unknown) => void;
+  children: ReactNode;
+  fileSaving: string | undefined;
+  setFileSaving: Dispatch<SetStateAction<string | undefined>>;
 }
 
-const FileDrop = ({ onSuccess }: Props) => {
-  const { tenant, recordId, recordModel } = useContext(RecordContext);
+const FileDrop = ({
+  onSuccess,
+  children,
+  fileSaving,
+  setFileSaving,
+}: Props) => {
+  const { tenant, recordId, recordModel, tour } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
   const [isOver, setIsOver] = useState<boolean>(false);
 
   const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(false);
+
     for (const file of event.dataTransfer.files) {
+      setFileSaving(file.name);
       const { response: uploadResponse, data: uploadData } = await imageUpload({
         tenant,
         file,
@@ -30,12 +38,14 @@ const FileDrop = ({ onSuccess }: Props) => {
           recordId,
           imageId: uploadData.id,
           tenant,
+          tourId: tour?.id,
         });
         if (response.ok && onSuccess) {
           onSuccess(data);
         }
       }
     }
+    setFileSaving(undefined);
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -45,18 +55,23 @@ const FileDrop = ({ onSuccess }: Props) => {
 
   return (
     <div
-      className="w-full h-16 bg-gray-200 border border-dashed rounded-md flex items-center justify-around text-lg"
+      className={`w-full h-16 ${fileSaving ? "bg-green-300" : "bg-gray-200"} border border-dashed rounded-md flex items-center justify-around text-lg`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={() => setIsOver(false)}
     >
       <p>
-        {isOver ? (
-          <>Drop to upload</>
+        {fileSaving ? (
+          <span>UPLOADING: {fileSaving}</span>
         ) : (
           <>
-            Drag and drop images onto this area to upload them or{" "}
-            <FileUpload onSuccess={onSuccess}>Upload Images</FileUpload>
+            {isOver ? (
+              <>Drop to upload</>
+            ) : (
+              <>
+                Drag and drop images onto this area to upload them or {children}
+              </>
+            )}
           </>
         )}
       </p>

@@ -37,13 +37,26 @@ const config = {
   height: 200,
 };
 
+const padding = (size: "large" | "small") => {
+  switch (size) {
+    case "large":
+      return "px-4 py-3.5";
+    case "small":
+      return "px-3 py-2.5";
+    default:
+      break;
+  }
+};
+
 type TextInputProps = {
   value: string | number;
-  type: "text" | "text-area" | "rich-text";
+  type: "text" | "text-area" | "rich-text" | "color";
   itemId?: number;
   updateCallback?: (data: TServerResponse) => void;
   size?: "small" | "large";
   valueType?: "text" | "number" | "url" | "button" | "file";
+  placeholder?: string;
+  revalidate?: boolean;
 };
 
 const TextInput = ({
@@ -58,27 +71,17 @@ const TextInput = ({
   updateCallback,
   size = "large",
   valueType = "text",
+  placeholder,
+  revalidate,
 }: InputProps & TextInputProps) => {
-  console.log("🚀 ~ TextInput ~ value:", value);
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
-
-  const padding = () => {
-    switch (size) {
-      case "large":
-        return "px-4 py-3.5";
-      case "small":
-        return "px-3 py-2.5";
-      default:
-        break;
-    }
-  };
-
-  const { recordId, tenant, recordModel } = useContext(RecordContext);
+  const { recordId, tenant, tour } = useContext(RecordContext);
   const revalidator = useRevalidator();
 
   const update = useCallback(async () => {
+    if (!tour) return;
     const { response, data } = await sendUpdate({
       tenant,
       record: itemId ?? recordId,
@@ -86,22 +89,27 @@ const TextInput = ({
         model,
         attribute: id,
         value: currentValue,
-        reindex: { id: recordId, model: recordModel },
+        reindex: { id: tour.id, model: "tour" },
       },
     });
+
     valueRef.current = currentValue;
+
     if (response.ok && updateCallback) {
       updateCallback(data as TServerResponse);
     }
+    if (revalidate) revalidator.revalidate();
   }, [
+    tour,
     tenant,
     recordId,
     model,
     currentValue,
     id,
     itemId,
-    recordModel,
     updateCallback,
+    revalidate,
+    revalidator,
   ]);
 
   useEffect(() => {
@@ -109,7 +117,7 @@ const TextInput = ({
   }, [value]);
 
   useEffect(() => {
-    if (onChange) return;
+    if (onChange || !inputRef.current?.validity.valid) return;
 
     if (currentValue === valueRef.current) return;
 
@@ -127,6 +135,7 @@ const TextInput = ({
   };
 
   const handleBlur = async () => {
+    if (!inputRef.current?.validity.valid) return;
     await update();
     revalidator.revalidate();
   };
@@ -150,10 +159,11 @@ const TextInput = ({
             ref={inputRef}
             type={valueType}
             id={`${model}-${id}`}
-            className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding()} shadow-xs placeholder:text-body`}
+            className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding(size)} shadow-xs placeholder:text-body`}
             value={currentValue ?? ""}
             onInput={handleChange}
             onBlur={handleBlur}
+            placeholder={placeholder}
           ></Input>
         )}
         {type === "text-area" && (
@@ -175,7 +185,22 @@ const TextInput = ({
             />
           </ClientOnly>
         )}
+        {/* {valueType === "file" && <input type={valueType} accept="image/*" />} */}
+        {type === "color" && (
+          <Input
+            ref={inputRef}
+            type="color"
+            id={`${model}-${id}`}
+            value={currentValue ?? ""}
+            onInput={handleChange}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+          ></Input>
+        )}
       </div>
+      <p className="text-sm text-red-400">
+        {inputRef.current?.validationMessage}
+      </p>
     </InputWrapper>
   );
 };

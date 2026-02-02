@@ -6,16 +6,24 @@ import {
   DialogBackdrop,
   DialogPanel,
 } from "@headlessui/react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type ReactNode } from "react";
 import { FormContext } from "~/contexts";
 
-const DeleteButton = () => {
+const DeleteButton = ({
+  children,
+  removing,
+  className,
+}: {
+  children?: ReactNode;
+  removing: string;
+  className?: string;
+}) => {
   const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
   const [confirmed, setConfirmed] = useState<boolean>(false);
 
   useEffect(() => {
-    if (confirmed) {
+    if (confirmed && handleDelete && recordId) {
       handleDelete(recordId);
     }
     setAskConfirm(false);
@@ -24,10 +32,13 @@ const DeleteButton = () => {
   return (
     <>
       <button
-        className="cursor-pointer bg-red-300 hover:bg-red-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+        className={
+          className ??
+          "cursor-pointer bg-red-300 hover:bg-red-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+        }
         onClick={() => setAskConfirm(true)}
       >
-        <FontAwesomeIcon icon={faTrash} /> Delete
+        <FontAwesomeIcon icon={faTrash} /> {children ?? "Delete"}
       </button>
       <Dialog
         open={askConfirm}
@@ -37,8 +48,8 @@ const DeleteButton = () => {
         <DialogBackdrop className="fixed inset-0 bg-black/30" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
-            <Description>Remove this image or video?</Description>
-            <p>Are you sure you want to this image or video from the tour.</p>
+            <Description>Remove this {removing}?</Description>
+            <p>Are you sure you want to this {removing} from the tour.</p>
             <div className="flex gap-4 justify-end">
               <button
                 className="p-2 rounded-md border border-black/75 cursor-pointer"

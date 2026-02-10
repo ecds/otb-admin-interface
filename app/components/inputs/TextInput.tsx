@@ -3,39 +3,20 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { Description, Input, Textarea } from "@headlessui/react";
 import { sendUpdate } from "~/utils/requests";
 import InputWrapper from "./InputWrapper";
-import { RecordContext } from "~/contexts";
+import { RecordContext, TourContext } from "~/contexts";
 import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
 import type { InputProps, TServerResponse } from "~/types";
 import { useRevalidator } from "react-router";
 
 const JoditEditor = lazy(() => import("jodit-react"));
-
-const config = {
-  readonly: false,
-  placeholder: "Start typings...",
-  buttons: [
-    "bold",
-    "strikethrough",
-    "underline",
-    "italic",
-    "ul",
-    "ol",
-    "link",
-    "indent",
-    "undo",
-    "redo",
-    "source",
-  ],
-  statusbar: false,
-  height: 200,
-};
 
 const padding = (size: "large" | "small") => {
   switch (size) {
@@ -77,13 +58,38 @@ const TextInput = ({
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
-  const { recordId, tenant, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
+  const { recordId } = useContext(RecordContext);
   const revalidator = useRevalidator();
+
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: "Start typing...",
+      buttons: [
+        "bold",
+        "strikethrough",
+        "underline",
+        "italic",
+        "ul",
+        "ol",
+        "link",
+        "indent",
+        "undo",
+        "redo",
+        "source",
+      ],
+      statusbar: false,
+      height: 200,
+      toolbarAdaptive: false,
+    }),
+    [],
+  );
 
   const update = useCallback(async () => {
     if (!tour) return;
     const { response, data } = await sendUpdate({
-      tenant,
+      tenant: tour.tenant,
       record: itemId ?? recordId,
       body: {
         model,
@@ -101,7 +107,6 @@ const TextInput = ({
     if (revalidate) revalidator.revalidate();
   }, [
     tour,
-    tenant,
     recordId,
     model,
     currentValue,
@@ -126,7 +131,7 @@ const TextInput = ({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [currentValue, id, model, recordId, tenant, update, onChange]);
+  }, [currentValue, id, model, recordId, update, onChange]);
 
   const handleChange = () => {
     if (!inputRef.current) return;
@@ -178,7 +183,7 @@ const TextInput = ({
         {type === "rich-text" && (
           <ClientOnly>
             <JoditEditor
-              value={currentValue.toString() ?? ""}
+              value={currentValue?.toString() ?? ""}
               config={config}
               onChange={(newValue) => setCurrentValue(newValue)}
               onBlur={handleBlur}

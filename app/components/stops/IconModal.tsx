@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useContext, useEffect, useState } from "react";
-import { RecordContext, StopMapContext } from "~/contexts";
+import { StopMapContext, TourContext } from "~/contexts";
 import type { TV3MapIcon, TV3MapIconResponse } from "~/types";
 import type { Dispatch, SetStateAction } from "react";
 import { sendUpdate, type UpdateBody } from "~/utils/requests";
@@ -18,7 +18,7 @@ interface Props {
 
 const IconModal = ({ open, setOpen }: Props) => {
   const [icons, setIcons] = useState<TV3MapIcon[] | undefined>(undefined);
-  const { tenant, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
   const context = useContext(StopMapContext);
   if (!context) throw new Error("StopMapContext is undefined");
   const { setMapIcon, stop } = context;
@@ -26,7 +26,7 @@ const IconModal = ({ open, setOpen }: Props) => {
   useEffect(() => {
     const fetchIcons = async () => {
       const response = await fetch(
-        `https://api.opentour.site/${tenant}/map-icons`,
+        `https://api.opentour.site/${tour.tenant}/map-icons`,
       );
       if (response.ok) {
         const data: TV3MapIconResponse = await response.json();
@@ -34,11 +34,11 @@ const IconModal = ({ open, setOpen }: Props) => {
       }
     };
 
-    if (tenant) fetchIcons();
-  }, [tenant]);
+    if (open) fetchIcons();
+  }, [tour, open]);
 
   const addIcon = async (icon: TV3MapIcon) => {
-    if (!stop || !tour) return;
+    if (!stop) return;
     const body: UpdateBody = {
       model: "stop",
       attribute: "map_icon_id",
@@ -51,7 +51,11 @@ const IconModal = ({ open, setOpen }: Props) => {
       },
     };
 
-    const { response } = await sendUpdate({ tenant, record: stop.id, body });
+    const { response } = await sendUpdate({
+      tenant: tour.tenant,
+      record: stop.id,
+      body,
+    });
     if (response.ok && setMapIcon) {
       setMapIcon(icon.attributes.original_image_url);
       setOpen(false);

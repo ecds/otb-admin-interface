@@ -23,7 +23,10 @@ export default defineConfig(({ mode }): UserConfig => {
     };
   }
   return {
-    base: "/admin/",
+    base: process.env.NODE_ENV === "production" ? "/admin/" : "/",
+    build: {
+      outDir: "build/admin",
+    },
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     ssr: {
       noExternal: ["jodit-react", "jodit"],

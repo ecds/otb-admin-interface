@@ -9,7 +9,7 @@ interface Props {
 
 const ToolTip = ({ children, id }: Props) => {
   return (
-    <div className="relative group">
+    <div className="relative group inline">
       <button aria-describedby={id} className="drop-shadow-2xl cursor-help">
         <FontAwesomeIcon
           icon={faCircleQuestion}

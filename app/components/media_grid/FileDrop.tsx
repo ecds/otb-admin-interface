@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { RecordContext, RelatedContext } from "~/contexts";
+import { RecordContext, RelatedContext, TourContext } from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
 import type { Dispatch, DragEvent, ReactNode, SetStateAction } from "react";
 
@@ -16,7 +16,8 @@ const FileDrop = ({
   fileSaving,
   setFileSaving,
 }: Props) => {
-  const { tenant, recordId, recordModel, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
+  const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
   const [isOver, setIsOver] = useState<boolean>(false);
 
@@ -27,7 +28,7 @@ const FileDrop = ({
     for (const file of event.dataTransfer.files) {
       setFileSaving(file.name);
       const { response: uploadResponse, data: uploadData } = await imageUpload({
-        tenant,
+        tenant: tour.tenant,
         file,
       });
       if (relatedModel && relatedType && uploadResponse.ok) {
@@ -37,7 +38,7 @@ const FileDrop = ({
           relatedModel,
           recordId,
           imageId: uploadData.id,
-          tenant,
+          tenant: tour.tenant,
           tourId: tour?.id,
         });
         if (response.ok && onSuccess) {

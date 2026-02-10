@@ -1,12 +1,10 @@
 import { createContext } from "react";
-import type { TModel, TRelateModel, TStop, TTour } from "./types";
+import type { TModel, TRelateModel, TStop, TTour, TTravelMode } from "./types";
 import type { Dispatch, SetStateAction } from "react";
 
-type TTourContext = {
+type TRecordContext = {
   recordId: number;
-  tenant: string;
   recordModel: TModel;
-  tour?: TTour;
   stop?: TStop;
 };
 
@@ -15,6 +13,13 @@ type TFormContext = {
   handleDelete?: (recordId: number) => void;
   error?: string | undefined;
   setError?: Dispatch<SetStateAction<string | undefined>>;
+};
+
+type TFeedbackContext = {
+  feedback: { type: "success" | "error"; message: string } | undefined;
+  setFeedback: Dispatch<
+    SetStateAction<{ type: "success" | "error"; message: string } | undefined>
+  >;
 };
 
 type TRelatedContext = {
@@ -55,17 +60,25 @@ type TStopMapContext = {
   stop: TStop;
 };
 
-export const RecordContext = createContext<TTourContext>({
+export const RecordContext = createContext<TRecordContext>({
   recordId: 0,
-  tenant: "",
   recordModel: "tour",
 });
 
 export const FormContext = createContext<TFormContext>({
   recordId: 0,
-  handleDelete: () => {},
+  handleDelete: async () => {},
   error: "",
   setError: (_: SetStateAction<string | undefined>) => {},
+});
+
+export const FeedbackContext = createContext<TFeedbackContext>({
+  feedback: { type: "success", message: "" },
+  setFeedback: (
+    _: SetStateAction<
+      { type: "error" | "success"; message: string } | undefined
+    >,
+  ) => {},
 });
 
 export const RelatedContext = createContext<TRelatedContext>({
@@ -86,4 +99,62 @@ export const OverlayContext = createContext<TOverlayContext>({
 
 export const StopMapContext = createContext<TStopMapContext | undefined>(
   undefined,
+);
+
+export const TourContext = createContext<{ tour: TTour; modes: TTravelMode[] }>(
+  {
+    tour: {
+      blank_map: false,
+      bounds: {
+        south: 0,
+        north: 0,
+        east: 0,
+        west: 0,
+        centerLat: 0,
+        centerLng: 0,
+      },
+      default_lng: "",
+      description: "",
+      est_time: "",
+      flat_pages: [],
+      id: 0,
+      map_overlay: {
+        id: 0,
+        image_url: "",
+        east: 0,
+        north: 0,
+        south: 0,
+        west: 0,
+        centerLat: 0,
+        centerLng: 0,
+      },
+      map_type: "hybrid",
+      media: [],
+      mode: { title: "BICYCLING", id: 0 },
+      modes: [],
+      meta_description: "",
+      is_geo: false,
+      link_address: "",
+      link_text: "",
+      location: {
+        lat: 0,
+        lng: 0,
+      },
+      published: false,
+      restrict_bounds: false,
+      restrict_bounds_to_overlay: false,
+      slug: "",
+      stop_count: 0,
+      stops: [],
+      tenant: "",
+      tenant_title: "",
+      theme: {
+        id: 0,
+        title: "",
+      },
+      title: "",
+      use_directions: false,
+    },
+    modes: [],
+  },
 );

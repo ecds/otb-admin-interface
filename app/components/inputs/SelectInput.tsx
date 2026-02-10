@@ -3,10 +3,16 @@ import InputWrapper from "./InputWrapper";
 import ToolTip from "./ToolTip";
 import { useContext, useEffect, useRef, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
-import { FormContext, RecordContext } from "~/contexts";
+import {
+  FormContext,
+  RecordContext,
+  RelatedContext,
+  TourContext,
+} from "~/contexts";
 import { useRevalidator } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import { Saving } from "../Saving";
 import type { InputProps, TChoices, TSelectableProps } from "~/types";
 
@@ -14,6 +20,7 @@ type SelectProps = {
   value: string | boolean;
   options?: TChoices[];
   id: TSelectableProps;
+  handleSave?: () => void;
 };
 
 const SelectInput = ({
@@ -23,19 +30,22 @@ const SelectInput = ({
   value,
   helpText,
   options,
+  handleSave,
 }: InputProps & SelectProps) => {
   const [currentValue, setCurrentValue] = useState<string | boolean>(value);
   const [saving, setSaving] = useState<boolean>(false);
   const inputRef = useRef<HTMLSelectElement>(null);
   const valueRef = useRef<string | boolean>(value);
-  const { tenant, recordId, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
+  const { recordId } = useContext(RecordContext);
   const { error, setError } = useContext(FormContext);
   const revalidator = useRevalidator();
+  const { relatedModel, relatedType } = useContext(RelatedContext);
 
   useEffect(() => {
     const update = async () => {
       const { response } = await sendUpdate({
-        tenant,
+        tenant: tour.tenant,
         record: recordId,
         body: { model, attribute: id, value: currentValue },
       });
@@ -47,20 +57,10 @@ const SelectInput = ({
     };
 
     if (valueRef.current !== currentValue) update();
-  }, [
-    currentValue,
-    tenant,
-    model,
-    id,
-    recordId,
-    revalidator,
-    tour,
-    setError,
-    label,
-  ]);
+  }, [currentValue, model, id, recordId, revalidator, tour, setError, label]);
 
   useEffect(() => {
-    if (error && tour) {
+    if (error) {
       setCurrentValue(tour[id]);
       setSaving(false);
     }
@@ -68,7 +68,7 @@ const SelectInput = ({
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval>;
-    if (tour && tour[id as keyof typeof tour] !== currentValue && !error) {
+    if (tour[id as keyof typeof tour] !== currentValue && !error) {
       intervalId = setInterval(revalidator.revalidate, 1000);
       setSaving(true);
     }
@@ -132,14 +132,14 @@ const SelectInput = ({
       ) : (
         <>
           <Checkbox
-            className="group block size-6 rounded border bg-white data-checked:bg-blue-500 cursor-pointer"
+            className="group block cursor-pointer"
             id={id}
             checked={currentValue as boolean}
             onChange={() => setCurrentValue(!currentValue)}
           >
             <FontAwesomeIcon
-              icon={faCheck}
-              className="text-white opacity-0 text-lg group-data-checked:opacity-100"
+              icon={currentValue ? faSquareCheck : faSquare}
+              className="group-data-checked:text-blue-500 text-2xl"
             />
           </Checkbox>
           <Label className="font-medium text-black/75 select-none">

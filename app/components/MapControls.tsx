@@ -5,8 +5,8 @@ import TourMap from "./map/TourMap.client";
 import {
   FormContext,
   OverlayContext,
-  RecordContext,
   RelatedContext,
+  TourContext,
 } from "~/contexts";
 import { mapTypes } from "~/choices";
 import TextInput from "./inputs/TextInput";
@@ -20,7 +20,7 @@ import DeleteButton from "./media_grid/DeleteButton";
 import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
-  const { tour, tenant } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
   const [south, setSouth] = useState<number | undefined>(undefined);
   const [north, setNorth] = useState<number | undefined>(undefined);
   const [east, setEast] = useState<number | undefined>(undefined);
@@ -34,7 +34,7 @@ const MapControls = () => {
   const map = useMap();
 
   useEffect(() => {
-    if (!tour || !tour.map_overlay) return;
+    if (!tour.map_overlay) return;
     setSouth(tour.map_overlay.south);
     setNorth(tour.map_overlay.north);
     setEast(tour.map_overlay.east);
@@ -44,7 +44,7 @@ const MapControls = () => {
   useEffect(() => {
     if (!newOverlay) return;
     let intervalId: ReturnType<typeof setInterval>;
-    if (tour && tour.map_overlay?.id !== newOverlay?.id) {
+    if (tour.map_overlay?.id !== newOverlay?.id) {
       setSaving(true);
       intervalId = setInterval(revalidator.revalidate, 1000);
     }
@@ -56,7 +56,7 @@ const MapControls = () => {
   }, [tour, newOverlay, revalidator]);
 
   useEffect(() => {
-    if (tour?.map_overlay) setNewOverlay(undefined);
+    if (tour.map_overlay) setNewOverlay(undefined);
   }, [tour]);
 
   const overlayAdded = (updatedTour: unknown) => {
@@ -64,11 +64,10 @@ const MapControls = () => {
   };
 
   const deleteOverlay = async (id: number) => {
-    if (!tour) return;
     setDeleting(true);
     await sendUpdate({
       record: tour.id,
-      tenant,
+      tenant: tour.tenant,
       body: {
         model: "tour",
         attribute: "blank_map",
@@ -77,7 +76,7 @@ const MapControls = () => {
     });
 
     const { response } = await sendDelete({
-      tenant,
+      tenant: tour.tenant,
       record: id,
       body: {
         model: "map_overlay",
@@ -91,143 +90,139 @@ const MapControls = () => {
     }
   };
 
-  if (tour) {
-    return (
-      <OverlayContext.Provider
-        value={{
-          south,
-          north,
-          east,
-          west,
-          setSouth,
-          setNorth,
-          setEast,
-          setWest,
-        }}
+  return (
+    <OverlayContext.Provider
+      value={{
+        south,
+        north,
+        east,
+        west,
+        setSouth,
+        setNorth,
+        setEast,
+        setWest,
+      }}
+    >
+      <div
+        className={`flex ${tour.map_overlay ? "flex-row-reverse" : "flex-col-reverse"} gap-8`}
       >
         <div
-          className={`flex ${tour.map_overlay ? "flex-row-reverse" : "flex-col-reverse"} gap-8`}
+          className={`${tour.map_overlay ? "basis-full md:basis-1/2" : "w-full"}  h-144 drop-shadow-lg`}
         >
-          <div
-            className={`${tour.map_overlay ? "basis-full md:basis-1/2" : "w-full"}  h-144 drop-shadow-lg`}
-          >
-            <ClientOnly>
-              <TourMap>
-                <MapOverlay />
-              </TourMap>
-            </ClientOnly>
-          </div>
-          <div className="basis-full md:basis-1/2">
-            <SelectInput
-              id="map_type"
-              label="Map Type"
-              model="tour"
-              value={tour?.map_type}
-              options={mapTypes}
-            />
-            {!tour.map_overlay && (
-              <RelatedContext
-                value={{ relatedModel: "map_overlay", relatedType: "one" }}
-              >
-                {saving ? (
-                  <Saving />
-                ) : (
-                  <FileUpload
-                    model="map_overlay"
-                    onSuccess={overlayAdded}
-                    onStart={() => setSaving(true)}
-                    btnText="Upload Map Overlay"
-                  />
-                )}
-              </RelatedContext>
-            )}
-            <div
-              className={`${tour.map_overlay ? "grid" : "hidden"} grid-cols-2 gap-4`}
+          <ClientOnly>
+            <TourMap>
+              <MapOverlay />
+            </TourMap>
+          </ClientOnly>
+        </div>
+        <div className="basis-full md:basis-1/2">
+          <SelectInput
+            id="map_type"
+            label="Map Type"
+            model="tour"
+            value={tour?.map_type}
+            options={mapTypes}
+          />
+          {!tour.map_overlay && (
+            <RelatedContext
+              value={{ relatedModel: "map_overlay", relatedType: "one" }}
             >
-              {tour.map_overlay && map && (
-                <>
-                  <TextInput
-                    label="Overlay North"
-                    value={north ?? map.getBounds()?.getNorthEast().lat() ?? 0}
-                    model="map_overlay"
-                    id="north"
-                    type="text"
-                    valueType="number"
-                    itemId={tour.map_overlay.id}
-                    helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
-                  />
-                  <TextInput
-                    label="Overlay South"
-                    value={south ?? map.getBounds()?.getSouthWest().lat() ?? 0}
-                    model="map_overlay"
-                    id="south"
-                    type="text"
-                    valueType="number"
-                    itemId={tour.map_overlay.id}
-                    helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
-                  />
-                  <TextInput
-                    label="Overlay East"
-                    value={east ?? map.getBounds()?.getNorthEast().lng() ?? 0}
-                    model="map_overlay"
-                    id="east"
-                    type="text"
-                    valueType="number"
-                    itemId={tour.map_overlay.id}
-                    helpText="Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
-                  />
-                  <TextInput
-                    label="Overlay West"
-                    value={west ?? map.getBounds()?.getSouthWest().lng() ?? 0}
-                    model="map_overlay"
-                    id="west"
-                    type="text"
-                    valueType="number"
-                    itemId={tour.map_overlay.id}
-                    helpText="Western longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
-                  />
-                  <div className="col-span-2">
-                    <SelectInput
-                      label="Restrict Map to Overlay"
-                      id="restrict_bounds_to_overlay"
-                      value={tour.restrict_bounds_to_overlay}
-                      model="tour"
-                      helpText="Don't allow the map to be panned beyond the overlay."
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <SelectInput
-                      label="Blank Map"
-                      id="blank_map"
-                      value={tour.blank_map}
-                      model="tour"
-                      helpText="Covers the Google Map with a gray background."
-                    />
-                  </div>
-                  <FormContext.Provider
-                    value={{
-                      handleDelete: deleteOverlay,
-                      recordId: tour.map_overlay.id,
-                    }}
-                  >
-                    {deleting ? (
-                      <Deleting />
-                    ) : (
-                      <DeleteButton removing="map overlay">
-                        Remove Overlay{" "}
-                      </DeleteButton>
-                    )}
-                  </FormContext.Provider>
-                </>
+              {saving ? (
+                <Saving />
+              ) : (
+                <FileUpload
+                  model="map_overlay"
+                  onSuccess={overlayAdded}
+                  onStart={() => setSaving(true)}
+                  btnText="Upload Map Overlay"
+                />
               )}
-            </div>
+            </RelatedContext>
+          )}
+          <div
+            className={`${tour.map_overlay ? "grid" : "hidden"} grid-cols-2 gap-4`}
+          >
+            {tour.map_overlay && map && (
+              <>
+                <TextInput
+                  label="Overlay North"
+                  value={north ?? map.getBounds()?.getNorthEast().lat() ?? 0}
+                  model="map_overlay"
+                  id="north"
+                  type="text"
+                  valueType="number"
+                  itemId={tour.map_overlay.id}
+                  helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
+                />
+                <TextInput
+                  label="Overlay South"
+                  value={south ?? map.getBounds()?.getSouthWest().lat() ?? 0}
+                  model="map_overlay"
+                  id="south"
+                  type="text"
+                  valueType="number"
+                  itemId={tour.map_overlay.id}
+                  helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
+                />
+                <TextInput
+                  label="Overlay East"
+                  value={east ?? map.getBounds()?.getNorthEast().lng() ?? 0}
+                  model="map_overlay"
+                  id="east"
+                  type="text"
+                  valueType="number"
+                  itemId={tour.map_overlay.id}
+                  helpText="Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
+                />
+                <TextInput
+                  label="Overlay West"
+                  value={west ?? map.getBounds()?.getSouthWest().lng() ?? 0}
+                  model="map_overlay"
+                  id="west"
+                  type="text"
+                  valueType="number"
+                  itemId={tour.map_overlay.id}
+                  helpText="Western longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
+                />
+                <div className="col-span-2">
+                  <SelectInput
+                    label="Restrict Map to Overlay"
+                    id="restrict_bounds_to_overlay"
+                    value={tour.restrict_bounds_to_overlay}
+                    model="tour"
+                    helpText="Don't allow the map to be panned beyond the overlay."
+                  />
+                </div>
+                <div className="col-span-2">
+                  <SelectInput
+                    label="Blank Map"
+                    id="blank_map"
+                    value={tour.blank_map}
+                    model="tour"
+                    helpText="Covers the Google Map with a gray background."
+                  />
+                </div>
+                <FormContext.Provider
+                  value={{
+                    handleDelete: deleteOverlay,
+                    recordId: tour.map_overlay.id,
+                  }}
+                >
+                  {deleting ? (
+                    <Deleting />
+                  ) : (
+                    <DeleteButton removing="map overlay">
+                      Remove Overlay{" "}
+                    </DeleteButton>
+                  )}
+                </FormContext.Provider>
+              </>
+            )}
           </div>
         </div>
-      </OverlayContext.Provider>
-    );
-  }
-
-  return <></>;
+      </div>
+    </OverlayContext.Provider>
+  );
 };
 
 export default MapControls;

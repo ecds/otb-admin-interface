@@ -1,6 +1,6 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import type { TTour, TTourSet } from "~/types";
 
 interface Props {
@@ -10,8 +10,10 @@ interface Props {
 }
 
 const List = ({ items, handleDelete, heading }: Props) => {
+  const params = useParams();
+
   return (
-    <div className="relative md:mt-24 mx-8 flex flex-col overflow-x-auto">
+    <div className="relative md:my-24 mx-8 flex flex-col overflow-x-auto">
       <div className="flex flex-row-reverse px-6 text-xl mb-2">
         <div>Delete</div>
         <div className="justify-self-start grow">{heading ?? "Name"}</div>
@@ -26,13 +28,21 @@ const List = ({ items, handleDelete, heading }: Props) => {
               <FontAwesomeIcon icon={faTrash} />
             </button>
             <div className="justify-self-start grow">
-              <Link
-                to={`/admin/${item.type == "tour_sets" ? item.attributes.subdir : `${item.attributes.tenant}/edit/${item.id}`}`}
-                className="hover:underline text-blue-700 hover:text-blue-900"
-              >
-                {item.type === "tour_sets" && item.attributes.name}
-                {item.type === "tours" && item.attributes.title}
-              </Link>
+              {item.subdir ? (
+                <Link
+                  to={`/admin/${item.subdir}/`}
+                  className="hover:underline text-blue-700 hover:text-blue-900"
+                >
+                  {item.name}
+                </Link>
+              ) : (
+                <Link
+                  to={`/admin/${params.tourSet}/edit/${item.id}`}
+                  className="hover:underline text-blue-700 hover:text-blue-900"
+                >
+                  {item.title}
+                </Link>
+              )}
             </div>
           </div>
         );

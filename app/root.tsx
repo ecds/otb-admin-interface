@@ -4,18 +4,24 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useLoaderData,
   useNavigate,
   useSearchParams,
 } from "react-router";
 
-import type { Route } from "./+types/root";
 import "./app.css";
 import { fetchCurrentUser, verifyToken } from "./utils/requests";
 import { AuthContext } from "./context";
 import { useEffect, useState } from "react";
-import type { TUser } from "./types";
 import Navbar from "./components/Navbar";
+import { FeedbackContext } from "./contexts";
+import Feedback from "./components/Feedback";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import SignIn from "./components/SignIn.client";
+import type { Route } from "./+types/root";
+import type { TUser } from "./types";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -37,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        {/* <ScrollRestoration /> */}
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
@@ -50,9 +56,12 @@ export default function App() {
   const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState<TUser | undefined>(undefined);
   const [signedIn, setSignedIn] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<
+    { type: "success" | "error"; message: string } | undefined
+  >(undefined);
 
   useEffect(() => {
-    if (session.id) {
+    if (session?.id) {
       setCurrentUser(session);
     }
   }, [session]);
@@ -64,8 +73,10 @@ export default function App() {
   useEffect(() => {
     const verifyExchange = async (token: string) => {
       const verifyResponse = await verifyToken(token);
-      setCurrentUser(verifyResponse);
-      navigate("/admin");
+      if (verifyResponse) {
+        if (window.opener) window.opener.postMessage(verifyResponse, "*");
+        window.close();
+      }
     };
     const token = searchParams.get("access_token");
 
@@ -74,16 +85,25 @@ export default function App() {
     }
   }, [signedIn, navigate, searchParams]);
 
-  // useEffect(() => {
-  //   if (!currentUser) {
-  //     navigate("/admin");
-  //   }
-  // }, [currentUser]);
-
   return (
     <AuthContext.Provider value={{ signedIn, currentUser, setCurrentUser }}>
-      <Navbar />
-      <Outlet />
+      <FeedbackContext.Provider value={{ feedback, setFeedback }}>
+        <Feedback />
+        <Navbar />
+        {currentUser ? (
+          <Outlet />
+        ) : (
+          <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
+            {searchParams.get("access_token") ? (
+              <div>Signing In...</div>
+            ) : (
+              <SignIn className="m-16 text-white bg-red-500 text-3xl p-8 rounded-lg">
+                <FontAwesomeIcon icon={faGoogle} /> Sign In with Google
+              </SignIn>
+            )}
+          </div>
+        )}
+      </FeedbackContext.Provider>
     </AuthContext.Provider>
   );
 }

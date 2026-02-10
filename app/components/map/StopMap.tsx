@@ -1,6 +1,6 @@
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { useContext, useState } from "react";
-import { OverlayContext, RecordContext, StopMapContext } from "~/contexts";
+import { OverlayContext, StopMapContext, TourContext } from "~/contexts";
 import ClientOnly from "../ClientOnly";
 import StopMarker from "./StopMarker";
 import ParkingMarker from "./ParkingMarker";
@@ -29,9 +29,9 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
     stop.icon_color,
   );
   const [position, setPosition] = useState<number>(stop.position);
-  const { tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
 
-  if (tour && stop) {
+  if (stop) {
     return (
       <StopMapContext.Provider
         value={{

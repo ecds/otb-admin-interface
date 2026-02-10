@@ -5,10 +5,12 @@ import List from "~/components/List";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tourSet } = await request({
-    path: `public/tour-sets?subdir=${params.tourSet}`,
+    path: `public/v4/admin/tour_sets/${params.tourSet}`,
   });
-  const { data: tours } = await request({ path: `${params.tourSet}/tours` });
-  return { tourSet: tourSet.data[0], tours: tours.data };
+  const { data: tours } = await request({
+    path: `${params.tourSet}/v4/admin/tours`,
+  });
+  return { tourSet: tourSet, tours: tours };
 };
 
 clientLoader.hydrate = true as const;
@@ -21,7 +23,7 @@ const TourSetRoute = () => {
 
   return (
     <div>
-      <h1 className="text-2xl text-black/85">{tourSet.attributes.name}!</h1>
+      <h1 className="text-2xl text-black/85">{tourSet.name}!</h1>
       <List items={tours} handleDelete={() => {}} heading="Tours" />
     </div>
   );

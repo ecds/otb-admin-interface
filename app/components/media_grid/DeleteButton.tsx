@@ -6,28 +6,27 @@ import {
   DialogBackdrop,
   DialogPanel,
 } from "@headlessui/react";
-import { useContext, useEffect, useState, type ReactNode } from "react";
+import { useContext, useState, type ReactNode } from "react";
 import { FormContext } from "~/contexts";
 
 const DeleteButton = ({
   children,
   removing,
   className,
+  disabled = false,
 }: {
   children?: ReactNode;
   removing: string;
   className?: string;
+  disabled?: boolean;
 }) => {
   const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
-  const [confirmed, setConfirmed] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (confirmed && handleDelete && recordId) {
-      handleDelete(recordId);
-    }
+  const deleteRecord = async () => {
+    if (handleDelete && recordId) handleDelete(recordId);
     setAskConfirm(false);
-  }, [confirmed, handleDelete, recordId]);
+  };
 
   return (
     <>
@@ -37,6 +36,7 @@ const DeleteButton = ({
           "cursor-pointer bg-red-300 hover:bg-red-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
         }
         onClick={() => setAskConfirm(true)}
+        disabled={disabled}
       >
         <FontAwesomeIcon icon={faTrash} /> {children ?? "Delete"}
       </button>
@@ -59,7 +59,7 @@ const DeleteButton = ({
               </button>
               <button
                 className="bg-red-400 text-white p-2 rounded-md cursor-pointer"
-                onClick={() => setConfirmed(true)}
+                onClick={deleteRecord}
               >
                 Delete
               </button>

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { parseEmbedUrl } from "~/utils/embed_parser";
 import TextInput from "../inputs/TextInput";
-import { RecordContext, RelatedContext } from "~/contexts";
+import { RecordContext, RelatedContext, TourContext } from "~/contexts";
 import type { TEmbedProvider, TMedium } from "~/types";
 import { sendCreate } from "~/utils/requests";
 import { joinImage } from "~/utils/image_upload";
@@ -16,7 +16,8 @@ const Embed = ({ onSuccess }: Props) => {
   const [provider, setProvider] = useState<TEmbedProvider | undefined>(
     undefined,
   );
-  const { tenant, recordId, recordModel, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
+  const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ const Embed = ({ onSuccess }: Props) => {
       model: "medium",
     };
     const { response: createResponse, data: createData } = await sendCreate({
-      tenant,
+      tenant: tour.tenant,
       body,
     });
 
@@ -61,7 +62,7 @@ const Embed = ({ onSuccess }: Props) => {
         relatedModel,
         recordId,
         imageId: createData.id,
-        tenant,
+        tenant: tour.tenant,
         tourId: tour?.id,
       });
       if (response.ok && onSuccess) {

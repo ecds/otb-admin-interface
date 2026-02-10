@@ -20,14 +20,7 @@ const Account = () => {
       </button>
     );
   }
-  return (
-    <a
-      className="cursor-pointer capitalize bg-blue-500 p-2 rounded-md text-white border-2 border-black/75"
-      href="https://auth.digitalscholarship.emory.edu/auth/google_oauth2?origin=https://lvh.me:4200/admin"
-    >
-      sign in
-    </a>
-  );
+  return <></>;
 };
 
 export default Account;

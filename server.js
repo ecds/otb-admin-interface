@@ -20,7 +20,7 @@ const viteDevServer =
     : await import("vite").then((vite) =>
         vite.createServer({
           server: { middlewareMode: true },
-        })
+        }),
       );
 
 const handler = createRequestHandler({
@@ -57,8 +57,8 @@ if (viteDevServer) {
 } else {
   // Vite fingerprints its assets so we can cache forever.
   app.use(
-    "/assets",
-    express.static("build/client/assets", { immutable: true, maxAge: "1y" })
+    "/admin/assets",
+    express.static("build/client/assets", { immutable: true, maxAge: "1y" }),
   );
 }
 
@@ -72,22 +72,20 @@ app.use(morgan("tiny"));
 app.all("*", handler);
 
 const port = process.env.PORT || 4200; // Use 3443 (or 443) for HTTPS
-const protocol = process.env.NODE_ENV !== "production" ? "https" : "http";
+const domain =
+  process.env.NODE_ENV === "production" ? "opentour.site" : "lvh.me";
+const protocol = process.env.NODE_ENV === "production" ? "http" : "https";
 const keyPath = process.env.SSL_KEY || path.resolve("./lvh.me-key.pem");
 const certPath = process.env.SSL_CERT || path.resolve("./lvh.me.pem");
 
-if (protocol === "https") {
-  // Load SSL certificate & key
-}
-
 const startedMessage = () => {
   console.warn(
-    `🚀 ${protocol.toUpperCase()} server running at ${protocol}://lvh.me:${port} (pid: ${
+    `🚀 ${protocol.toUpperCase()} server running at ${protocol}://${domain}:${port} (pid: ${
       process.pid
-    })`
+    })`,
   );
   console.warn(
-    `For local subdomains, use a fully qualified domain (e.g. ${protocol}://lvh.me:${port}).`
+    `For local subdomains, use a fully qualified domain (e.g. ${protocol}://${domain}:${port}).`,
   );
 };
 
@@ -97,7 +95,7 @@ if (protocol === "https") {
   const certExists = fs.existsSync(certPath);
   if (!keyExists || !certExists) {
     throw new Error(
-      "Missing certificate and/or key for SSL. Please see README for instructions."
+      "Missing certificate and/or key for SSL. Please see README for instructions.",
     );
   }
   const sslOptions = {

@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { RecordContext, RelatedContext } from "~/contexts";
+import { RecordContext, RelatedContext, TourContext } from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,7 +25,8 @@ const FileUpload = ({
   className,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { tenant, recordId, recordModel, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
+  const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
 
   const handleFileSelected = async () => {
@@ -36,7 +37,7 @@ const FileUpload = ({
     for (const file of inputRef.current.files) {
       if (fileUploading) fileUploading(file.name);
       const { response: uploadResponse, data: uploadData } = await imageUpload({
-        tenant,
+        tenant: tour.tenant,
         file,
         model,
       });
@@ -48,7 +49,7 @@ const FileUpload = ({
           relatedModel,
           recordId,
           imageId: uploadData.id,
-          tenant,
+          tenant: tour.tenant,
           tourId: tour?.id,
         });
         if (response.ok && onSuccess) {

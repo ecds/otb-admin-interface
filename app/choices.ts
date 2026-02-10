@@ -1,3 +1,10 @@
+import {
+  faBicycle,
+  faCar,
+  faSubway,
+  faWalking,
+} from "@fortawesome/free-solid-svg-icons";
+
 export const languages = [
   {
     value: "fr-FR",
@@ -136,18 +143,22 @@ export const modes = [
   {
     value: 1,
     label: "BICYCLING",
+    icon: faBicycle,
   },
   {
     value: 2,
     label: "DRIVING",
+    icon: faCar,
   },
   {
     value: 3,
     label: "TRANSIT",
+    icon: faSubway,
   },
   {
     value: 4,
     label: "WALKING",
+    icon: faWalking,
   },
 ];
 

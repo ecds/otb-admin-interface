@@ -13,8 +13,9 @@ export const meta = () => {
 };
 
 export const clientLoader = async () => {
-  const { data } = await request({ path: "public/tour-sets" });
-  return { tourSets: data.data };
+  // /:tenant/v4/admin/tour_sets
+  const { data } = await request({ path: "public/v4/admin/tour_sets" });
+  return { tourSets: data };
 };
 
 clientLoader.hydrate = true as const;
@@ -23,7 +24,7 @@ const HomeRoute = () => {
   const { tourSets } = useLoaderData<{ tourSets: TTourSet[] }>();
   const { signedIn } = useContext(AuthContext);
 
-  if (!signedIn) return <></>;
+  if (!signedIn || !tourSets) return <></>;
 
   return <List items={tourSets} handleDelete={() => {}} heading="Tour Site" />;
 };

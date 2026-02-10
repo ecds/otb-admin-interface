@@ -2,21 +2,19 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { RecordContext, RelatedContext } from "~/contexts";
+import { RecordContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
-import StopMap from "../map/StopMap";
-import { useContext, useRef } from "react";
-import type { TStop } from "~/types";
-import MediaGrid from "../media_grid/MediaGrid";
+import { useRef } from "react";
+import type { TFlatPage } from "~/types";
 import DeleteButton from "../media_grid/DeleteButton";
 
-const Stop = ({ stop }: { stop: TStop }) => {
+const FlatPage = ({ flatPage }: { flatPage: TFlatPage }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: stop.id });
+    useSortable({ id: flatPage.id });
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
-  const scrollToStop = () => {
+  const scrollToFlatPage = () => {
     if (!detailsRef.current) return;
     if (detailsRef.current.open) detailsRef.current.scrollIntoView();
   };
@@ -25,8 +23,6 @@ const Stop = ({ stop }: { stop: TStop }) => {
     transform: CSS.Transform.toString(transform),
     transition,
   };
-
-  const { tour } = useContext(RecordContext);
 
   return (
     <div
@@ -38,29 +34,27 @@ const Stop = ({ stop }: { stop: TStop }) => {
       <div className="flex w-full items-center justify-between font-semibold text-lg bg-gray-200 my-8 p-3 rounded-md ">
         <details
           ref={detailsRef}
-          onToggle={scrollToStop}
-          name="stops"
-          id={stop.slug}
+          onToggle={scrollToFlatPage}
+          name="flat_pages"
+          id={flatPage.slug}
           className="grow"
           style={{ scrollMarginTop: "5rem" }}
         >
           <summary className="group grow cursor-pointer">
             <div>
-              {stop.position}: {stop.title}
+              {flatPage.position}: {flatPage.title}
             </div>
           </summary>
           <div className="bg-white mt-4 p-4 mx-auto w-full text-black/75">
             <RecordContext.Provider
               value={{
-                tour,
-                recordId: stop.id,
-                recordModel: "stop",
-                tenant: "ecds",
+                recordId: flatPage.id,
+                recordModel: "flat_page",
               }}
             >
               <TextInput
                 valueType="text"
-                value={stop.title}
+                value={flatPage.title}
                 id="title"
                 label="Title"
                 type="text"
@@ -68,32 +62,12 @@ const Stop = ({ stop }: { stop: TStop }) => {
               />
               <TextInput
                 type="rich-text"
-                value={stop.description}
-                id="description"
-                label="Description"
-                model="stop"
+                value={flatPage.body}
+                id="body"
+                label="Body"
+                model="flat_page"
               />
-              <TextInput
-                type="text-area"
-                value={stop.meta_description}
-                id="meta_description"
-                label="Meta Description"
-                model="stop"
-              />
-              <StopMap stop={stop} />
-              <TextInput
-                type="rich-text"
-                value={stop.direction_notes ?? ""}
-                id="direction_notes"
-                label={"Directions"}
-                model="stop"
-              />
-              <RelatedContext.Provider
-                value={{ relatedModel: "stop_medium", relatedType: "many" }}
-              >
-                <MediaGrid media={stop.media} />
-                <DeleteButton removing="Stop for the tour" />
-              </RelatedContext.Provider>
+              <DeleteButton removing="Page from the tour" />
             </RecordContext.Provider>
           </div>
         </details>
@@ -107,4 +81,4 @@ const Stop = ({ stop }: { stop: TStop }) => {
   );
 };
 
-export default Stop;
+export default FlatPage;

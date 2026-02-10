@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useContext, useEffect } from "react";
 import { useRevalidator } from "react-router";
-import { OverlayContext, RecordContext } from "~/contexts";
+import { OverlayContext, TourContext } from "~/contexts";
 import { debounce } from "~/utils/debounce";
 
 const Handle = ({ className }: { className?: string }) => {
@@ -17,20 +17,20 @@ const Handle = ({ className }: { className?: string }) => {
 };
 
 const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
-  const { tenant, tour } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
   const { south, north, east, west, setSouth, setNorth, setEast, setWest } =
     useContext(OverlayContext);
   const map = useMap();
   const revalidator = useRevalidator();
 
   useEffect(() => {
-    if (!tour || !map) return;
+    if (!map) return;
     const worldBounds = new google.maps.LatLngBounds(
       new google.maps.LatLng(-85, -180),
       new google.maps.LatLng(85, 180),
     );
 
-    const mask = new google.maps.GroundOverlay("/blank.jpg", worldBounds);
+    const mask = new google.maps.GroundOverlay("/admin/blank.jpg", worldBounds);
 
     // Pass the click event through to the map
     const listener = mask.addListener(
@@ -49,7 +49,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
   }, [tour, map]);
 
   useEffect(() => {
-    if (!map || !tour || !tour.map_overlay) return;
+    if (!map || !tour.map_overlay) return;
     if (!south || !north || !east || !west) return;
 
     const bounds = new google.maps.LatLngBounds(
@@ -75,7 +75,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
       google.maps.event.removeListener(listener);
       overlay.setMap(null);
     };
-  }, [tour, tenant, map, south, north, east, west]);
+  }, [tour, map, south, north, east, west]);
 
   const handleDragStart = debounce(
     (
@@ -89,7 +89,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
         case "Southeast":
           if (setSouth) setSouth(lat);
           if (setEast) setEast(lng);
-          if (tour && tour.map_overlay) tour.map_overlay.south = lat;
+          if (tour.map_overlay) tour.map_overlay.south = lat;
           break;
         case "Northeast":
           if (setNorth) setNorth(event.latLng?.lat());
@@ -113,15 +113,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
 
   const handleDragEnd = async () => {};
 
-  if (
-    !tour ||
-    !tour.map_overlay ||
-    !south ||
-    !north ||
-    !east ||
-    !west ||
-    !editable
-  )
+  if (!tour.map_overlay || !south || !north || !east || !west || !editable)
     return <></>;
 
   return (

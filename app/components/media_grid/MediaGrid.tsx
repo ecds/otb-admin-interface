@@ -14,18 +14,27 @@ import {
 } from "@dnd-kit/sortable";
 import { useContext, useEffect, useState } from "react";
 import { sendDelete, sendUpdate } from "~/utils/requests";
-import { FormContext, RecordContext, RelatedContext } from "~/contexts";
+import {
+  FormContext,
+  RecordContext,
+  RelatedContext,
+  TourContext,
+} from "~/contexts";
 import SortableMedium from "./SortableMedium";
 import FileDrop from "./FileDrop";
 import Embed from "./Embed";
+import FileUpload from "../inputs/FileUpload";
+import ToolTip from "../inputs/ToolTip";
+import ReuseMedia from "../ReuseMedia";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
-import FileUpload from "../inputs/FileUpload";
 
 const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const [items, setItems] = useState(media);
   const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
-  const { tenant, recordId, recordModel } = useContext(RecordContext);
+  const [openReuseMedia, setOpenReuseMedia] = useState<boolean>(false);
+  const { recordId, recordModel } = useContext(RecordContext);
+  const { tour } = useContext(TourContext);
   const { relatedModel } = useContext(RelatedContext);
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -35,9 +44,13 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   );
 
   useEffect(() => {
+    setItems(media);
+  }, [media]);
+
+  useEffect(() => {
     const sendRequest = async (newPosition: number, item: TMedium) => {
       await sendUpdate({
-        tenant,
+        tenant: tour.tenant,
         record: item.relation_id,
         body: {
           attribute: "position",
@@ -58,7 +71,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         sendRequest(newPosition, item);
       }
     });
-  }, [items, tenant, relatedModel, recordId, recordModel]);
+  }, [items, tour, relatedModel, recordId, recordModel]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -81,11 +94,10 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
 
   const handleDelete = async (id: number) => {
     const { response } = await sendDelete({
-      tenant,
+      tenant: tour.tenant,
       record: id,
       body: {
         model: "tour_medium",
-        value: "",
         reindex: {
           model: recordModel,
           id: recordId,
@@ -115,16 +127,27 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
           btnText="Upload Images"
         />
       </FileDrop>
-      <div className="text-lg flex space-x-3 my-8">Images</div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
+        <div className="flex flex-row gap-4 mt-8 items-center">
+          <button
+            className="cursor-pointer bg-black/70 hover:bg-black text-white rounded-sm px-2 py-1 drop-shadow-md"
+            onClick={() => setOpenReuseMedia(true)}
+          >
+            Reuse Media
+          </button>
+          <ToolTip id="add-other-media">
+            Add media from other tours or stops.
+          </ToolTip>
+        </div>
+        <p className="mt-8">Media Count: {items.length}</p>
         <SortableContext items={items} strategy={rectSortingStrategy}>
           <div className="flex flex-row flex-wrap mt-8 space-x-6 space-y-6 justify-center-safe items-start">
             {items.map((medium) => (
-              <FormContext
+              <FormContext.Provider
                 key={medium.id}
                 value={{
                   handleDelete,
@@ -132,11 +155,17 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
                 }}
               >
                 <SortableMedium medium={medium} />
-              </FormContext>
+              </FormContext.Provider>
             ))}
           </div>
         </SortableContext>
       </DndContext>
+      <ReuseMedia
+        isOpen={openReuseMedia}
+        setIsOpen={setOpenReuseMedia}
+        onSuccess={itemAdded}
+        itemIds={items.map((item) => item.id)}
+      />
     </div>
   );
 };

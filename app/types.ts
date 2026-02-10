@@ -42,28 +42,29 @@ type TBounds = {
   centerLng: number;
 };
 
-type TFlatPage = {
+export type TFlatPage = {
   body: string;
   id: number;
+  orphaned: true;
   position: number;
+  relation_id: number;
   slug: string;
   title: string;
+  tour_count: number;
 };
 
 export type TMapOverlay = TBounds & {
   id: number;
   image_url: string;
-  east: number;
-  north: number;
-  south: number;
-  west: number;
 };
 
-export type TModel = "tour" | "stop" | "medium";
+export type TModel = "tour" | "stop" | "medium" | "flat_page";
 
 export type TRelateModel =
+  | "tour_flat_page"
   | "tour_stop"
   | "tour_medium"
+  | "tour_mode"
   | "stop_medium"
   | "map_overlay"
   | "map_icon"
@@ -95,10 +96,15 @@ export type TMedium = {
   video?: string;
 };
 
-type TTravelMode = {
-  title: "BICYCLE" | "DRIVING" | "TRANSIT" | "WALKING";
-  icon: "bicycle" | "car" | "subway" | "walking";
-  default: boolean;
+export type TTravelModeTitle = "BICYCLING" | "DRIVING" | "TRANSIT" | "WALKING";
+
+export type TTravelMode = {
+  id: number;
+  title: TTravelModeTitle;
+};
+
+export type TTourTravelMode = TTravelMode & {
+  relation_id: number;
 };
 
 export type TStop = {
@@ -126,12 +132,14 @@ export type TStop = {
   map_icon?: string;
   media: TMedium[];
   meta_description: string;
+  orphaned: boolean;
   parking_address: string | undefined;
   parking_lat: number | undefined;
   parking_lng: number | undefined;
   relation_id: number;
   slug: string;
   title: string;
+  tour_count: number;
 };
 
 export type TTour = {
@@ -145,7 +153,8 @@ export type TTour = {
   map_overlay: TMapOverlay;
   map_type: TMapType;
   media: TMedium[];
-  modes: TTravelMode[];
+  mode: TTravelMode;
+  modes: TTourTravelMode[];
   meta_description: string;
   is_geo: boolean;
   link_address: string;
@@ -172,33 +181,25 @@ export type TTour = {
 
 export type TTourSet = {
   id: string;
-  type: "tour_sets";
-  attributes: {
+  name: string;
+  subdir: string;
+  published_tours: TTourAttributes[];
+  mapable_tours: TTourAttributes[];
+  logo_url: null;
+  logo: {
     name: string;
-    subdir: string;
-    published_tours: TTourAttributes[];
-    mapable_tours: TTourAttributes[];
-    logo_url: null;
-    logo: {
+    record: {
+      id: number;
       name: string;
-      record: {
-        id: number;
-        name: string;
-        created_at: string;
-        updated_at: string;
-        subdir: string;
-        tour_id: null;
-        external_url: null;
-        notes: null;
-        footer_logo: null;
-        base_sixty_four: null;
-        logo_title: null;
-      };
-    };
-  };
-  relationships: {
-    admins: {
-      data: [];
+      created_at: string;
+      updated_at: string;
+      subdir: string;
+      tour_id: null;
+      external_url: null;
+      notes: null;
+      footer_logo: null;
+      base_sixty_four: null;
+      logo_title: null;
     };
   };
 };
@@ -219,7 +220,7 @@ export type TChoices = {
 
 export type TEmbedProvider = "vimeo" | "youtube" | "soundcloud";
 
-export type TServerResponse = TTour | TStop | TMedium;
+export type TServerResponse = TTour | TStop | TMedium | TFlatPage;
 
 export type TSelectableProps =
   | "blank_map"
@@ -234,6 +235,7 @@ export type TSelectableProps =
 export type TValue =
   | TSelectableProps
   | "address"
+  | "body"
   | "caption"
   | "description"
   | "direction_notes"

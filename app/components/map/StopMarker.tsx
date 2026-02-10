@@ -40,7 +40,7 @@ const StopMarker = () => {
     }
   };
 
-  return <MapMarker draggable={true} onDragEnd={handleDragEnd} />;
+  return <MapMarker draggable={true} onDragEnd={handleDragEnd} center={true} />;
 };
 
 export default StopMarker;

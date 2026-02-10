@@ -1,6 +1,7 @@
 import { useContext, useRef } from "react";
-import { AuthContext } from "~/context";
+import { AuthContext } from "~/contexts";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 const SignIn = ({
   children,
@@ -11,9 +12,11 @@ const SignIn = ({
 }) => {
   const signInWindowRef = useRef<WindowProxy>(null);
   const { setCurrentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const signInCallback = (user: MessageEvent) => {
     setCurrentUser(user.data);
+    if (user.data.id) navigate("/admin");
     window.removeEventListener("message", signInCallback);
   };
 

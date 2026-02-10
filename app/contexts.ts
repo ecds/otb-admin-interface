@@ -1,6 +1,42 @@
 import { createContext } from "react";
-import type { TModel, TRelateModel, TStop, TTour, TTravelMode } from "./types";
+import type {
+  TModel,
+  TRelateModel,
+  TStop,
+  TTour,
+  TTourSet,
+  TTravelMode,
+  TUser,
+} from "./types";
 import type { Dispatch, SetStateAction } from "react";
+
+type ISignedIn = {
+  signedIn: boolean;
+  currentUser: TUser | undefined;
+  setCurrentUser: Dispatch<SetStateAction<TUser | undefined>>;
+};
+
+export const AuthContext = createContext<ISignedIn>({
+  signedIn: false,
+  currentUser: {
+    id: "",
+    type: "",
+    attributes: {
+      display_name: "",
+      super: false,
+      current_tenant_admin: false,
+      provider: "",
+      email: "",
+      all_tours: [""],
+      terms_accepted: false,
+    },
+  },
+  setCurrentUser: (_: SetStateAction<TUser | undefined>) => {
+    console.error(
+      "setCurrentUser not implemented. Did you pass it to context?",
+    );
+  },
+});
 
 type TRecordContext = {
   recordId: number;
@@ -59,6 +95,15 @@ type TStopMapContext = {
   setPosition?: Dispatch<SetStateAction<number>>;
   stop: TStop;
 };
+
+export const TourSetContext = createContext<TTourSet>({
+  external_url: "",
+  footer_logo: "",
+  name: "",
+  logo_url: "",
+  notes: "",
+  subdir: "",
+});
 
 export const RecordContext = createContext<TRecordContext>({
   recordId: 0,

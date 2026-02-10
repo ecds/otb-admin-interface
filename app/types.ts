@@ -180,28 +180,12 @@ export type TTour = {
 };
 
 export type TTourSet = {
-  id: string;
+  external_url: string;
+  footer_logo: string;
   name: string;
+  logo_url: string;
+  notes: string;
   subdir: string;
-  published_tours: TTourAttributes[];
-  mapable_tours: TTourAttributes[];
-  logo_url: null;
-  logo: {
-    name: string;
-    record: {
-      id: number;
-      name: string;
-      created_at: string;
-      updated_at: string;
-      subdir: string;
-      tour_id: null;
-      external_url: null;
-      notes: null;
-      footer_logo: null;
-      base_sixty_four: null;
-      logo_title: null;
-    };
-  };
 };
 
 export type InputProps = {

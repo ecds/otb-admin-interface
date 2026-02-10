@@ -12,14 +12,9 @@ import {
 
 import "./app.css";
 import { fetchCurrentUser, verifyToken } from "./utils/requests";
-import { AuthContext } from "./context";
 import { useEffect, useState } from "react";
-import Navbar from "./components/Navbar";
-import { FeedbackContext } from "./contexts";
+import { AuthContext, FeedbackContext } from "./contexts";
 import Feedback from "./components/Feedback";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import SignIn from "./components/SignIn.client";
 import type { Route } from "./+types/root";
 import type { TUser } from "./types";
 
@@ -61,10 +56,13 @@ export default function App() {
   >(undefined);
 
   useEffect(() => {
+    if (!session) return;
     if (session?.id) {
       setCurrentUser(session);
+    } else {
+      navigate("/admin/signin");
     }
-  }, [session]);
+  }, [session, navigate]);
 
   useEffect(() => {
     setSignedIn(Boolean(currentUser?.id));
@@ -89,20 +87,7 @@ export default function App() {
     <AuthContext.Provider value={{ signedIn, currentUser, setCurrentUser }}>
       <FeedbackContext.Provider value={{ feedback, setFeedback }}>
         <Feedback />
-        <Navbar />
-        {currentUser ? (
-          <Outlet />
-        ) : (
-          <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
-            {searchParams.get("access_token") ? (
-              <div>Signing In...</div>
-            ) : (
-              <SignIn className="m-16 text-white bg-red-500 text-3xl p-8 rounded-lg">
-                <FontAwesomeIcon icon={faGoogle} /> Sign In with Google
-              </SignIn>
-            )}
-          </div>
-        )}
+        <Outlet />
       </FeedbackContext.Provider>
     </AuthContext.Provider>
   );

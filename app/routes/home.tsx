@@ -1,9 +1,10 @@
 import { useLoaderData } from "react-router";
 import { useContext } from "react";
-import { AuthContext } from "~/context";
+import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import type { TTourSet } from "~/types";
 import List from "~/components/List";
+import Navbar from "~/components/Navbar";
 
 export const meta = () => {
   return [
@@ -26,7 +27,13 @@ const HomeRoute = () => {
 
   if (!signedIn || !tourSets) return <></>;
 
-  return <List items={tourSets} handleDelete={() => {}} heading="Tour Site" />;
+  return (
+    <>
+      <Navbar />
+
+      <List items={tourSets} handleDelete={() => {}} heading="Tour Site" />
+    </>
+  );
 };
 
 export default HomeRoute;

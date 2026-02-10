@@ -1,13 +1,18 @@
 import { useContext } from "react";
-import { AuthContext } from "~/context";
+import { useNavigate } from "react-router";
+import { AuthContext } from "~/contexts";
 import { signOut } from "~/utils/requests";
 
 const Account = () => {
   const { signedIn, setCurrentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handelSignOut = async () => {
     const { response } = await signOut();
-    if (response.ok) setCurrentUser(undefined);
+    if (response.ok) {
+      setCurrentUser(undefined);
+      navigate("/admin/signin");
+    }
   };
 
   if (signedIn) {

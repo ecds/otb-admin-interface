@@ -44,7 +44,7 @@ const Preview = () => {
   };
 
   return (
-    <div className="fixed z-50 h-16 bg-gray-300 w-full bottom-0 flex justify-end items-center gap-8 pe-8">
+    <>
       <button
         className="text-white hover:text-black h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg capitalize"
         onClick={previewMobile}
@@ -57,7 +57,7 @@ const Preview = () => {
       >
         <FontAwesomeIcon icon={faDesktop} /> preview desktop
       </button>
-    </div>
+    </>
   );
 };
 

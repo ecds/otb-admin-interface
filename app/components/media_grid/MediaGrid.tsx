@@ -34,7 +34,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
   const [openReuseMedia, setOpenReuseMedia] = useState<boolean>(false);
   const { recordId, recordModel } = useContext(RecordContext);
-  const { tour } = useContext(TourContext);
+  const { tour, setIsSaving } = useContext(TourContext);
   const { relatedModel } = useContext(RelatedContext);
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -49,7 +49,8 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
 
   useEffect(() => {
     const sendRequest = async (newPosition: number, item: TMedium) => {
-      await sendUpdate({
+      setIsSaving(true);
+      const { response } = await sendUpdate({
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
@@ -62,6 +63,9 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
           },
         },
       });
+      if (response.ok) {
+        setIsSaving(false);
+      }
     };
 
     items.forEach((item, index) => {

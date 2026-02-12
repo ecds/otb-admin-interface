@@ -6,6 +6,15 @@
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+@layer base {
+  ul,
+  ol {
+    list-style: revert;
+    /* Reverts to the browser's default list style */
+    /* or you can specify a value like: list-style-type: disc; */
+  }
+}
+
 html,
 body {
   /* @apply bg-white dark:bg-gray-950;
@@ -16,6 +25,14 @@ body {
 
   .jodit-wysiwyg p {
     margin-bottom: 1rem;
+  }
+
+  .jodit-wysiwyg ul {
+    margin: 1rem;
+  }
+
+  nav ul {
+    list-style: none;
   }
 
   details summary::-webkit-details-marker {
@@ -31,6 +48,6 @@ body {
   }
 
   button:disabled {
-    cursor: not-allowed
+    cursor: not-allowed;
   }
 }

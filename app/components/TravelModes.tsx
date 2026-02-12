@@ -29,17 +29,21 @@ const ICON = (mode: TTravelModeTitle) => {
 };
 
 const TravelModes = () => {
-  const { tour, modes } = useContext(TourContext);
-  const [tourModes, setTourModes] = useState<number[]>(
-    tour.modes.map((mode) => mode.id),
-  );
+  const { tour, modes, setIsSaving } = useContext(TourContext);
+  const [tourModes, setTourModes] = useState<number[]>(() => {
+    if (tour.modes.length == 0) {
+      return modes.map((mode) => mode.id);
+    }
+    return tour.modes.map((mode) => mode.id);
+  });
   const [currentDefaultMode, setCurrentDefaultMode] = useState<TTravelMode>(
-    tour.mode,
+    tour.mode ?? modes[0],
   );
   const [saving, setSaving] = useState<number | undefined>(undefined);
 
   const handleToggle = async (mode: TTravelMode) => {
     setSaving(mode.id);
+    setIsSaving(true);
     if (tourModes.includes(mode.id)) {
       const relationId = tour.modes.find((m) => m.id === mode.id)?.relation_id;
       if (!relationId) return;
@@ -64,10 +68,12 @@ const TravelModes = () => {
       }
     }
     setSaving(undefined);
+    setIsSaving(false);
   };
 
   const handleDefault = async (mode: TTravelMode) => {
     setSaving(mode.id);
+    setIsSaving(true);
     const { response } = await sendUpdate({
       tenant: tour.tenant,
       record: tour.id,
@@ -77,6 +83,7 @@ const TravelModes = () => {
       setCurrentDefaultMode(mode);
     }
     setSaving(undefined);
+    setIsSaving(false);
   };
 
   return (

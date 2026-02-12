@@ -146,60 +146,71 @@ export const StopMapContext = createContext<TStopMapContext | undefined>(
   undefined,
 );
 
-export const TourContext = createContext<{ tour: TTour; modes: TTravelMode[] }>(
-  {
-    tour: {
-      blank_map: false,
-      bounds: {
-        south: 0,
-        north: 0,
-        east: 0,
-        west: 0,
-        centerLat: 0,
-        centerLng: 0,
-      },
-      default_lng: "",
-      description: "",
-      est_time: "",
-      flat_pages: [],
-      id: 0,
-      map_overlay: {
-        id: 0,
-        image_url: "",
-        east: 0,
-        north: 0,
-        south: 0,
-        west: 0,
-        centerLat: 0,
-        centerLng: 0,
-      },
-      map_type: "hybrid",
-      media: [],
-      mode: { title: "BICYCLING", id: 0 },
-      modes: [],
-      meta_description: "",
-      is_geo: false,
-      link_address: "",
-      link_text: "",
-      location: {
-        lat: 0,
-        lng: 0,
-      },
-      published: false,
-      restrict_bounds: false,
-      restrict_bounds_to_overlay: false,
-      slug: "",
-      stop_count: 0,
-      stops: [],
-      tenant: "",
-      tenant_title: "",
-      theme: {
-        id: 0,
-        title: "",
-      },
-      title: "",
-      use_directions: false,
+type TTourContext = {
+  tour: TTour;
+  modes: TTravelMode[];
+  lastUpdated: string | undefined;
+  setLastUpdated: Dispatch<SetStateAction<string | undefined>>;
+  isSaving: boolean;
+  setIsSaving: Dispatch<SetStateAction<boolean>>;
+};
+
+export const TourContext = createContext<TTourContext>({
+  tour: {
+    blank_map: false,
+    bounds: {
+      south: 0,
+      north: 0,
+      east: 0,
+      west: 0,
+      centerLat: 0,
+      centerLng: 0,
     },
+    default_lng: "",
+    description: "",
+    est_time: "",
+    flat_pages: [],
+    id: 0,
+    map_overlay: {
+      id: 0,
+      image_url: "",
+      east: 0,
+      north: 0,
+      south: 0,
+      west: 0,
+      centerLat: 0,
+      centerLng: 0,
+    },
+    map_type: "hybrid",
+    media: [],
+    mode: { title: "BICYCLING", id: 0 },
     modes: [],
+    meta_description: "",
+    is_geo: false,
+    link_address: "",
+    link_text: "",
+    location: {
+      lat: 0,
+      lng: 0,
+    },
+    published: false,
+    restrict_bounds: false,
+    restrict_bounds_to_overlay: false,
+    slug: "",
+    stop_count: 0,
+    stops: [],
+    tenant: "",
+    tenant_title: "",
+    theme: {
+      id: 0,
+      title: "",
+    },
+    title: "",
+    use_directions: false,
   },
-);
+  modes: [],
+  lastUpdated: "",
+  setLastUpdated: (_: SetStateAction<string | undefined>) => {},
+  isSaving: false,
+  setIsSaving: (_: SetStateAction<boolean>) => {},
+});

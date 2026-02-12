@@ -2,7 +2,6 @@ import { faUpRightAndDownLeftFromCenter } from "@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useContext, useEffect } from "react";
-import { useRevalidator } from "react-router";
 import { OverlayContext, TourContext } from "~/contexts";
 import { debounce } from "~/utils/debounce";
 
@@ -21,7 +20,6 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
   const { south, north, east, west, setSouth, setNorth, setEast, setWest } =
     useContext(OverlayContext);
   const map = useMap();
-  const revalidator = useRevalidator();
 
   useEffect(() => {
     if (!map) return;
@@ -106,7 +104,6 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
         default:
           break;
       }
-      revalidator.revalidate();
     },
     100,
   );

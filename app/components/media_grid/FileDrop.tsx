@@ -16,7 +16,7 @@ const FileDrop = ({
   fileSaving,
   setFileSaving,
 }: Props) => {
-  const { tour } = useContext(TourContext);
+  const { tour, setIsSaving } = useContext(TourContext);
   const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
   const [isOver, setIsOver] = useState<boolean>(false);
@@ -27,6 +27,7 @@ const FileDrop = ({
 
     for (const file of event.dataTransfer.files) {
       setFileSaving(file.name);
+      setIsSaving(true);
       const { response: uploadResponse, data: uploadData } = await imageUpload({
         tenant: tour.tenant,
         file,
@@ -47,6 +48,7 @@ const FileDrop = ({
       }
     }
     setFileSaving(undefined);
+    setIsSaving(false);
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {

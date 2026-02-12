@@ -9,7 +9,7 @@ const TourMap = ({ children }: { children: ReactNode }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !tour.bounds) return;
 
     map.fitBounds({
       east: tour.bounds.east,
@@ -22,10 +22,10 @@ const TourMap = ({ children }: { children: ReactNode }) => {
   return (
     <Map
       defaultBounds={{
-        east: tour.bounds.east,
-        south: tour.bounds.south,
-        north: tour.bounds.north,
-        west: tour.bounds.west,
+        south: 33.78777375347514,
+        west: -84.32650829798354,
+        north: 33.79178346667516,
+        east: -84.3225714928132,
       }}
       maxZoom={tour.blank_map ? 18 : undefined}
       disableDefaultUI

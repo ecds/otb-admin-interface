@@ -3,12 +3,7 @@ import InputWrapper from "./InputWrapper";
 import ToolTip from "./ToolTip";
 import { useContext, useEffect, useRef, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
-import {
-  FormContext,
-  RecordContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FormContext, RecordContext, TourContext } from "~/contexts";
 import { useRevalidator } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
@@ -30,17 +25,14 @@ const SelectInput = ({
   value,
   helpText,
   options,
-  handleSave,
 }: InputProps & SelectProps) => {
   const [currentValue, setCurrentValue] = useState<string | boolean>(value);
-  const [saving, setSaving] = useState<boolean>(false);
   const inputRef = useRef<HTMLSelectElement>(null);
   const valueRef = useRef<string | boolean>(value);
-  const { tour } = useContext(TourContext);
+  const { tour, isSaving, setIsSaving } = useContext(TourContext);
   const { recordId } = useContext(RecordContext);
   const { error, setError } = useContext(FormContext);
   const revalidator = useRevalidator();
-  const { relatedModel, relatedType } = useContext(RelatedContext);
 
   useEffect(() => {
     const update = async () => {
@@ -62,22 +54,22 @@ const SelectInput = ({
   useEffect(() => {
     if (error) {
       setCurrentValue(tour[id]);
-      setSaving(false);
+      setIsSaving(false);
     }
-  }, [error, tour, id]);
+  }, [error, tour, id, setIsSaving]);
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval>;
     if (tour[id as keyof typeof tour] !== currentValue && !error) {
       intervalId = setInterval(revalidator.revalidate, 1000);
-      setSaving(true);
+      setIsSaving(true);
     }
 
     return () => {
       if (intervalId || error) clearInterval(intervalId);
-      setSaving(false);
+      setIsSaving(false);
     };
-  }, [tour, currentValue, id, revalidator, error]);
+  }, [tour, currentValue, id, revalidator, error, setIsSaving]);
 
   const handleSelect = () => {
     if (!inputRef.current) return;
@@ -98,7 +90,7 @@ const SelectInput = ({
             <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
           </Description>
         )}
-        {saving ? (
+        {isSaving ? (
           <Saving />
         ) : (
           <Select
@@ -106,12 +98,9 @@ const SelectInput = ({
             ref={inputRef}
             className="basis-full border border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
             onChange={handleSelect}
-            value={currentValue as string}
-            disabled={saving}
+            value={(currentValue as string) ?? options[0].value}
+            disabled={isSaving}
           >
-            <option value="" selected>
-              Select a value
-            </option>
             {options.map((option) => {
               return (
                 <option key={option.value} value={option.value}>
@@ -127,7 +116,7 @@ const SelectInput = ({
 
   return (
     <InputWrapper className="flex items-center space-x-4">
-      {saving ? (
+      {isSaving ? (
         <Saving />
       ) : (
         <>

@@ -37,7 +37,6 @@ type TextInputProps = {
   size?: "small" | "large";
   valueType?: "text" | "number" | "url" | "button" | "file";
   placeholder?: string;
-  revalidate?: boolean;
 };
 
 const TextInput = ({
@@ -53,12 +52,11 @@ const TextInput = ({
   size = "large",
   valueType = "text",
   placeholder,
-  revalidate,
 }: InputProps & TextInputProps) => {
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
-  const { tour } = useContext(TourContext);
+  const { tour, setLastUpdated, setIsSaving } = useContext(TourContext);
   const { recordId } = useContext(RecordContext);
   const revalidator = useRevalidator();
 
@@ -88,6 +86,7 @@ const TextInput = ({
 
   const update = useCallback(async () => {
     if (!tour) return;
+    setIsSaving(true);
     const { response, data } = await sendUpdate({
       tenant: tour.tenant,
       record: itemId ?? recordId,
@@ -101,10 +100,12 @@ const TextInput = ({
 
     valueRef.current = currentValue;
 
+    setIsSaving(false);
     if (response.ok && updateCallback) {
       updateCallback(data as TServerResponse);
+      const now = new Date();
+      setLastUpdated(now.toLocaleString());
     }
-    if (revalidate) revalidator.revalidate();
   }, [
     tour,
     recordId,
@@ -113,8 +114,8 @@ const TextInput = ({
     id,
     itemId,
     updateCallback,
-    revalidate,
-    revalidator,
+    setLastUpdated,
+    setIsSaving,
   ]);
 
   useEffect(() => {
@@ -122,7 +123,7 @@ const TextInput = ({
   }, [value]);
 
   useEffect(() => {
-    if (onChange || !inputRef.current?.validity.valid) return;
+    if (onChange) return;
 
     if (currentValue === valueRef.current) return;
 
@@ -140,7 +141,7 @@ const TextInput = ({
   };
 
   const handleBlur = async () => {
-    if (!inputRef.current?.validity.valid) return;
+    // if (!inputRef.current?.validity.valid) return;
     await update();
     revalidator.revalidate();
   };

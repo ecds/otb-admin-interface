@@ -20,7 +20,7 @@ import DeleteButton from "./media_grid/DeleteButton";
 import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
-  const { tour } = useContext(TourContext);
+  const { tour, isSaving, setIsSaving } = useContext(TourContext);
   const [south, setSouth] = useState<number | undefined>(undefined);
   const [north, setNorth] = useState<number | undefined>(undefined);
   const [east, setEast] = useState<number | undefined>(undefined);
@@ -28,7 +28,6 @@ const MapControls = () => {
   const [newOverlay, setNewOverlay] = useState<TMapOverlay | undefined>(
     undefined,
   );
-  const [saving, setSaving] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const revalidator = useRevalidator();
   const map = useMap();
@@ -45,15 +44,15 @@ const MapControls = () => {
     if (!newOverlay) return;
     let intervalId: ReturnType<typeof setInterval>;
     if (tour.map_overlay?.id !== newOverlay?.id) {
-      setSaving(true);
+      setIsSaving(true);
       intervalId = setInterval(revalidator.revalidate, 1000);
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
-      setSaving(false);
+      setIsSaving(false);
     };
-  }, [tour, newOverlay, revalidator]);
+  }, [tour, newOverlay, revalidator, setIsSaving]);
 
   useEffect(() => {
     if (tour.map_overlay) setNewOverlay(undefined);
@@ -127,13 +126,13 @@ const MapControls = () => {
             <RelatedContext
               value={{ relatedModel: "map_overlay", relatedType: "one" }}
             >
-              {saving ? (
+              {isSaving ? (
                 <Saving />
               ) : (
                 <FileUpload
                   model="map_overlay"
                   onSuccess={overlayAdded}
-                  onStart={() => setSaving(true)}
+                  onStart={() => setIsSaving(true)}
                   btnText="Upload Map Overlay"
                 />
               )}

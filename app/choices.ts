@@ -7,6 +7,10 @@ import {
 
 export const languages = [
   {
+    value: "en-US",
+    label: "English",
+  },
+  {
     value: "fr-FR",
     label: "French ",
   },
@@ -53,10 +57,6 @@ export const languages = [
   {
     value: "es-MX",
     label: "Spanish (Mexico)",
-  },
-  {
-    value: "en-US",
-    label: "English",
   },
   {
     value: "zh-CN",

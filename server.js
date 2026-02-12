@@ -71,9 +71,9 @@ app.use(morgan("tiny"));
 // handle SSR requests
 app.all("*", handler);
 
-const port = process.env.PORT || 4200; // Use 3443 (or 443) for HTTPS
+const port = process.env.PORT || 4200;
 const domain =
-  process.env.NODE_ENV === "production" ? "opentour.site" : "lvh.me";
+  process.env.NODE_ENV === "production" ? "dev.opentour.site" : "lvh.me";
 const protocol = process.env.NODE_ENV === "production" ? "http" : "https";
 const keyPath = process.env.SSL_KEY || path.resolve("./lvh.me-key.pem");
 const certPath = process.env.SSL_CERT || path.resolve("./lvh.me.pem");

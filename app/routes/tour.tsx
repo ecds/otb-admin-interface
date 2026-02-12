@@ -23,6 +23,7 @@ import Preview from "~/components/Preview";
 import TravelModes from "~/components/TravelModes";
 import type { TTour, TTravelMode } from "~/types";
 import type { LoaderFunctionArgs } from "react-router";
+import SaveButton from "~/components/SaveButton";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tour, response } = await request({
@@ -43,15 +44,37 @@ const TourRoute = () => {
     response: Response;
   }>();
   const [error, setError] = useState<string | undefined>(undefined);
+  const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (response.status === 401) navigate("/admin/signin");
   }, [response, navigate]);
 
+  useEffect(() => {
+    setIsSaving(false);
+  }, [tour]);
+
+  useEffect(() => {
+    if (!isSaving) {
+      const now = new Date();
+      setLastUpdated(now.toLocaleString());
+    }
+  }, [isSaving]);
+
   if (tour.id) {
     return (
-      <TourContext.Provider value={{ tour, modes }}>
+      <TourContext.Provider
+        value={{
+          tour,
+          modes,
+          lastUpdated,
+          setLastUpdated,
+          isSaving,
+          setIsSaving,
+        }}
+      >
         <RecordContext.Provider
           value={{
             recordId: tour.id,
@@ -180,7 +203,12 @@ const TourRoute = () => {
               </div>
             </div>
           </FormContext.Provider>
-          <Preview />
+          <div className="fixed z-50 h-16 bg-gray-300 w-full bottom-0 flex justify-end items-center gap-8 pe-8">
+            <div className="flex flex-row grow justify-self-start ms-8 gap-6">
+              <SaveButton />
+            </div>
+            <Preview />
+          </div>
         </RecordContext.Provider>
       </TourContext.Provider>
     );

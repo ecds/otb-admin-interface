@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import {
   FormContext,
-  RecordContext,
   RelatedContext,
   StopMapContext,
+  TourContext,
 } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import type { TServerResponse, TStop } from "~/types";
@@ -18,7 +18,7 @@ const MarkerStyle = () => {
   const context = useContext(StopMapContext);
   if (!context) throw new Error("StopMapContext is undefined");
   const { iconColor, mapIcon, setIconColor, setMapIcon, stop } = context;
-  const { tenant, tour } = useContext(RecordContext);
+  const { tour, setIsSaving } = useContext(TourContext);
   const [upLoading, setUpLoading] = useState<boolean>(false);
   const [iconModalOpen, setIconModalOpen] = useState<boolean>(false);
 
@@ -29,12 +29,13 @@ const MarkerStyle = () => {
   const iconAdded = (data: unknown) => {
     if (setMapIcon) setMapIcon((data as TStop).map_icon);
     setUpLoading(false);
+    setIsSaving(false);
   };
 
   const handleDelete = async () => {
     if (!tour) return;
     const { response } = await sendUpdate({
-      tenant,
+      tenant: tour.tenant,
       record: stop.id,
       body: {
         model: "stop",
@@ -70,7 +71,10 @@ const MarkerStyle = () => {
             <FileUpload
               model="map_icon"
               onSuccess={iconAdded}
-              onStart={() => setUpLoading(true)}
+              onStart={() => {
+                setUpLoading(true);
+                setIsSaving(true);
+              }}
               className="text-blue-500 hover:underline hover:text-blue-700 cursor-pointer"
             >
               <span className="flex flex-row gap-2">

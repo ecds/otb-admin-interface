@@ -165,6 +165,29 @@ export const sendUpload = async ({
   return { response, data };
 };
 
+export const sendUpdateUpload = async ({
+  tenant,
+  body,
+  recordId,
+}: {
+  tenant: string;
+  body: FormData;
+  recordId: number;
+}) => {
+  const response = await fetch(
+    `https://api.opentour.site/${tenant}/v4/admin/crud/${recordId}`,
+    {
+      body,
+      method: "PUT",
+      credentials: "include",
+    },
+  );
+
+  const data = await response.json();
+
+  return { response, data };
+};
+
 export const sendDelete = async ({
   tenant,
   record,

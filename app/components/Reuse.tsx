@@ -58,9 +58,9 @@ const Reuse = ({ itemIds, model, isOpen, setIsOpen, copy, add }: Props) => {
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="w-[80vw] h-[80vh] space-y-4 border bg-white overflow-hidden">
             <div className="grid grid-cols-2 p-4">
-              <DialogPanel className="font-bold grow capitalize">
-                Other Available {model}
-              </DialogPanel>
+              {/* <DialogPanel className="font-bold grow capitalize"> */}
+              Other Available {model}
+              {/* </DialogPanel> */}
               <button
                 onClick={() => setIsOpen(false)}
                 className="flex flex-col items-center text-xs justify-self-end"

@@ -1,5 +1,10 @@
 import { useContext, useRef } from "react";
-import { RecordContext, RelatedContext, TourContext } from "~/contexts";
+import {
+  FeedbackContext,
+  RecordContext,
+  RelatedContext,
+  TourContext,
+} from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +18,7 @@ interface Props {
   model?: "medium" | "map_overlay" | "map_icon";
   onStart?: () => void;
   className?: string;
+  updateId?: number;
 }
 
 const FileUpload = ({
@@ -23,11 +29,13 @@ const FileUpload = ({
   onStart,
   fileUploading,
   className,
+  updateId,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { tour } = useContext(TourContext);
   const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
+  const { setFeedback } = useContext(FeedbackContext);
 
   const handleFileSelected = async () => {
     if (onStart) onStart();
@@ -36,13 +44,18 @@ const FileUpload = ({
 
     for (const file of inputRef.current.files) {
       if (fileUploading) fileUploading(file.name);
+      setFeedback({ type: "success", message: "File Uploading." });
       const { response: uploadResponse, data: uploadData } = await imageUpload({
         tenant: tour.tenant,
         file,
         model,
+        recordId: updateId,
       });
 
-      if (relatedModel && relatedType && uploadResponse.ok) {
+      if (uploadResponse.ok && updateId && onSuccess) {
+        onSuccess(uploadData);
+        // setFeedback(undefined);
+      } else if (relatedModel && relatedType && uploadResponse.ok) {
         const { response, data } = await joinImage({
           relatedType,
           recordModel,
@@ -50,10 +63,10 @@ const FileUpload = ({
           recordId,
           imageId: uploadData.id,
           tenant: tour.tenant,
-          tourId: tour?.id,
         });
         if (response.ok && onSuccess) {
           onSuccess(data);
+          setFeedback(undefined);
         }
       }
     }

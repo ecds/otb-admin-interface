@@ -15,6 +15,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { sendDelete, sendUpdate } from "~/utils/requests";
 import {
+  FeedbackContext,
   FormContext,
   RecordContext,
   RelatedContext,
@@ -36,6 +37,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const { recordId, recordModel } = useContext(RecordContext);
   const { tour, setIsSaving } = useContext(TourContext);
   const { relatedModel } = useContext(RelatedContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -75,7 +77,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         sendRequest(newPosition, item);
       }
     });
-  }, [items, tour, relatedModel, recordId, recordModel]);
+  }, [items, tour, relatedModel, recordId, recordModel, setIsSaving]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -114,6 +116,16 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
 
   const itemAdded = (newItem: unknown) => {
     setItems((items) => [...items, newItem as TMedium]);
+  };
+
+  const itemUpdated = (updatedItem: unknown) => {
+    items.splice(
+      (updatedItem as TMedium).position - 1,
+      1,
+      updatedItem as TMedium,
+    );
+    setItems((items) => items);
+    setFeedback(undefined);
   };
 
   return (
@@ -158,7 +170,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
                   recordId: medium.relation_id,
                 }}
               >
-                <SortableMedium medium={medium} />
+                <SortableMedium medium={medium} onUpdate={itemUpdated} />
               </FormContext.Provider>
             ))}
           </div>

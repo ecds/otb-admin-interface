@@ -5,9 +5,13 @@ import { FeedbackContext } from "~/contexts";
 const Feedback = () => {
   const { feedback, setFeedback } = useContext(FeedbackContext);
   return (
-    <Dialog open={Boolean(feedback)} onClose={() => setFeedback(undefined)}>
+    <Dialog
+      className="z-1000"
+      open={Boolean(feedback)}
+      onClose={() => setFeedback(undefined)}
+    >
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
-      <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+      <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-1000">
         <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
           <p
             className={`text-center text-2xl text-${feedback?.type === "success" ? "green" : "red"}-500`}

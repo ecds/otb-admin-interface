@@ -83,7 +83,7 @@ const TourRoute = () => {
         >
           <FormContext.Provider value={{ error, setError }}>
             <Error />
-            <div className="my-24 px-8 md:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
+            <div className="my-24 px-8 md:px-0 xl:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
               <TextInput
                 type="text"
                 label="Tour Title"

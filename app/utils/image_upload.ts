@@ -2,6 +2,7 @@ import type { TModel, TRelateModel } from "~/types";
 import {
   sendCreate,
   sendUpdate,
+  sendUpdateUpload,
   sendUpload,
   type UpdateBody,
 } from "./requests";
@@ -10,6 +11,7 @@ interface ImageUploadProps {
   file: File;
   tenant: string;
   model?: "medium" | "map_overlay" | "map_icon";
+  recordId?: number;
 }
 
 interface ImageJoinProps {
@@ -19,7 +21,6 @@ interface ImageJoinProps {
   recordId: number;
   imageId: number;
   tenant: string;
-  tourId: number | undefined;
 }
 
 const imageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -28,6 +29,7 @@ export const imageUpload = async ({
   file,
   tenant,
   model = "medium",
+  recordId,
 }: ImageUploadProps) => {
   if (!imageTypes.includes(file.type))
     return {
@@ -37,8 +39,22 @@ export const imageUpload = async ({
 
   const body = new FormData();
   body.append("model", model);
+
+  if (recordId) {
+    body.append(`[value]`, file);
+    body.append(`[attribute]`, "file");
+    body.append(`[reindex][id]`, "2");
+
+    return await sendUpdateUpload({
+      tenant,
+      body,
+      recordId,
+    });
+  }
+
   body.append(`${model}[file]`, file);
   body.append(`${model}[filename]`, file.name);
+
   return await sendUpload({
     tenant,
     body,
@@ -52,13 +68,7 @@ export const joinImage = async ({
   recordId,
   imageId,
   tenant,
-  tourId,
 }: ImageJoinProps) => {
-  const reindex = {
-    model: "tour",
-    id: tourId ?? 0,
-  };
-
   if (relatedType == "many") {
     const body = {
       model: relatedModel,
@@ -66,7 +76,6 @@ export const joinImage = async ({
         [`${recordModel}_id`]: recordId,
         medium_id: imageId,
       },
-      reindex,
     };
     return await sendCreate({
       tenant,
@@ -80,7 +89,6 @@ export const joinImage = async ({
     value: imageId,
     related_model: relatedModel,
     related_type: "belongs_to",
-    reindex,
   };
 
   return await sendUpdate({ tenant, record: recordId, body });

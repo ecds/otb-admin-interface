@@ -8,7 +8,6 @@ import { useRevalidator } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
-import { Saving } from "../Saving";
 import type { InputProps, TChoices, TSelectableProps } from "~/types";
 
 type SelectProps = {
@@ -90,57 +89,47 @@ const SelectInput = ({
             <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
           </Description>
         )}
-        {isSaving ? (
-          <Saving />
-        ) : (
-          <Select
-            name={id}
-            ref={inputRef}
-            className="basis-full border border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
-            onChange={handleSelect}
-            value={(currentValue as string) ?? options[0].value}
-            disabled={isSaving}
-          >
-            {options.map((option) => {
-              return (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              );
-            })}
-          </Select>
-        )}
+        <Select
+          name={id}
+          ref={inputRef}
+          className="basis-full border border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
+          onChange={handleSelect}
+          value={(currentValue as string) ?? options[0].value}
+          disabled={isSaving}
+        >
+          {options.map((option) => {
+            return (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            );
+          })}
+        </Select>
       </InputWrapper>
     );
   }
 
   return (
     <InputWrapper className="flex items-center space-x-4">
-      {isSaving ? (
-        <Saving />
-      ) : (
-        <>
-          <Checkbox
-            className="group block cursor-pointer"
-            id={id}
-            checked={currentValue as boolean}
-            onChange={() => setCurrentValue(!currentValue)}
-          >
-            <FontAwesomeIcon
-              icon={currentValue ? faSquareCheck : faSquare}
-              className="group-data-checked:text-blue-500 text-2xl"
-            />
-          </Checkbox>
-          <Label className="font-medium text-black/75 select-none">
-            {label}
-          </Label>
-          {helpText && (
-            <Description as="div">
-              <ToolTip id={`toggle-${id}`}>{helpText}</ToolTip>
-            </Description>
-          )}
-        </>
-      )}
+      <>
+        <Checkbox
+          className="group block cursor-pointer"
+          id={id}
+          checked={currentValue as boolean}
+          onChange={() => setCurrentValue(!currentValue)}
+        >
+          <FontAwesomeIcon
+            icon={currentValue ? faSquareCheck : faSquare}
+            className="group-data-checked:text-blue-500 text-2xl"
+          />
+        </Checkbox>
+        <Label className="font-medium text-black/75 select-none">{label}</Label>
+        {helpText && (
+          <Description as="div">
+            <ToolTip id={`toggle-${id}`}>{helpText}</ToolTip>
+          </Description>
+        )}
+      </>
     </InputWrapper>
   );
 };

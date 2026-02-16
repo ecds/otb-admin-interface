@@ -127,11 +127,11 @@ const TextInput = ({
 
     if (currentValue === valueRef.current) return;
 
-    const timeoutId = setTimeout(() => {
-      if (currentValue !== valueRef.current) update();
-    }, 500);
+    // const timeoutId = setTimeout(() => {
+    //   if (currentValue !== valueRef.current) update();
+    // }, 500);
 
-    return () => clearTimeout(timeoutId);
+    // return () => clearTimeout(timeoutId);
   }, [currentValue, id, model, recordId, update, onChange]);
 
   const handleChange = () => {

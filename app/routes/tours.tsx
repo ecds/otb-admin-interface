@@ -7,7 +7,7 @@ import { request } from "~/utils/requests";
 import List from "~/components/List";
 import { useContext } from "react";
 import { AuthContext, FeedbackContext, TourSetContext } from "~/contexts";
-import type { TTour } from "~/types";
+import type { TServerError, TTour } from "~/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { createTour } from "~/utils/create";
@@ -38,7 +38,10 @@ const TourSetRoute = () => {
       setFeedback(undefined);
     }
     if (!response.ok)
-      setFeedback({ type: "error", message: data.errors.map((e) => e.detail) });
+      setFeedback({
+        type: "error",
+        message: data.errors.map((e: TServerError) => e.detail),
+      });
   };
 
   if (!currentUser) return <></>;

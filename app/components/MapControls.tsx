@@ -15,12 +15,12 @@ import { useMap } from "@vis.gl/react-google-maps";
 import FileUpload from "./inputs/FileUpload";
 import { sendDelete, sendUpdate } from "~/utils/requests";
 import { useRevalidator } from "react-router";
-import { Deleting, Saving } from "./Saving";
+import { Deleting } from "./Saving";
 import DeleteButton from "./media_grid/DeleteButton";
 import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
-  const { tour, isSaving, setIsSaving } = useContext(TourContext);
+  const { tour, setIsSaving } = useContext(TourContext);
   const [south, setSouth] = useState<number | undefined>(undefined);
   const [north, setNorth] = useState<number | undefined>(undefined);
   const [east, setEast] = useState<number | undefined>(undefined);
@@ -126,16 +126,12 @@ const MapControls = () => {
             <RelatedContext
               value={{ relatedModel: "map_overlay", relatedType: "one" }}
             >
-              {isSaving ? (
-                <Saving />
-              ) : (
-                <FileUpload
-                  model="map_overlay"
-                  onSuccess={overlayAdded}
-                  onStart={() => setIsSaving(true)}
-                  btnText="Upload Map Overlay"
-                />
-              )}
+              <FileUpload
+                model="map_overlay"
+                onSuccess={overlayAdded}
+                onStart={() => setIsSaving(true)}
+                btnText="Upload Map Overlay"
+              />
             </RelatedContext>
           )}
           <div

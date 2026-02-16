@@ -52,6 +52,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   useEffect(() => {
     const sendRequest = async (newPosition: number, item: TMedium) => {
       setIsSaving(true);
+      setFeedback({ type: "success", message: "Saving New Order" });
       const { response } = await sendUpdate({
         tenant: tour.tenant,
         record: item.relation_id,
@@ -67,6 +68,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
       });
       if (response.ok) {
         setIsSaving(false);
+        setFeedback(undefined);
       }
     };
 

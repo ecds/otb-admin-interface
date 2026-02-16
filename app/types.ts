@@ -249,3 +249,14 @@ export type TV3MapIcon = {
 export type TV3MapIconResponse = {
   data: TV3MapIcon[];
 };
+
+export type TServerError = {
+  detail: string;
+  source: {
+    pointer: string;
+  };
+};
+
+export type TServerErrors = {
+  errors: TServerError[];
+};

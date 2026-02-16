@@ -15,7 +15,7 @@ const List = ({ items, handleDelete, heading, children }: Props) => {
   const params = useParams();
 
   return (
-    <div className="relative md:my-24 mx-8 flex flex-col overflow-x-auto space-y-8">
+    <div className="relative md:my-24 mx-8 flex flex-col overflow-x-auto space-y-2">
       {children}
       <div className="flex flex-row-reverse px-6 text-xl mb-2">
         <div>Delete</div>

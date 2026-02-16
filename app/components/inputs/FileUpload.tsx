@@ -54,7 +54,7 @@ const FileUpload = ({
 
       if (uploadResponse.ok && updateId && onSuccess) {
         onSuccess(uploadData);
-        // setFeedback(undefined);
+        setFeedback(undefined);
       } else if (relatedModel && relatedType && uploadResponse.ok) {
         const { response, data } = await joinImage({
           relatedType,

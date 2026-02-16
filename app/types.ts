@@ -1,17 +1,13 @@
 import type { ReactNode } from "react";
 
 export type TUser = {
-  id: string;
-  type: string;
-  attributes: {
-    display_name: string;
-    super: boolean;
-    current_tenant_admin: boolean;
-    provider: string;
-    email: string;
-    all_tours: string[];
-    terms_accepted: boolean;
-  };
+  id: number;
+  display_name: string;
+  super: boolean;
+  current_tenant_admin: boolean;
+  tours: TTour[];
+  tour_sets: string[];
+  terms_accepted: boolean;
 };
 
 export type TTourAttributes = {
@@ -180,6 +176,7 @@ export type TTour = {
 };
 
 export type TTourSet = {
+  id: number;
   external_url: string;
   footer_logo: string;
   name: string;

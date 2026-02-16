@@ -168,7 +168,6 @@ const StopsList = () => {
             recordId: data.id,
             imageId: medium.id,
             tenant: tour.tenant,
-            tourId: tour.id,
           });
           setFeedback(undefined);
         }

@@ -19,17 +19,13 @@ type ISignedIn = {
 export const AuthContext = createContext<ISignedIn>({
   signedIn: false,
   currentUser: {
-    id: "",
-    type: "",
-    attributes: {
-      display_name: "",
-      super: false,
-      current_tenant_admin: false,
-      provider: "",
-      email: "",
-      all_tours: [""],
-      terms_accepted: false,
-    },
+    id: 0,
+    display_name: "",
+    super: false,
+    current_tenant_admin: false,
+    tours: [],
+    tour_sets: [],
+    terms_accepted: false,
   },
   setCurrentUser: (_: SetStateAction<TUser | undefined>) => {
     console.error(
@@ -97,6 +93,7 @@ type TStopMapContext = {
 };
 
 export const TourSetContext = createContext<TTourSet>({
+  id: 0,
   external_url: "",
   footer_logo: "",
   name: "",

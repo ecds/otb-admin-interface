@@ -29,6 +29,9 @@ type CreateBody = {
   flat_page?: {
     title: string;
   };
+  tour?: {
+    title: string;
+  };
   stop?: {
     title: string;
   };
@@ -91,16 +94,16 @@ export const request = async ({
       return { response, data: {}, status, headers };
     }
 
-    const data = response.ok ? await response.json() : {};
+    const data = await response.json();
     return { response, data, status, headers };
   } catch (error) {
-    return { response: { ok: false }, id: 0, data: {}, error };
+    return { response: { ok: false, error } };
   }
 };
 
 export const fetchCurrentUser = async () => {
-  const { data } = await request({ path: "public/users?me=true" });
-  return data.data;
+  const { data } = await request({ path: "public/v4/admin/users?me=true" });
+  return data;
 };
 
 export const verifyToken = async (token: string) => {

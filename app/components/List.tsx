@@ -1,19 +1,22 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useParams } from "react-router";
+import type { ReactNode } from "react";
 import type { TTour, TTourSet } from "~/types";
 
 interface Props {
   items: TTourSet[] | TTour[];
   handleDelete: () => void;
   heading: string;
+  children?: ReactNode;
 }
 
-const List = ({ items, handleDelete, heading }: Props) => {
+const List = ({ items, handleDelete, heading, children }: Props) => {
   const params = useParams();
 
   return (
-    <div className="relative md:my-24 mx-8 flex flex-col overflow-x-auto">
+    <div className="relative md:my-24 mx-8 flex flex-col overflow-x-auto space-y-8">
+      {children}
       <div className="flex flex-row-reverse px-6 text-xl mb-2">
         <div>Delete</div>
         <div className="justify-self-start grow">{heading ?? "Name"}</div>
@@ -28,19 +31,19 @@ const List = ({ items, handleDelete, heading }: Props) => {
               <FontAwesomeIcon icon={faTrash} />
             </button>
             <div className="justify-self-start grow">
-              {item.subdir ? (
+              {(item as TTourSet).subdir ? (
                 <Link
-                  to={`/admin/${item.subdir}/`}
+                  to={`/admin/${(item as TTourSet).subdir}/`}
                   className="hover:underline text-blue-700 hover:text-blue-900"
                 >
-                  {item.name}
+                  {(item as TTourSet).name}
                 </Link>
               ) : (
                 <Link
                   to={`/admin/${params.tourSet}/edit/${item.id}`}
                   className="hover:underline text-blue-700 hover:text-blue-900"
                 >
-                  {item.title}
+                  {(item as TTour).title}
                 </Link>
               )}
             </div>

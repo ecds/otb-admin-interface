@@ -18,6 +18,7 @@ import { AuthContext, FeedbackContext } from "./contexts";
 import Feedback from "./components/Feedback";
 import type { Route } from "./+types/root";
 import type { TUser } from "./types";
+import Terms from "./components/Terms";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -58,16 +59,16 @@ export default function App() {
   const isSigningIn = useMatch("/admin/signin");
 
   useEffect(() => {
-    if (!session) return;
+    if (!session) navigate("/admin/signin");
+
     if (session?.id) {
       setCurrentUser(session);
-    } else if (!isSigningIn) {
-      navigate("/admin/signin");
     }
   }, [session, navigate, isSigningIn]);
 
   useEffect(() => {
-    setSignedIn(Boolean(currentUser?.id));
+    if (!currentUser) return;
+    setSignedIn(Boolean(currentUser) && currentUser.terms_accepted);
   }, [currentUser]);
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function App() {
         window.close();
       }
     };
+
     const token = searchParams.get("access_token");
 
     if (token) {
@@ -87,6 +89,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ signedIn, currentUser, setCurrentUser }}>
+      <Terms />
       <FeedbackContext.Provider value={{ feedback, setFeedback }}>
         <Feedback />
         <Outlet />

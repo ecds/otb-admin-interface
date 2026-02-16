@@ -14,7 +14,7 @@ const Feedback = () => {
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-1000">
         <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
           <p
-            className={`text-center text-2xl text-${feedback?.type === "success" ? "green" : "red"}-500`}
+            className={`text-center text-2xl ${feedback?.type === "success" ? "text-green-500" : "text-red-500"}`}
           >
             {feedback?.message}
           </p>

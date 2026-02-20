@@ -6,13 +6,13 @@ import {
   TourContext,
 } from "~/contexts";
 import TextInput from "../inputs/TextInput";
-import type { TServerResponse, TStop } from "~/types";
 import FileUpload from "../inputs/FileUpload";
 import { Saving } from "../Saving";
 import DeleteButton from "../media_grid/DeleteButton";
 import ToolTip from "../inputs/ToolTip";
 import IconModal from "../stops/IconModal";
 import { sendUpdate } from "~/utils/requests";
+import type { TServerResponse, TStop } from "~/types";
 
 const MarkerStyle = () => {
   const context = useContext(StopMapContext);
@@ -39,8 +39,7 @@ const MarkerStyle = () => {
       record: stop.id,
       body: {
         model: "stop",
-        attribute: "map_icon",
-        value: null,
+        stop: { map_icon: null },
         reindex: {
           model: "tour",
           id: tour.id,

@@ -41,8 +41,7 @@ export const imageUpload = async ({
   body.append("model", model);
 
   if (recordId) {
-    body.append(`[value]`, file);
-    body.append(`[attribute]`, "file");
+    body.append(`[${model}][file]`, file);
     body.append(`[reindex][id]`, "2");
 
     return await sendUpdateUpload({

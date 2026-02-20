@@ -77,7 +77,10 @@ const TravelModes = () => {
     const { response } = await sendUpdate({
       tenant: tour.tenant,
       record: tour.id,
-      body: { model: "tour", attribute: "mode_id", value: mode.id },
+      body: {
+        model: "tour",
+        tour: { mode_id: mode.id },
+      },
     });
     if (response.ok) {
       setCurrentDefaultMode(mode);

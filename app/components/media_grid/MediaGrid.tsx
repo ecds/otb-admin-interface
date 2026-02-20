@@ -79,7 +79,15 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         sendRequest(newPosition, item);
       }
     });
-  }, [items, tour, relatedModel, recordId, recordModel, setIsSaving]);
+  }, [
+    items,
+    tour,
+    relatedModel,
+    recordId,
+    recordModel,
+    setIsSaving,
+    setFeedback,
+  ]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

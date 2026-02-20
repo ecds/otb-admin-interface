@@ -56,9 +56,8 @@ const StopsList = () => {
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
-          attribute: "position",
+          [relatedModel]: { position: newPosition },
           model: relatedModel,
-          value: newPosition,
           reindex: {
             model: "tour",
             id: tour.id,

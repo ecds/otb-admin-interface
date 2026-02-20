@@ -29,7 +29,7 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     ssr: {
-      noExternal: ["jodit-react", "jodit"],
+      noExternal: ["jodit-react", "jodit", "@googlemaps/js-api-loader"],
     },
     server: {
       allowedHosts: ["lvh.me", "opentour.site", "dev.opentour.site"],

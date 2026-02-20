@@ -17,6 +17,9 @@ import { sendDelete, sendUpdate } from "~/utils/requests";
 import { useRevalidator } from "react-router";
 import { Deleting } from "./Saving";
 import DeleteButton from "./media_grid/DeleteButton";
+import MapOverlayRectangle from "./map/MapOverlayRectangle";
+import { Switch } from "@headlessui/react";
+import ToolTip from "./inputs/ToolTip";
 import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
@@ -28,6 +31,7 @@ const MapControls = () => {
   const [newOverlay, setNewOverlay] = useState<TMapOverlay | undefined>(
     undefined,
   );
+  const [overlayDraggable, setOverlayDraggable] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const revalidator = useRevalidator();
   const map = useMap();
@@ -69,8 +73,7 @@ const MapControls = () => {
       tenant: tour.tenant,
       body: {
         model: "tour",
-        attribute: "blank_map",
-        value: false,
+        tour: { blank_map: false },
       },
     });
 
@@ -100,6 +103,7 @@ const MapControls = () => {
         setNorth,
         setEast,
         setWest,
+        draggable: overlayDraggable,
       }}
     >
       <div
@@ -111,6 +115,7 @@ const MapControls = () => {
           <ClientOnly>
             <TourMap>
               <MapOverlay />
+              <MapOverlayRectangle />
             </TourMap>
           </ClientOnly>
         </div>
@@ -160,16 +165,6 @@ const MapControls = () => {
                   helpText="Northern latitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                 />
                 <TextInput
-                  label="Overlay East"
-                  value={east ?? map.getBounds()?.getNorthEast().lng() ?? 0}
-                  model="map_overlay"
-                  id="east"
-                  type="text"
-                  valueType="number"
-                  itemId={tour.map_overlay.id}
-                  helpText="Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
-                />
-                <TextInput
                   label="Overlay West"
                   value={west ?? map.getBounds()?.getSouthWest().lng() ?? 0}
                   model="map_overlay"
@@ -179,6 +174,37 @@ const MapControls = () => {
                   itemId={tour.map_overlay.id}
                   helpText="Western longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
                 />
+                <TextInput
+                  label="Overlay East"
+                  value={east ?? map.getBounds()?.getNorthEast().lng() ?? 0}
+                  model="map_overlay"
+                  id="east"
+                  type="text"
+                  valueType="number"
+                  itemId={tour.map_overlay.id}
+                  helpText="Eastern longitude bound of overlay. You can drag the circles in the northeast or southwest corner to adjust the size and position."
+                />
+                <div className="mb-8">
+                  Drag Overlay to Position{" "}
+                  <ToolTip id="toggle-draggable">
+                    You can use the the white dots in the corners and along the
+                    sides to resize the overlay. Use this toggle if you want to
+                    drag the map into position without moving the underlying
+                    map.
+                  </ToolTip>
+                </div>
+                <div className="">
+                  <Switch
+                    checked={overlayDraggable}
+                    onChange={setOverlayDraggable}
+                    className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-blue-500/10 p-1 ease-in-out focus:not-data-focus:outline-none data-checked:bg-blue-500/10 data-focus:outline data-focus:outline-blue-500"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none inline-block size-5 translate-x-0 rounded-full bg-blue-500 shadow-lg ring-0 transition duration-200 ease-in-out group-data-checked:translate-x-7"
+                    />
+                  </Switch>
+                </div>
                 <div className="col-span-2">
                   <SelectInput
                     label="Restrict Map to Overlay"

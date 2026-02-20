@@ -5,35 +5,24 @@ type Reindex = {
   id: number;
 };
 
-export type UpdateBody = {
-  attribute?: string;
-  model: string;
-  value?: string | number | boolean | null;
-  related_model?: string;
-  related_type?: "belongs_to" | "many" | undefined;
-  reindex?: Reindex;
-};
-
-type CreateBody = {
-  model: string;
-  attributes?:
-    | {
-        tour_id?: number;
-        stop_id?: number;
-        flat_page_id?: number;
-        medium_id?: number;
-        file?: File;
-        title?: string;
-      }
-    | FormData;
+type AllowedAttributes = {
   flat_page?: {
     title: string;
   };
+  map_overlay?: {
+    south: number;
+    east: number;
+    north: number;
+    west: number;
+  };
   tour?: {
-    title: string;
+    title?: string;
+    blank_map?: boolean;
+    mode_id?: number;
   };
   stop?: {
-    title: string;
+    title?: string;
+    map_icon?: string | null;
   };
   tour_flat_page?: {
     flat_page_id: number;
@@ -49,6 +38,32 @@ type CreateBody = {
     tour_id: number;
     mode_id: number;
   };
+  user?: {
+    terms_accepted?: boolean;
+  };
+};
+
+export type UpdateBody = AllowedAttributes & {
+  attribute?: string;
+  model: string;
+  value?: string | number | boolean | null;
+  related_model?: string;
+  related_type?: "belongs_to" | "many" | undefined;
+  reindex?: Reindex;
+};
+
+type CreateBody = AllowedAttributes & {
+  model: string;
+  attributes?:
+    | {
+        tour_id?: number;
+        stop_id?: number;
+        flat_page_id?: number;
+        medium_id?: number;
+        file?: File;
+        title?: string;
+      }
+    | FormData;
   reindex?: Reindex;
 };
 

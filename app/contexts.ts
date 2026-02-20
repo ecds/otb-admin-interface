@@ -68,6 +68,7 @@ type TOverlayContext = {
   setNorth?: Dispatch<SetStateAction<number | undefined>>;
   setEast?: Dispatch<SetStateAction<number | undefined>>;
   setWest?: Dispatch<SetStateAction<number | undefined>>;
+  draggable: boolean;
 };
 
 type TStopMapContext = {
@@ -137,6 +138,7 @@ export const OverlayContext = createContext<TOverlayContext>({
   setNorth: (_: SetStateAction<number | undefined>) => {},
   setEast: (_: SetStateAction<number | undefined>) => {},
   setWest: (_: SetStateAction<number | undefined>) => {},
+  draggable: false,
 });
 
 export const StopMapContext = createContext<TStopMapContext | undefined>(

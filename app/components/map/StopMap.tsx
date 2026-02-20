@@ -90,6 +90,7 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
                     defaultCenter={{ lat, lng }}
                     defaultZoom={16}
                     onTilesLoaded={() => "loaded"}
+                    zoomControl
                   >
                     {children}
                     {tour.map_overlay && (

@@ -29,14 +29,20 @@ const padding = (size: "large" | "small") => {
   }
 };
 
+type RangeProps = {
+  max: number;
+  min: number;
+};
+
 type TextInputProps = {
   value: string | number;
-  type: "text" | "text-area" | "rich-text" | "color";
+  type: "text" | "text-area" | "rich-text" | "color" | "range";
   itemId?: number;
   updateCallback?: (data: TServerResponse) => void;
   size?: "small" | "large";
   valueType?: "text" | "number" | "url" | "button" | "file";
   placeholder?: string;
+  range?: RangeProps;
 };
 
 const TextInput = ({
@@ -52,6 +58,7 @@ const TextInput = ({
   size = "large",
   valueType = "text",
   placeholder,
+  range,
 }: InputProps & TextInputProps) => {
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,12 +99,16 @@ const TextInput = ({
       record: itemId ?? recordId,
       body: {
         model,
-        attribute: id,
-        value: currentValue,
+        [model]: { [id]: currentValue },
         reindex: { id: tour.id, model: "tour" },
       },
     });
 
+    console.log(
+      "🚀 ~ TextInput ~ valueRef.current = currentValue;:",
+      valueRef.current,
+      currentValue,
+    );
     valueRef.current = currentValue;
 
     setIsSaving(false);
@@ -128,11 +139,11 @@ const TextInput = ({
     if (currentValue === valueRef.current) return;
 
     // const timeoutId = setTimeout(() => {
-    //   if (currentValue !== valueRef.current) update();
+    //   if (currentValue !== valueRef.current && type === "range") update();
     // }, 500);
 
     // return () => clearTimeout(timeoutId);
-  }, [currentValue, id, model, recordId, update, onChange]);
+  }, [currentValue, id, model, recordId, update, onChange, type]);
 
   const handleChange = () => {
     if (!inputRef.current) return;
@@ -202,6 +213,27 @@ const TextInput = ({
             onBlur={handleBlur}
             placeholder={placeholder}
           ></Input>
+        )}
+        {type === "range" && range && (
+          <>
+            <Input
+              ref={inputRef}
+              type="range"
+              min={range.min}
+              max={range.max}
+              value={currentValue}
+              onInput={handleChange}
+              onBlur={handleBlur}
+              onMouseUp={handleBlur}
+              onChange={handleChange}
+              className="w-full"
+            />
+            <div className="flex flex-row justify-between">
+              <div>{range.min}</div>
+              <div>{currentValue}</div>
+              <div>{range.max}</div>
+            </div>
+          </>
         )}
       </div>
       <p className="text-sm text-red-400">

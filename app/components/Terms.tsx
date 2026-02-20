@@ -17,8 +17,7 @@ const Terms = () => {
       tenant: "public",
       record: currentUser.id,
       body: {
-        attribute: "terms_accepted",
-        value: true,
+        user: { terms_accepted: true },
         model: "user",
       },
     });

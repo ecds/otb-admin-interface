@@ -234,6 +234,7 @@ export type TValue =
   | "parking_address"
   | "parking_lat"
   | "parking_lng"
+  | "rotation"
   | "south"
   | "title"
   | "use_directions"

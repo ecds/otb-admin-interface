@@ -57,9 +57,8 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
-          attribute: "position",
           model: relatedModel,
-          value: newPosition,
+          [relatedModel]: { position: newPosition },
           reindex: {
             model: recordModel,
             id: recordId,

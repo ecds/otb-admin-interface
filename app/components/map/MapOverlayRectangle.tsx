@@ -69,12 +69,8 @@ const MapOverlayRectangle = () => {
       fillOpacity: 0,
       editable: !draggable,
       clickable: true,
+      zIndex: 10,
     });
-
-    console.log(
-      "🚀 ~ MapOverlayRectangle ~ rectangleRef.current:",
-      rectangleRef.current,
-    );
 
     let dragEndListener: google.maps.MapsEventListener | undefined,
       boundsListener: google.maps.MapsEventListener | undefined;

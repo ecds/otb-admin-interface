@@ -16,7 +16,6 @@ export const meta = () => {
 };
 
 export const clientLoader = async () => {
-  // /:tenant/v4/admin/tour_sets
   const { data } = await request({ path: "public/v4/admin/tour_sets" });
   return { tourSets: data };
 };

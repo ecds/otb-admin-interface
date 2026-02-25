@@ -20,7 +20,7 @@ const SignIn = ({
 
   const signInCallback = (user: MessageEvent) => {
     setCurrentUser(user.data);
-    if (user.data.id) navigate("/admin");
+    if (user.data.id) navigate("/");
     window.removeEventListener("message", signInCallback);
   };
 

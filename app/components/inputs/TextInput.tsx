@@ -104,11 +104,6 @@ const TextInput = ({
       },
     });
 
-    console.log(
-      "🚀 ~ TextInput ~ valueRef.current = currentValue;:",
-      valueRef.current,
-      currentValue,
-    );
     valueRef.current = currentValue;
 
     setIsSaving(false);
@@ -181,6 +176,7 @@ const TextInput = ({
             onInput={handleChange}
             onBlur={handleBlur}
             placeholder={placeholder}
+            step="any"
           ></Input>
         )}
         {type === "text-area" && (

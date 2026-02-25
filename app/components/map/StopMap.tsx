@@ -6,7 +6,7 @@ import StopMarker from "./StopMarker";
 import ParkingMarker from "./ParkingMarker";
 import Location from "./Location";
 import MarkerStyle from "./MarkerStyle";
-import MapOverlay from "./MapOverlay";
+import MapOverlay from "./MapOverlay.client";
 import ParkingDisclosure from "../stops/ParkingDisclosure";
 import type { ReactNode } from "react";
 import type { TStop } from "~/types";
@@ -100,6 +100,7 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
                           north: tour.map_overlay.north,
                           east: tour.map_overlay.east,
                           west: tour.map_overlay.west,
+                          draggable: false,
                         }}
                       >
                         <MapOverlay editable={false} />

@@ -10,7 +10,7 @@ import {
 } from "~/contexts";
 import { mapTypes } from "~/choices";
 import TextInput from "./inputs/TextInput";
-import MapOverlay from "./map/MapOverlay";
+import MapOverlay from "./map/MapOverlay.client";
 import { useMap } from "@vis.gl/react-google-maps";
 import FileUpload from "./inputs/FileUpload";
 import { sendDelete, sendUpdate } from "~/utils/requests";

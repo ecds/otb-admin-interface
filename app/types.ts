@@ -189,7 +189,7 @@ export type InputProps = {
   id: TValue;
   label: string | ReactNode;
   model: string;
-  value: string | boolean | number;
+  value: string | boolean | number | undefined;
   helpText?: string;
   onChange?: (value: string) => void;
 };

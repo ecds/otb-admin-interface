@@ -9,7 +9,7 @@ const Navbar = () => {
     <nav className="bg-gray-200 fixed top-0 w-screen px-6 h-12 flex justify-between items-center z-50 drop-shadow-md">
       <div className="flex flex-row space-x-6 items-center ml-6 text-black/80">
         <NavLink
-          to="/admin"
+          to="/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
           <img
@@ -22,13 +22,13 @@ const Navbar = () => {
           </span>
         </NavLink>
         <ul className="flex space-x-8 flex-row">
-          {tourSet.name && (
+          {tourSet?.name && (
             <li>
-              <NavLink to={`/admin/${tourSet.subdir}`}>{tourSet.name}</NavLink>
+              <NavLink to={`/${tourSet.subdir}`}>{tourSet.name}</NavLink>
             </li>
           )}
           <li>
-            <NavLink to="/admin/users" className="">
+            <NavLink to="/users" className="">
               Users
             </NavLink>
           </li>

@@ -11,7 +11,7 @@ const Account = () => {
     const { response } = await signOut();
     if (response.ok) {
       setCurrentUser(undefined);
-      navigate("/admin/signin");
+      navigate("/signin");
     }
   };
 

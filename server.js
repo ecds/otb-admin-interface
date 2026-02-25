@@ -7,13 +7,6 @@ import https from "node:https";
 import http from "node:http";
 import path from "node:path";
 
-const minSubdomainCount = () => {
-  if (process.env.NODE_ENV === "staging") {
-    return 1;
-  }
-  return 0;
-};
-
 const viteDevServer =
   process.env.NODE_ENV === "production"
     ? undefined
@@ -27,21 +20,7 @@ const handler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:react-router/server-build")
     : await import("./build/server/index.js"),
-  getLoadContext: (req, res) => {
-    const host = req.get("Host");
-    const tenant =
-      req.subdomains.length > minSubdomainCount()
-        ? req.subdomains.pop()
-        : undefined;
-    const port = host.split(":").pop();
-    const request = {
-      protocol: req.protocol,
-      host,
-      subdomains: req.subdomains,
-      port,
-    };
-    return { tenant, res, request };
-  },
+  basename: "/admin",
 });
 
 const app = express();
@@ -80,12 +59,9 @@ const certPath = process.env.SSL_CERT || path.resolve("./lvh.me.pem");
 
 const startedMessage = () => {
   console.warn(
-    `🚀 ${protocol.toUpperCase()} server running at ${protocol}://${domain}:${port} (pid: ${
+    `🚀 ${protocol.toUpperCase()} server running at ${protocol}://${domain}:${port}/admin (pid: ${
       process.pid
     })`,
-  );
-  console.warn(
-    `For local subdomains, use a fully qualified domain (e.g. ${protocol}://${domain}:${port}).`,
   );
 };
 

@@ -49,7 +49,7 @@ const TourRoute = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (response.status === 401) navigate("/admin/signin");
+    if (response.status === 401) navigate("/signin");
   }, [response, navigate]);
 
   useEffect(() => {

@@ -35,7 +35,6 @@ const SelectInput = ({
 
   useEffect(() => {
     const update = async () => {
-      console.log("🚀 ~ SelectInput:", id, valueRef.current, currentValue);
       const { response } = await sendUpdate({
         tenant: tour.tenant,
         record: recordId,

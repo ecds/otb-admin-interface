@@ -60,7 +60,6 @@ const Location = ({
         label="Address"
         model="stop"
         updateCallback={(data) => setAddress((data as TStop).address)}
-        revalidate
       />
       <button
         className="cursor-pointer bg-black/70 hover:bg-black text-white rounded-sm px-2 py-1 mb-8 drop-shadow-md "

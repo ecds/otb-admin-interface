@@ -23,6 +23,9 @@ type AllowedAttributes = {
   stop?: {
     title?: string;
     map_icon?: string | null;
+    lat?: number;
+    lng?: number;
+    address?: string;
   };
   tour_flat_page?: {
     flat_page_id: number;

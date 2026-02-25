@@ -33,14 +33,14 @@ const List = ({ items, handleDelete, heading, children }: Props) => {
             <div className="justify-self-start grow">
               {(item as TTourSet).subdir ? (
                 <Link
-                  to={`/admin/${(item as TTourSet).subdir}/`}
+                  to={`/${(item as TTourSet).subdir}/`}
                   className="hover:underline text-blue-700 hover:text-blue-900"
                 >
                   {(item as TTourSet).name}
                 </Link>
               ) : (
                 <Link
-                  to={`/admin/${params.tourSet}/edit/${item.id}`}
+                  to={`/${params.tourSet}/edit/${item.id}`}
                   className="hover:underline text-blue-700 hover:text-blue-900"
                 >
                   {(item as TTour).title}

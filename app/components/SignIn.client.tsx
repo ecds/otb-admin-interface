@@ -32,7 +32,7 @@ const SignIn = ({
       const left = screen.width / 2 - width / 2;
       const top = screen.height / 2 - height / 2;
       signInWindowRef.current = window.open(
-        `https://auth.digitalscholarship.emory.edu/auth/google_oauth2?origin=https://${redirect}/admin`,
+        `https://auth.ecds.io/auth/google_oauth2?origin=https://${redirect}/admin`,
         "signInWindow",
         `width=${width}, height=${height}, left=${left},top=${top}`,
       );

@@ -5,10 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { RecordContext, RelatedContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import StopMap from "../map/StopMap";
-import { useContext, useRef } from "react";
+import { useRef } from "react";
 import type { TStop } from "~/types";
 import MediaGrid from "../media_grid/MediaGrid";
-import DeleteButton from "../media_grid/DeleteButton";
+import DeleteButton from "../buttons/DeleteButton";
 
 const Stop = ({ stop }: { stop: TStop }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -26,15 +26,8 @@ const Stop = ({ stop }: { stop: TStop }) => {
     transition,
   };
 
-  const { tour } = useContext(RecordContext);
-
   return (
-    <div
-      // className={"border"}
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-    >
+    <div ref={setNodeRef} style={style} {...attributes}>
       <div className="flex w-full items-center justify-between font-semibold text-lg bg-gray-200 my-8 p-3 rounded-md ">
         <details
           ref={detailsRef}
@@ -52,10 +45,8 @@ const Stop = ({ stop }: { stop: TStop }) => {
           <div className="bg-white mt-4 p-4 mx-auto w-full text-black/75">
             <RecordContext.Provider
               value={{
-                tour,
                 recordId: stop.id,
                 recordModel: "stop",
-                tenant: "ecds",
               }}
             >
               <TextInput

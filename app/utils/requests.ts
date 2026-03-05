@@ -41,6 +41,9 @@ type AllowedAttributes = {
     tour_id: number;
     mode_id: number;
   };
+  tour_set?: {
+    logo: null;
+  };
   user?: {
     terms_accepted?: boolean;
   };
@@ -53,6 +56,7 @@ export type UpdateBody = AllowedAttributes & {
   related_model?: string;
   related_type?: "belongs_to" | "many" | undefined;
   reindex?: Reindex;
+  logo?: null;
 };
 
 type CreateBody = AllowedAttributes & {

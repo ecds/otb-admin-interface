@@ -13,7 +13,7 @@ import Pagination from "./Pagination";
 import type { Dispatch, SetStateAction } from "react";
 import type { TFlatPage, TServerResponse, TStop } from "~/types";
 import ToolTip from "./inputs/ToolTip";
-import DeleteButton from "./media_grid/DeleteButton";
+import DeleteButton from "./buttons/DeleteButton";
 
 interface Props {
   itemIds: number[];

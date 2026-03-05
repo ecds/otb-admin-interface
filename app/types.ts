@@ -54,7 +54,13 @@ export type TMapOverlay = TBounds & {
   image_url: string;
 };
 
-export type TModel = "tour" | "stop" | "medium" | "flat_page";
+export type TModel =
+  | "tour"
+  | "stop"
+  | "medium"
+  | "flat_page"
+  | "tour_set"
+  | "map_overlay";
 
 export type TRelateModel =
   | "tour_flat_page"
@@ -201,7 +207,7 @@ export type TChoices = {
 
 export type TEmbedProvider = "vimeo" | "youtube" | "soundcloud";
 
-export type TServerResponse = TTour | TStop | TMedium | TFlatPage;
+export type TServerResponse = TTour | TStop | TMedium | TFlatPage | TTourSet;
 
 export type TSelectableProps =
   | "blank_map"

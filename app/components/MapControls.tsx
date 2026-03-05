@@ -16,7 +16,7 @@ import FileUpload from "./inputs/FileUpload";
 import { sendDelete, sendUpdate } from "~/utils/requests";
 import { useRevalidator } from "react-router";
 import { Deleting } from "./Saving";
-import DeleteButton from "./media_grid/DeleteButton";
+import DeleteButton from "./buttons/DeleteButton";
 import MapOverlayRectangle from "./map/MapOverlayRectangle";
 import { Switch } from "@headlessui/react";
 import ToolTip from "./inputs/ToolTip";

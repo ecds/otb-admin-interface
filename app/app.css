@@ -45,7 +45,8 @@ body {
     list-style: none;
   }
 
-  button {
+  button,
+  label {
     cursor: pointer;
   }
 

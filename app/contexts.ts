@@ -55,8 +55,8 @@ type TFeedbackContext = {
 };
 
 type TRelatedContext = {
-  relatedModel: TRelateModel;
-  relatedType: "many" | "one";
+  relatedModel: TRelateModel | undefined;
+  relatedType: "many" | "one" | undefined;
 };
 
 type TOverlayContext = {
@@ -125,8 +125,8 @@ export const FeedbackContext = createContext<TFeedbackContext>({
 });
 
 export const RelatedContext = createContext<TRelatedContext>({
-  relatedModel: "tour_medium",
-  relatedType: "many",
+  relatedModel: undefined,
+  relatedType: undefined,
 });
 
 export const OverlayContext = createContext<TOverlayContext>({
@@ -198,7 +198,7 @@ export const TourContext = createContext<TTourContext>({
     slug: "",
     stop_count: 0,
     stops: [],
-    tenant: "",
+    tenant: "public",
     tenant_title: "",
     theme: {
       id: 0,

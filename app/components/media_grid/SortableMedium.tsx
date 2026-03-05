@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import DeleteButton from "./DeleteButton";
-import EditButton from "./EditButton";
+import DeleteButton from "../buttons/DeleteButton";
+import EditButton from "../buttons/EditButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";

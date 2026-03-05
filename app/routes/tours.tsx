@@ -11,6 +11,7 @@ import type { TServerError, TTour } from "~/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { createTour } from "~/utils/create";
+import SiteLogo from "~/components/SiteLogo";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tours } = await request({
@@ -47,15 +48,18 @@ const TourSetRoute = () => {
   if (!currentUser) return <></>;
 
   return (
-    <div>
+    <div className="mt-24">
       <List items={tours} handleDelete={() => {}} heading="Tours">
-        {currentUser.super && (
-          <button
-            className="w-max text-white hover:text-black h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
-            onClick={handleCreate}
-          >
-            <FontAwesomeIcon icon={faPlus} /> Create New
-          </button>
+        {(currentUser.super || currentUser.current_tenant_admin) && (
+          <>
+            <SiteLogo tourSet={tourSet} />
+            <button
+              className="w-max text-white hover:text-black h-8 px-2 py-1 mb-4 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
+              onClick={handleCreate}
+            >
+              <FontAwesomeIcon icon={faPlus} /> New Tour
+            </button>
+          </>
         )}
       </List>
     </div>

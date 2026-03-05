@@ -8,7 +8,7 @@ import {
 import TextInput from "../inputs/TextInput";
 import FileUpload from "../inputs/FileUpload";
 import { Saving } from "../Saving";
-import DeleteButton from "../media_grid/DeleteButton";
+import DeleteButton from "../buttons/DeleteButton";
 import ToolTip from "../inputs/ToolTip";
 import IconModal from "../stops/IconModal";
 import { sendUpdate } from "~/utils/requests";

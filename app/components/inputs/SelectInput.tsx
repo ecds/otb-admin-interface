@@ -114,7 +114,7 @@ const SelectInput = ({
       <>
         <Checkbox
           className="group block cursor-pointer"
-          id={id}
+          id={`${id}-${recordId}`}
           checked={currentValue as boolean}
           onChange={() => setCurrentValue(!currentValue)}
         >
@@ -126,7 +126,7 @@ const SelectInput = ({
         <Label className="font-medium text-black/75 select-none">{label}</Label>
         {helpText && (
           <Description as="div">
-            <ToolTip id={`toggle-${id}`}>{helpText}</ToolTip>
+            <ToolTip id={`toggle-${id}-${recordId}`}>{helpText}</ToolTip>
           </Description>
         )}
       </>

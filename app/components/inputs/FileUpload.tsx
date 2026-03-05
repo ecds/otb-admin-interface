@@ -6,19 +6,21 @@ import {
   TourContext,
 } from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { TModel } from "~/types";
 
 interface Props {
   onSuccess?: (arg: unknown) => void;
   fileUploading?: Dispatch<SetStateAction<string | undefined>>;
   btnText?: string;
   children?: ReactNode;
-  model?: "medium" | "map_overlay" | "map_icon";
+  model?: TModel;
   onStart?: () => void;
   className?: string;
   updateId?: number;
+  attribute?: string;
 }
 
 const FileUpload = ({
@@ -30,6 +32,7 @@ const FileUpload = ({
   fileUploading,
   className,
   updateId,
+  attribute = "file",
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { tour } = useContext(TourContext);
@@ -46,14 +49,15 @@ const FileUpload = ({
       if (fileUploading) fileUploading(file.name);
       setFeedback({ type: "success", message: "File Uploading." });
       const { response: uploadResponse, data: uploadData } = await imageUpload({
-        tenant: tour.tenant,
+        tenant: tour.tenant ?? "public",
         file,
         model,
         recordId: updateId,
+        attribute,
       });
 
-      if (uploadResponse.ok && updateId && onSuccess) {
-        onSuccess(uploadData);
+      if (uploadResponse.ok && updateId) {
+        if (onSuccess) onSuccess(uploadData);
         setFeedback(undefined);
       } else if (relatedModel && relatedType && uploadResponse.ok) {
         const { response, data } = await joinImage({
@@ -62,13 +66,17 @@ const FileUpload = ({
           relatedModel,
           recordId,
           imageId: uploadData.id,
-          tenant: tour.tenant,
+          tenant: tour.tenant ?? "public",
         });
         if (response.ok && onSuccess) {
           onSuccess(data);
           setFeedback(undefined);
-        }
-      }
+        } else if (uploadData.errors) {
+          setFeedback({ type: "error", message: uploadData.errors[0].detail });
+        } else setFeedback({ type: "error", message: "Unknown Error" });
+      } else if (uploadData.errors) {
+        setFeedback({ type: "error", message: uploadData.errors[0].detail });
+      } else setFeedback({ type: "error", message: "Unknown Error" });
     }
 
     if (fileUploading) fileUploading(undefined);

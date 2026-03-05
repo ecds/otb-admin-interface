@@ -6,7 +6,7 @@ import { RecordContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import { useRef } from "react";
 import type { TFlatPage } from "~/types";
-import DeleteButton from "../media_grid/DeleteButton";
+import DeleteButton from "../buttons/DeleteButton";
 
 const FlatPage = ({ flatPage }: { flatPage: TFlatPage }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =

@@ -27,6 +27,7 @@ const TourMap = ({ children }: { children: ReactNode }) => {
         north: 33.79178346667516,
         east: -84.3225714928132,
       }}
+      fullscreenControl
       zoomControl
       maxZoom={tour.blank_map ? 18 : undefined}
       disableDefaultUI

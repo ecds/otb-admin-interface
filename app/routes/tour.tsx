@@ -23,7 +23,7 @@ import Preview from "~/components/Preview";
 import TravelModes from "~/components/TravelModes";
 import type { TTour, TTravelMode } from "~/types";
 import type { LoaderFunctionArgs } from "react-router";
-import SaveButton from "~/components/SaveButton";
+import SaveButton from "~/components/buttons/SaveButton";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tour, response } = await request({
@@ -180,26 +180,26 @@ const TourRoute = () => {
               </APIProvider>
               <TravelModes />
               <div>
-                <RelatedContext
+                <RelatedContext.Provider
                   value={{ relatedModel: "tour_medium", relatedType: "many" }}
                 >
                   <MediaGrid media={tour.media} />
-                </RelatedContext>
-                <RelatedContext
+                </RelatedContext.Provider>
+                <RelatedContext.Provider
                   value={{ relatedModel: "tour_stop", relatedType: "many" }}
                 >
                   <StopsList />
-                </RelatedContext>
+                </RelatedContext.Provider>
               </div>
               <div>
-                <RelatedContext
+                <RelatedContext.Provider
                   value={{
                     relatedModel: "tour_flat_page",
                     relatedType: "many",
                   }}
                 >
                   <FlatPageList />
-                </RelatedContext>
+                </RelatedContext.Provider>
               </div>
             </div>
           </FormContext.Provider>

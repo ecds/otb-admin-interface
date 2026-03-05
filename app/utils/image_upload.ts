@@ -10,8 +10,9 @@ import {
 interface ImageUploadProps {
   file: File;
   tenant: string;
-  model?: "medium" | "map_overlay" | "map_icon";
+  model?: TModel;
   recordId?: number;
+  attribute?: string;
 }
 
 interface ImageJoinProps {
@@ -30,6 +31,7 @@ export const imageUpload = async ({
   tenant,
   model = "medium",
   recordId,
+  attribute = "file",
 }: ImageUploadProps) => {
   if (!imageTypes.includes(file.type))
     return {
@@ -41,8 +43,8 @@ export const imageUpload = async ({
   body.append("model", model);
 
   if (recordId) {
-    body.append(`[${model}][file]`, file);
-    body.append(`[reindex][id]`, "2");
+    body.append(`[${model}][${attribute}]`, file);
+    // body.append(`[reindex][id]`, "2");
 
     return await sendUpdateUpload({
       tenant,
@@ -51,7 +53,7 @@ export const imageUpload = async ({
     });
   }
 
-  body.append(`${model}[file]`, file);
+  body.append(`${model}[${attribute}]`, file);
   body.append(`${model}[filename]`, file.name);
 
   return await sendUpload({

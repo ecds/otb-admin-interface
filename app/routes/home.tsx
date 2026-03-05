@@ -41,7 +41,9 @@ const HomeRoute = () => {
           <FontAwesomeIcon icon={faPlus} /> Create New
         </button>
       )}
-      <List items={tourSets} handleDelete={() => {}} heading="Tour Site" />
+      <div className="mt-24">
+        <List items={tourSets} handleDelete={() => {}} heading="Tour Site" />
+      </div>
     </>
   );
 };

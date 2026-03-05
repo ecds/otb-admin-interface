@@ -13,8 +13,8 @@ import InputWrapper from "./InputWrapper";
 import { RecordContext, TourContext } from "~/contexts";
 import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
-import type { InputProps, TServerResponse } from "~/types";
 import { useRevalidator } from "react-router";
+import type { InputProps, TServerResponse } from "~/types";
 
 const JoditEditor = lazy(() => import("jodit-react"));
 
@@ -132,12 +132,6 @@ const TextInput = ({
     if (onChange) return;
 
     if (currentValue === valueRef.current) return;
-
-    // const timeoutId = setTimeout(() => {
-    //   if (currentValue !== valueRef.current && type === "range") update();
-    // }, 500);
-
-    // return () => clearTimeout(timeoutId);
   }, [currentValue, id, model, recordId, update, onChange, type]);
 
   const handleChange = () => {
@@ -147,7 +141,6 @@ const TextInput = ({
   };
 
   const handleBlur = async () => {
-    // if (!inputRef.current?.validity.valid) return;
     await update();
     revalidator.revalidate();
   };

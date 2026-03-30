@@ -1,13 +1,28 @@
 import type { ReactNode } from "react";
 
+export type TAccessRequest = {
+  id: number;
+  user: string;
+  email: string;
+  site: string;
+  tours: string[] | null;
+  date: string;
+};
+
+export type TTourAuthor = { tour_set: TTourSet; tours: TTour[] };
+
 export type TUser = {
   id: number;
   display_name: string;
+  email: string;
   super: boolean;
   current_tenant_admin: boolean;
-  tours: TTour[];
-  tour_sets: string[];
+  tours: TTourAuthor[];
+  tour_sets: TTourSet[];
   terms_accepted: boolean;
+  access_requests: TAccessRequest[];
+  date_joined: string;
+  last_sign_in: string;
 };
 
 export type TTourAttributes = {
@@ -189,6 +204,9 @@ export type TTourSet = {
   logo_url: string;
   notes: string;
   subdir: string;
+  tours: TTour[];
+  admins: { id: number; display_name: string }[];
+  tour_authors: { id: number; user: string; tour: string }[];
 };
 
 export type InputProps = {

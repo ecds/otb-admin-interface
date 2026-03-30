@@ -1,5 +1,6 @@
+import { Button } from "@headlessui/react";
 import { useContext } from "react";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { AuthContext } from "~/contexts";
 import { signOut } from "~/utils/requests";
 
@@ -17,12 +18,20 @@ const Account = () => {
 
   if (signedIn) {
     return (
-      <button
-        className="cursor-pointer capitalize border-black/45 text-black/75 border-2 rounded-md px-2 py-1"
-        onClick={handelSignOut}
-      >
-        Sign Out
-      </button>
+      <>
+        <NavLink
+          to="/access-request"
+          className={({ isActive }) => (isActive ? "underline" : "")}
+        >
+          Request Access
+        </NavLink>
+        <Button
+          className="cursor-pointer capitalize border-black/45 text-black/75 border-2 rounded-md px-2 py-1"
+          onClick={handelSignOut}
+        >
+          Sign Out
+        </Button>
+      </>
     );
   }
   return <></>;

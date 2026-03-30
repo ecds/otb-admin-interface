@@ -1,6 +1,10 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  type IconDefinition,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  Button,
   Description,
   Dialog,
   DialogBackdrop,
@@ -14,11 +18,21 @@ const DeleteButton = ({
   removing,
   className,
   disabled = false,
+  label,
+  icon = faTrash,
+  description,
+  message,
+  iconClassName,
 }: {
   children?: ReactNode;
   removing: string;
   className?: string;
   disabled?: boolean;
+  label?: string;
+  icon?: IconDefinition;
+  description?: string;
+  message?: string;
+  iconClassName?: string;
 }) => {
   const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
@@ -30,7 +44,8 @@ const DeleteButton = ({
 
   return (
     <>
-      <button
+      <Button
+        aria-label={label ?? `Delete ${removing}`}
         className={
           className ??
           "cursor-pointer bg-red-300 hover:bg-red-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
@@ -38,8 +53,9 @@ const DeleteButton = ({
         onClick={() => setAskConfirm(true)}
         disabled={disabled}
       >
-        <FontAwesomeIcon icon={faTrash} /> {children ?? "Delete"}
-      </button>
+        <FontAwesomeIcon icon={icon} className={iconClassName} />{" "}
+        {children ?? "Delete"}
+      </Button>
       <Dialog
         open={askConfirm}
         onClose={() => setAskConfirm(false)}
@@ -48,8 +64,13 @@ const DeleteButton = ({
         <DialogBackdrop className="fixed inset-0 bg-black/30" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
-            <Description>Remove this {removing}?</Description>
-            <p>Are you sure you want to this {removing} from the tour.</p>
+            <Description>
+              {description ?? `Remove this ${removing}?`}
+            </Description>
+            <p>
+              {message ?? `Are you sure you want to remove this ${removing}`}{" "}
+              from the tour.
+            </p>
             <div className="flex gap-4 justify-end">
               <button
                 className="p-2 rounded-md border border-black/75 cursor-pointer"

@@ -4,20 +4,20 @@ import { Link, useParams } from "react-router";
 import ToolTip from "./inputs/ToolTip";
 import type { ReactNode } from "react";
 import type { TTour, TTourSet } from "~/types";
-import SelectInput from "./inputs/SelectInput";
 
 interface Props {
   items: TTourSet[] | TTour[];
-  handleDelete: () => void;
+  handleDelete?: () => void;
   heading: string;
   children?: ReactNode;
+  tenant?: string;
 }
 
-const List = ({ items, handleDelete, heading, children }: Props) => {
+const List = ({ items, handleDelete, heading, children, tenant }: Props) => {
   const params = useParams();
 
   return (
-    <table className="w-5/6 p-8 m-auto">
+    <table className="w-11/12 lg:w-3/4 max-w-7xl p-8 m-auto">
       <caption className="caption-top text-left">{children}</caption>
       <thead className="">
         <tr className="">
@@ -31,14 +31,14 @@ const List = ({ items, handleDelete, heading, children }: Props) => {
               </ToolTip>
             </th>
           )}
-          <th className="max-w-fit">Delete</th>
+          {handleDelete && <th className="max-w-fit">Delete</th>}
         </tr>
       </thead>
       <tbody>
         {items.map((item, index) => {
           return (
             <tr
-              key={item.id}
+              key={item.id ?? (item as TTourSet).subdir}
               className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-white"} hover:bg-gray-200 py-8 my-8`}
             >
               <td className="p-2">
@@ -51,7 +51,7 @@ const List = ({ items, handleDelete, heading, children }: Props) => {
                   </Link>
                 ) : (
                   <Link
-                    to={`/${params.tourSet}/edit/${item.id}`}
+                    to={`/${tenant ?? params.tourSet}/edit/${item.id}`}
                     className="hover:underline text-blue-700 hover:text-blue-900"
                   >
                     {(item as TTour).title}
@@ -65,11 +65,13 @@ const List = ({ items, handleDelete, heading, children }: Props) => {
                   />
                 </td>
               )}
-              <td className="text-center">
-                <button onClick={handleDelete}>
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </td>
+              {handleDelete && (
+                <td className="text-center">
+                  <button onClick={handleDelete}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
+              )}
             </tr>
           );
         })}

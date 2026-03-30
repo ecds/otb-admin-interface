@@ -14,7 +14,7 @@ const Feedback = () => {
           >
             {feedback?.message}
           </p>
-          {feedback?.type == "error" && (
+          {(feedback?.type == "error" || feedback?.dismissable) && (
             <div className="flex flex-row justify-end">
               <button onClick={() => setFeedback(undefined)}>Dismiss</button>
             </div>

@@ -6,7 +6,7 @@ export const createTour = async (tenant: string) => {
     body: {
       model: "tour",
       tour: {
-        title: "Jay's Awesome Test!",
+        title: `New Tour ${Date.now()}`,
       },
     },
   });

@@ -14,24 +14,20 @@ type ISignedIn = {
   signedIn: boolean;
   currentUser: TUser | undefined;
   setCurrentUser: Dispatch<SetStateAction<TUser | undefined>>;
+  currentTenantAdmin: boolean;
+  setCurrentTenantAdmin: Dispatch<SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<ISignedIn>({
   signedIn: false,
-  currentUser: {
-    id: 0,
-    display_name: "",
-    super: false,
-    current_tenant_admin: false,
-    tours: [],
-    tour_sets: [],
-    terms_accepted: false,
-  },
+  currentUser: undefined,
   setCurrentUser: (_: SetStateAction<TUser | undefined>) => {
     console.error(
       "setCurrentUser not implemented. Did you pass it to context?",
     );
   },
+  currentTenantAdmin: false,
+  setCurrentTenantAdmin: (_: SetStateAction<boolean>) => {},
 });
 
 type TRecordContext = {
@@ -47,11 +43,15 @@ type TFormContext = {
   setError?: Dispatch<SetStateAction<string | undefined>>;
 };
 
+type TFeedbackMessage = {
+  type: "success" | "error";
+  message: string;
+  dismissable?: boolean;
+};
+
 type TFeedbackContext = {
-  feedback: { type: "success" | "error"; message: string } | undefined;
-  setFeedback: Dispatch<
-    SetStateAction<{ type: "success" | "error"; message: string } | undefined>
-  >;
+  feedback: TFeedbackMessage | undefined;
+  setFeedback: Dispatch<SetStateAction<TFeedbackMessage | undefined>>;
 };
 
 type TRelatedContext = {
@@ -101,6 +101,9 @@ export const TourSetContext = createContext<TTourSet>({
   logo_url: "",
   notes: "",
   subdir: "",
+  tours: [],
+  admins: [],
+  tour_authors: [],
 });
 
 export const RecordContext = createContext<TRecordContext>({

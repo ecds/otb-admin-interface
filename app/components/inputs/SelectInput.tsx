@@ -6,7 +6,10 @@ import { sendUpdate } from "~/utils/requests";
 import { FormContext, RecordContext, TourContext } from "~/contexts";
 import { useRevalidator } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faSquareCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import type { InputProps, TChoices, TSelectableProps } from "~/types";
 
@@ -89,22 +92,29 @@ const SelectInput = ({
             <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
           </Description>
         )}
-        <Select
-          name={id}
-          ref={inputRef}
-          className="basis-full border border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
-          onChange={handleSelect}
-          value={(currentValue as string) ?? options[0].value}
-          disabled={isSaving}
-        >
-          {options.map((option) => {
-            return (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            );
-          })}
-        </Select>
+        <div className="relative basis-full">
+          <Select
+            name={id}
+            ref={inputRef}
+            className="appearance-none border w-full border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
+            onChange={handleSelect}
+            value={(currentValue as string) ?? options[0].value}
+            disabled={isSaving}
+          >
+            {options.map((option) => {
+              return (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              );
+            })}
+          </Select>
+          <FontAwesomeIcon
+            icon={faChevronDown}
+            className="group pointer-events-none absolute top-5 right-3 size-4"
+            aria-hidden="true"
+          />
+        </div>
       </InputWrapper>
     );
   }

@@ -44,8 +44,19 @@ type AllowedAttributes = {
   tour_set?: {
     logo: null;
   };
-  user?: {
-    terms_accepted?: boolean;
+  user?:
+    | {
+        terms_accepted?: boolean;
+      }
+    | number;
+  access_request?: {
+    user?: number;
+    tour_ids?: number[] | string[] | null;
+    approved?: boolean;
+  };
+  tour_set_admin?: {
+    user_id: number;
+    tour_set_id: number;
   };
 };
 
@@ -57,6 +68,8 @@ export type UpdateBody = AllowedAttributes & {
   related_type?: "belongs_to" | "many" | undefined;
   reindex?: Reindex;
   logo?: null;
+  user?: number;
+  tour_ids?: FormDataEntryValue[];
 };
 
 type CreateBody = AllowedAttributes & {
@@ -78,6 +91,7 @@ type UpdateOptions = {
   body: UpdateBody;
   record: string | number;
   tenant: string;
+  path?: string;
 };
 
 type FetchOptions = {
@@ -112,7 +126,7 @@ export const request = async ({
 
     const { status, headers } = response;
 
-    if (response.ok && method === "DELETE") {
+    if ((response.ok && method === "DELETE") || response.status === 204) {
       return { response, data: {}, status, headers };
     }
 
@@ -124,7 +138,7 @@ export const request = async ({
 };
 
 export const fetchCurrentUser = async () => {
-  const { data } = await request({ path: "public/v4/admin/users?me=true" });
+  const { data } = await request({ path: "public/v4/admin/users/me" });
   return data;
 };
 
@@ -150,20 +164,27 @@ export const signOut = async () => {
 export const sendCreate = async ({
   tenant,
   body,
+  path,
 }: {
   tenant: string;
   body: CreateBody;
+  path?: string;
 }) => {
   return await request({
-    path: `${tenant}/v4/admin/crud`,
+    path: path ?? `${tenant}/v4/admin/crud`,
     body,
     method: "POST",
   });
 };
 
-export const sendUpdate = async ({ tenant, record, body }: UpdateOptions) => {
+export const sendUpdate = async ({
+  tenant,
+  record,
+  body,
+  path,
+}: UpdateOptions) => {
   return await request({
-    path: `${tenant}/v4/admin/crud/${record}`,
+    path: path ?? `${tenant}/v4/admin/crud/${record}`,
     body,
     method: "PUT",
   });

@@ -58,6 +58,7 @@ export default function App() {
   const [feedback, setFeedback] = useState<
     { type: "success" | "error"; message: string } | undefined
   >(undefined);
+  const [currentTenantAdmin, setCurrentTenantAdmin] = useState<boolean>(false);
   const isSigningIn = useMatch("/admin/signin");
 
   useEffect(() => {
@@ -85,12 +86,21 @@ export default function App() {
     const token = searchParams.get("access_token");
 
     if (token) {
+      console.log("🚀 ~ App ~ token:", token);
       verifyExchange(token);
     }
   }, [signedIn, navigate, searchParams]);
 
   return (
-    <AuthContext.Provider value={{ signedIn, currentUser, setCurrentUser }}>
+    <AuthContext.Provider
+      value={{
+        signedIn,
+        currentUser,
+        setCurrentUser,
+        currentTenantAdmin,
+        setCurrentTenantAdmin,
+      }}
+    >
       <Terms />
       <FeedbackContext.Provider value={{ feedback, setFeedback }}>
         <Feedback />

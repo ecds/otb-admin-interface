@@ -86,7 +86,6 @@ export default function App() {
     const token = searchParams.get("access_token");
 
     if (token) {
-      console.log("🚀 ~ App ~ token:", token);
       verifyExchange(token);
     }
   }, [signedIn, navigate, searchParams]);

@@ -87,7 +87,10 @@ const UsersRoute = () => {
 
   useEffect(() => {
     const sortField = searchParams.get("sort_field") as SortField;
-    const sortDirection = searchParams.get("sort_dir") as SortDirection;
+    const sortDirection =
+      sortFieldRef.current === sortField
+        ? (searchParams.get("sort_dir") as SortDirection)
+        : "asc";
     if (!sortField) return;
     setSortedUsers(
       [...users].sort((a, b) => {
@@ -105,7 +108,12 @@ const UsersRoute = () => {
       }),
     );
     setFeedback(undefined);
+    sortFieldRef.current = sortField;
   }, [searchParams, users, setFeedback]);
+
+  useEffect(() => {
+    setModalOpen(Boolean(activeUser));
+  }, [activeUser]);
 
   const updateSort = (sortFieldParam: SortField) => {
     setFeedback({ type: "success", message: "Updating Sort Order" });
@@ -119,10 +127,6 @@ const UsersRoute = () => {
     setSearchParams({ sort_field: sortFieldParam, sort_dir: sortDirection });
     sortFieldRef.current = sortFieldParam;
   };
-
-  useEffect(() => {
-    setModalOpen(Boolean(activeUser));
-  }, [activeUser]);
 
   if (!currentUser || !currentUser.super) return <></>;
 

@@ -11,7 +11,6 @@ interface Props {
 }
 
 const UserTourSet = ({ tourSet, user }: Props) => {
-  console.log("🚀 ~ UserTourSet ~ tourSet:", tourSet);
   const [value, setValue] = useState<boolean>(
     user.tour_sets.map((ts) => ts.subdir).includes(tourSet.subdir),
   );

@@ -67,22 +67,21 @@ const HomeRoute = () => {
       <>
         <Navbar />
         <div className="mt-24 w-3xl mx-auto text-black/75 flex flex-col space-y-4">
-          <p>
-            You have not been added to any tour sites.{" "}
+          <p>You have not been added to any tour sites.*</p>
+          <p className="flex w-full items-center justify-center">
             <a
               href="/admin/access-request"
-              className="text-blue-500 hover:text-blue-800 underline font-bold"
+              className="bg-blue-500 hover:bg-blue-800 text-white px-2 py-1 rounded-md drop-shadow-2xl uppercase font-light tracking-wide"
             >
-              Request Access
+              Request access and see any pending requests
             </a>
-            .*
           </p>
           <p>
             *If you have had access to tour sites in the past, and should still
             have access, please check to make sure that you used the same GMail
             account that you have previously used. Your are currently signed in
-            as <strong>{currentUser.email}</strong>. If you use another account,
-            your tour sites will not show!
+            as <strong className="text-black">{currentUser.email}</strong>. If
+            you use another account, your tour sites will not show!
           </p>
         </div>
       </>

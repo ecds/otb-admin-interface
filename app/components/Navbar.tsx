@@ -2,6 +2,8 @@ import { NavLink } from "react-router";
 import Account from "./Account";
 import { useContext } from "react";
 import { AuthContext, TourSetContext } from "~/contexts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
   const tourSet = useContext(TourSetContext);
@@ -44,9 +46,13 @@ const Navbar = () => {
           <li>
             <a
               href="https://github.com/ecds/OpenTourBuilder/wiki/How-to-Use-OpenTour-v.-3.0"
-              className=""
+              className="flex flex-row"
             >
-              Documentation
+              Documentation{" "}
+              <FontAwesomeIcon
+                className="fill-black/75 text-xs self-center ms-0.5"
+                icon={faExternalLink}
+              />
             </a>
           </li>
         </ul>

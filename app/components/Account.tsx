@@ -5,7 +5,7 @@ import { AuthContext } from "~/contexts";
 import { signOut } from "~/utils/requests";
 
 const Account = () => {
-  const { signedIn, setCurrentUser } = useContext(AuthContext);
+  const { signedIn, currentUser, setCurrentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handelSignOut = async () => {
@@ -19,12 +19,14 @@ const Account = () => {
   if (signedIn) {
     return (
       <>
-        <NavLink
-          to="/access-request"
-          className={({ isActive }) => (isActive ? "underline" : "")}
-        >
-          Request Access
-        </NavLink>
+        {currentUser && !currentUser.super && (
+          <NavLink
+            to="/access-request"
+            className={({ isActive }) => (isActive ? "underline" : "")}
+          >
+            Request Access
+          </NavLink>
+        )}
         <Button
           className="cursor-pointer capitalize border-black/45 text-black/75 border-2 rounded-md px-2 py-1"
           onClick={handelSignOut}

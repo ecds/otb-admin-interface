@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData } from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
@@ -35,7 +35,6 @@ const HomeRoute = () => {
   const [myTourSets, setMyTourSets] = useState<TTourSet[] | undefined>(
     undefined,
   );
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentUser?.super) return;
@@ -54,23 +53,13 @@ const HomeRoute = () => {
     );
   }, [currentUser, tourSets]);
 
-  useEffect(() => {
-    if (
-      currentUser &&
-      !currentUser.super &&
-      currentUser.tour_sets.length === 0 &&
-      currentUser.tours.length === 0
-    ) {
-      navigate("/access-request");
-    }
-  }, [currentUser, navigate]);
-
   const handleCreate = async () => {};
 
   if (!signedIn || !currentUser) return <></>;
 
   if (
     currentUser &&
+    !currentUser.super &&
     currentUser.tour_sets.length === 0 &&
     currentUser.tours.length === 0
   ) {
@@ -78,24 +67,21 @@ const HomeRoute = () => {
       <>
         <Navbar />
         <div className="mt-24 w-3xl mx-auto text-black/75 flex flex-col space-y-4">
-          <ul>
-            <li>{currentUser.tour_sets.length}</li>
-            <li>{currentUser.tours.length}</li>
-          </ul>
           <p>
-            You have not been added to any tour sites. Please contact an{" "}
+            You have not been added to any tour sites.{" "}
             <a
-              href="mailto:ecds@emory.edu"
-              className="text-blue-500 hover:text-blue-800 underline"
+              href="/access-request"
+              className="text-blue-500 hover:text-blue-800 underline font-bold"
             >
-              administrator
+              Request Access
             </a>
             .*
           </p>
           <p>
             *If you have had access to tour sites in the past, and should still
             have access, please check to make sure that you used the same GMail
-            account that you have previously used. If you use another account,
+            account that you have previously used. Your are currently signed in
+            as <strong>{currentUser.email}</strong>. If you use another account,
             your tour sites will not show!
           </p>
         </div>

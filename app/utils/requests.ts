@@ -139,7 +139,8 @@ export const request = async ({
 
 export const fetchCurrentUser = async () => {
   const { data } = await request({ path: "public/v4/admin/users/me" });
-  return data;
+  if (data.id) return data;
+  return undefined;
 };
 
 export const verifyToken = async (token: string) => {

@@ -6,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useMatch,
   useNavigate,
   useSearchParams,
 } from "react-router";
@@ -59,7 +58,6 @@ export default function App() {
     { type: "success" | "error"; message: string } | undefined
   >(undefined);
   const [currentTenantAdmin, setCurrentTenantAdmin] = useState<boolean>(false);
-  const isSigningIn = useMatch("/admin/signin");
 
   useEffect(() => {
     if (!session) navigate("/signin");
@@ -67,7 +65,7 @@ export default function App() {
     if (session?.id) {
       setCurrentUser(session);
     }
-  }, [session, navigate, isSigningIn]);
+  }, [session, navigate]);
 
   useEffect(() => {
     if (!currentUser) return;

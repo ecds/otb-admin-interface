@@ -70,7 +70,7 @@ const HomeRoute = () => {
           <p>
             You have not been added to any tour sites.{" "}
             <a
-              href="/access-request"
+              href="/admin/access-request"
               className="text-blue-500 hover:text-blue-800 underline font-bold"
             >
               Request Access

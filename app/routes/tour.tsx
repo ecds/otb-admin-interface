@@ -91,13 +91,20 @@ const TourRoute = () => {
                 id="title"
                 model="tour"
               />
-              <SelectInput
-                label="Published"
-                value={tour.published}
-                id="published"
-                model="tour"
-                helpText="Toggle to make tour publicly available."
-              />
+              <div className="flex flex-row">
+                <SelectInput
+                  label="Published"
+                  value={tour.published}
+                  id="published"
+                  model="tour"
+                  helpText="Toggle to make tour publicly available."
+                />
+                {tour.published_on && (
+                  <p>
+                    <span className="">Published On:</span> 2026-01-01
+                  </p>
+                )}
+              </div>
               <TextInput
                 type="rich-text"
                 label="Description"

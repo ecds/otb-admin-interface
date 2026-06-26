@@ -59,10 +59,16 @@ const List = ({ items, handleDelete, heading, children, tenant }: Props) => {
                 )}
               </td>
               {heading === "Tours" && (
-                <td className="text-center">
-                  <FontAwesomeIcon
-                    icon={(item as TTour).published ? faCheck : faX}
-                  />
+                <td className={`text-center`}>
+                  <span title={(item as TTour).published_on}>
+                    {(item as TTour).published_on ? (
+                      <>{(item as TTour).published_on}</>
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={(item as TTour).published ? faCheck : faX}
+                      />
+                    )}
+                  </span>
                 </td>
               )}
               {handleDelete && (

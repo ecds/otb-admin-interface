@@ -181,6 +181,7 @@ export type TTour = {
     lng: number;
   };
   published: boolean;
+  published_on: string;
   restrict_bounds: boolean;
   restrict_bounds_to_overlay: boolean;
   slug: string;
@@ -223,7 +224,13 @@ export type TChoices = {
   label: string;
 };
 
-export type TEmbedProvider = "vimeo" | "youtube" | "soundcloud";
+export type TEmbedProvider =
+  | "vimeo"
+  | "youtube"
+  | "soundcloud"
+  | "sketchfab"
+  | "unknown"
+  | "matterport";
 
 export type TServerResponse = TTour | TStop | TMedium | TFlatPage | TTourSet;
 

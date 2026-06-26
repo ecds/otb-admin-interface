@@ -44,11 +44,15 @@ const Embed = ({ onSuccess }: Props) => {
   const addMedium = async () => {
     const body = {
       medium: {
-        filename: `${embedCode}.jpg`,
+        filename: provider === "unknown" ? null : `${embedCode}.jpg`,
         video: embedCode,
         video_provider: provider,
       },
       model: "medium",
+      reindex: {
+        model: "tour",
+        id: tour.id,
+      },
     };
     const { response: createResponse, data: createData } = await sendCreate({
       tenant: tour.tenant,
@@ -63,7 +67,6 @@ const Embed = ({ onSuccess }: Props) => {
         recordId,
         imageId: createData.id,
         tenant: tour.tenant,
-        tourId: tour?.id,
       });
       if (response.ok && onSuccess) {
         onSuccess(data);

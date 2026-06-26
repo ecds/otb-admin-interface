@@ -55,8 +55,8 @@ type TFeedbackContext = {
 };
 
 type TRelatedContext = {
-  relatedModel: TRelateModel | undefined;
-  relatedType: "many" | "one" | undefined;
+  relatedModel: TRelateModel;
+  relatedType: "many" | "one";
 };
 
 type TOverlayContext = {
@@ -128,8 +128,8 @@ export const FeedbackContext = createContext<TFeedbackContext>({
 });
 
 export const RelatedContext = createContext<TRelatedContext>({
-  relatedModel: undefined,
-  relatedType: undefined,
+  relatedModel: "stop",
+  relatedType: "one",
 });
 
 export const OverlayContext = createContext<TOverlayContext>({

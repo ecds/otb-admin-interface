@@ -112,7 +112,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
       tenant: tour.tenant,
       record: id,
       body: {
-        model: "tour_medium",
+        model: relatedModel,
         reindex: {
           model: recordModel,
           id: recordId,

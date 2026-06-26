@@ -14,6 +14,7 @@ import { RecordContext, TourContext } from "~/contexts";
 import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
 import { useRevalidator } from "react-router";
+import { enforceA11yOnLinks } from "~/utils/a11y";
 import type { InputProps, TServerResponse } from "~/types";
 
 const JoditEditor = lazy(() => import("jodit-react"));
@@ -87,6 +88,34 @@ const TextInput = ({
       statusbar: false,
       height: 200,
       toolbarAdaptive: false,
+
+      // Enforce a11y whenever Jodit processes a link dialog save
+      // or the user pastes content with links
+      events: {
+        afterInsertNode(node: Node) {
+          if (
+            node instanceof HTMLAnchorElement &&
+            node.getAttribute("target") === "_blank"
+          ) {
+            const rel = new Set(
+              (node.getAttribute("rel") ?? "").split(" ").filter(Boolean),
+            );
+            rel.add("noopener");
+            rel.add("noreferrer");
+            node.setAttribute("rel", [...rel].join(" "));
+
+            const linkText = node.textContent?.trim() ?? "";
+            if (
+              !node.getAttribute("aria-label")?.includes("opens in a new tab")
+            ) {
+              node.setAttribute(
+                "aria-label",
+                `${linkText} (opens in a new tab)`,
+              );
+            }
+          }
+        },
+      },
     }),
     [],
   );
@@ -140,6 +169,13 @@ const TextInput = ({
     if (onChange) onChange(inputRef.current.value);
   };
 
+  // And update the onChange to run the HTML-level pass
+  // (catches pastes and source-mode edits that bypass afterInsertNode)
+  const handleRichTextChange = useCallback((newValue: string) => {
+    const enforced = enforceA11yOnLinks(newValue);
+    setCurrentValue(enforced);
+  }, []);
+
   const handleBlur = async () => {
     await update();
     revalidator.revalidate();
@@ -186,7 +222,7 @@ const TextInput = ({
             <JoditEditor
               value={currentValue?.toString() ?? ""}
               config={config}
-              onChange={(newValue) => setCurrentValue(newValue)}
+              onChange={handleRichTextChange}
               onBlur={handleBlur}
             />
           </ClientOnly>

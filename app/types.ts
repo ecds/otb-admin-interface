@@ -93,6 +93,7 @@ export type TMedium = {
   caption: string;
   desktop_width: number;
   embed?: string;
+  embed_id?: string;
   filename: string;
   files: {
     original: string;
@@ -230,7 +231,8 @@ export type TEmbedProvider =
   | "soundcloud"
   | "sketchfab"
   | "unknown"
-  | "matterport";
+  | "matterport"
+  | "morphosource";
 
 export type TServerResponse = TTour | TStop | TMedium | TFlatPage | TTourSet;
 

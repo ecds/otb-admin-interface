@@ -45,7 +45,7 @@ const Embed = ({ onSuccess }: Props) => {
     const body = {
       medium: {
         filename: provider === "unknown" ? null : `${embedCode}.jpg`,
-        video: embedCode,
+        embed_id: embedCode,
         video_provider: provider,
       },
       model: "medium",
@@ -83,12 +83,12 @@ const Embed = ({ onSuccess }: Props) => {
       <TextInput
         type="text"
         label="Embed Media"
-        model="tour"
+        model={recordModel}
         value={link ?? ""}
         id="embed"
         helpText='You can add a video hosted on YouTube or Vimeo by entering the link here. You can add SoundCloud audio by entering the share embed here. Other hosting will not work. The video or audio should appear below automatically if the url or embed is correct. If the media does not appear, double check the url or embed. Once the media appears you can add it to your tour with the "Yes! ADD THIS MEDIUM" button.'
         onChange={handleInput}
-        placeholder="Add link to embed media from YouTube, Vimeo, or SoundCloud."
+        placeholder="Add link to embed code."
       />
 
       {embedUrl && (

@@ -68,7 +68,6 @@ const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
       recordId,
       imageId: medium.id,
       tenant: tour.tenant,
-      tourId: tour?.id,
     });
     if (response.ok && onSuccess) {
       onSuccess(data);
@@ -117,7 +116,7 @@ const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
                           alt=""
                           className="h-32"
                         />
-                        {medium.video && (
+                        {medium.embed_id && (
                           <FontAwesomeIcon
                             icon={faPlayCircle}
                             className="text-6xl text-white/55 absolute"

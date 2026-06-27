@@ -187,7 +187,7 @@ const TextInput = ({
         htmlFor={`${model}-${id}`}
         className="block mb-2.5 font-medium text-black/75"
       >
-        {label}
+        {label}!: {model}
       </label>
       {helpText && (
         <Description as="div">

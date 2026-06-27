@@ -56,7 +56,7 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
           className={`flex items-center justify-center bg-gray-200/25 rounded-md h-44 cursor-grab active:cursor-grabbing bg-top bg-contain bg-no-repeat`}
           style={{ backgroundImage: `url(${medium.files.mobile})` }}
         >
-          {medium.video && (
+          {medium.embed_id && (
             <FontAwesomeIcon
               icon={faPlayCircle}
               className="text-6xl text-white/55"

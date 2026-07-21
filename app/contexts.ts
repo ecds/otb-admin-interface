@@ -39,8 +39,11 @@ type TRecordContext = {
 type TFormContext = {
   recordId?: number;
   handleDelete?: (recordId: number) => void;
-  error?: string | undefined;
-  setError?: Dispatch<SetStateAction<string | undefined>>;
+};
+
+type TErrorContext = {
+  error: string | undefined;
+  setError: Dispatch<SetStateAction<string | undefined>>;
 };
 
 type TFeedbackMessage = {
@@ -114,6 +117,9 @@ export const RecordContext = createContext<TRecordContext>({
 export const FormContext = createContext<TFormContext>({
   recordId: 0,
   handleDelete: async () => {},
+});
+
+export const ErrorContext = createContext<TErrorContext>({
   error: "",
   setError: (_: SetStateAction<string | undefined>) => {},
 });
@@ -196,6 +202,7 @@ export const TourContext = createContext<TTourContext>({
       lng: 0,
     },
     published: false,
+    published_on: "",
     restrict_bounds: false,
     restrict_bounds_to_overlay: false,
     slug: "",

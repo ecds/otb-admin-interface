@@ -3,7 +3,7 @@ import InputWrapper from "./InputWrapper";
 import ToolTip from "./ToolTip";
 import { useContext, useEffect, useRef, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
-import { FormContext, RecordContext, TourContext } from "~/contexts";
+import { ErrorContext, RecordContext, TourContext } from "~/contexts";
 import { useRevalidator } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -33,7 +33,7 @@ const SelectInput = ({
   const valueRef = useRef<string | boolean>(value);
   const { tour, isSaving, setIsSaving } = useContext(TourContext);
   const { recordId } = useContext(RecordContext);
-  const { error, setError } = useContext(FormContext);
+  const { error, setError } = useContext(ErrorContext);
   const revalidator = useRevalidator();
 
   useEffect(() => {

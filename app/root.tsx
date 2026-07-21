@@ -12,6 +12,7 @@ import {
 
 import "./app.css";
 import { fetchCurrentUser, verifyToken } from "./utils/requests";
+import type React from "react";
 import { useEffect, useState } from "react";
 import { AuthContext, FeedbackContext } from "./contexts";
 import Feedback from "./components/Feedback";

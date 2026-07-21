@@ -6,10 +6,10 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useContext } from "react";
-import { FormContext } from "~/contexts";
+import { ErrorContext } from "~/contexts";
 
 const Error = () => {
-  const { error, setError } = useContext(FormContext);
+  const { error, setError } = useContext(ErrorContext);
   return (
     <Dialog
       open={Boolean(error)}

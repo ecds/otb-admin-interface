@@ -52,7 +52,9 @@ const embedParsers: EmbedParser[] = [
     test: (url) =>
       /<iframe[^>]*src="https:\/\/[^"]*soundcloud\.com[^"]*"/.test(url),
     extract: (url) => {
-      const tracksPart = url.match(/api\.soundcloud\.com\/tracks\/([^"&\s]+)/)?.[1];
+      const tracksPart = url.match(
+        /api\.soundcloud\.com\/tracks\/([^"&\s]+)/,
+      )?.[1];
       return tracksPart?.match(/(\d+)$/)?.[1] ?? null;
     },
     buildEmbedUrl: (code) =>
@@ -77,10 +79,17 @@ const embedParsers: EmbedParser[] = [
     buildEmbedUrl: (code) => `//my.matterport.com/show/?m=${code}`,
   },
   {
+    provider: "morphosource",
+    test: (url) => /morphosource\.org/.test(url),
+    extract: (url) => url.match(/\/manifests\/([\w-]+)/)?.[1] ?? null,
+    buildEmbedUrl: (code) =>
+      `//www.morphosource.org/uv.html#?manifest=/manifests/${code}`,
+  },
+  {
     provider: "unknown",
     test: (url) => /<iframe.*?src="https:([^"]+)"/.test(url),
     extract: (url) => url.match(/<iframe.*?src="https:([^"]+)"/)?.[1] ?? null,
-    buildEmbedUrl: (code) => code,
+    buildEmbedUrl: (code) => code ?? "unknown",
   },
 ];
 

@@ -3,7 +3,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { request } from "~/utils/requests";
 import TextInput from "~/components/inputs/TextInput";
 import {
-  FormContext,
+  ErrorContext,
   RecordContext,
   RelatedContext,
   TourContext,
@@ -81,7 +81,7 @@ const TourRoute = () => {
             recordModel: "tour",
           }}
         >
-          <FormContext.Provider value={{ error, setError }}>
+          <ErrorContext.Provider value={{ error, setError }}>
             <Error />
             <div className="my-24 px-8 md:px-0 xl:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
               <TextInput
@@ -209,7 +209,7 @@ const TourRoute = () => {
                 </RelatedContext.Provider>
               </div>
             </div>
-          </FormContext.Provider>
+          </ErrorContext.Provider>
           <div className="fixed z-50 h-16 bg-gray-300 w-full bottom-0 flex justify-end items-center gap-8 pe-8">
             <div className="flex flex-row grow justify-self-start ms-8 gap-6">
               <SaveButton />

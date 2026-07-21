@@ -1,7 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { parseEmbedUrl } from "~/utils/embed_parser";
 import TextInput from "../inputs/TextInput";
-import { RecordContext, RelatedContext, TourContext } from "~/contexts";
+import {
+  ErrorContext,
+  FeedbackContext,
+  RecordContext,
+  RelatedContext,
+  TourContext,
+} from "~/contexts";
 import type { TEmbedProvider, TMedium } from "~/types";
 import { sendCreate } from "~/utils/requests";
 import { joinImage } from "~/utils/image_upload";
@@ -19,6 +25,8 @@ const Embed = ({ onSuccess }: Props) => {
   const { tour } = useContext(TourContext);
   const { recordId, recordModel } = useContext(RecordContext);
   const { relatedModel, relatedType } = useContext(RelatedContext);
+  const { setError } = useContext(ErrorContext);
+  const { setFeedback } = useContext(FeedbackContext);
 
   useEffect(() => {
     if (link) {
@@ -42,6 +50,10 @@ const Embed = ({ onSuccess }: Props) => {
   };
 
   const addMedium = async () => {
+    setFeedback({
+      message: `Adding embed from ${provider?.toLocaleUpperCase()}`,
+      type: "success",
+    });
     const body = {
       medium: {
         filename: provider === "unknown" ? null : `${embedCode}.jpg`,
@@ -68,6 +80,7 @@ const Embed = ({ onSuccess }: Props) => {
         imageId: createData.id,
         tenant: tour.tenant,
       });
+      setFeedback(undefined);
       if (response.ok && onSuccess) {
         onSuccess(data);
         setEmbedUrl(undefined);
@@ -75,6 +88,8 @@ const Embed = ({ onSuccess }: Props) => {
         setProvider(undefined);
         setLink(undefined);
       }
+    } else {
+      setError(createData.errors[0].detail);
     }
   };
 

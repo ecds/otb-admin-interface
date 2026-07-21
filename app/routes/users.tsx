@@ -122,7 +122,7 @@ const UsersRoute = () => {
     if (sortDirectionParam) {
       sortDirection = sortDirectionParam === "asc" ? "decs" : "asc";
     } else {
-      sortFieldParam === sortFieldRef.current ? "decs" : "asc";
+      sortDirection = sortFieldParam === sortFieldRef.current ? "decs" : "asc";
     }
     setSearchParams({ sort_field: sortFieldParam, sort_dir: sortDirection });
     sortFieldRef.current = sortFieldParam;

@@ -62,6 +62,7 @@ const TextInput = ({
   range,
 }: InputProps & TextInputProps) => {
   const [currentValue, setCurrentValue] = useState<string | number>(value);
+  const [serverError, setServerError] = useState<string | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
   const { tour, setLastUpdated, setIsSaving } = useContext(TourContext);
@@ -136,10 +137,18 @@ const TextInput = ({
     valueRef.current = currentValue;
 
     setIsSaving(false);
-    if (response.ok && updateCallback) {
-      updateCallback(data as TServerResponse);
-      const now = new Date();
-      setLastUpdated(now.toLocaleString());
+    if (response.ok) {
+      setServerError(undefined);
+      valueRef.current = currentValue;
+      if (updateCallback) {
+        updateCallback(data as TServerResponse);
+        const now = new Date();
+        setLastUpdated(now.toLocaleString());
+      }
+    } else {
+      const detail = data?.errors?.[0]?.detail;
+      setServerError(detail ?? "Could not save. Please try again.");
+      setCurrentValue(valueRef.current);
     }
   }, [
     tour,
@@ -187,7 +196,7 @@ const TextInput = ({
         htmlFor={`${model}-${id}`}
         className="block mb-2.5 font-medium text-black/75"
       >
-        {label}!: {model}
+        {label}
       </label>
       {helpText && (
         <Description as="div">
@@ -262,7 +271,7 @@ const TextInput = ({
         )}
       </div>
       <p className="text-sm text-red-400">
-        {inputRef.current?.validationMessage}
+        {serverError ?? inputRef.current?.validationMessage}
       </p>
     </InputWrapper>
   );

@@ -25,25 +25,6 @@ export type TUser = {
   last_sign_in: string;
 };
 
-export type TTourAttributes = {
-  default_lng: string;
-  description: string;
-  meta_description: string;
-  is_geo: boolean;
-  link_address: string;
-  link_text: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  published: boolean;
-  restrict_bounds: boolean;
-  slug: string;
-  tenant: string;
-  title: string;
-  use_directions: boolean;
-};
-
 type TBounds = {
   south: number;
   north: number;
@@ -53,12 +34,16 @@ type TBounds = {
   centerLng: number;
 };
 
-export type TFlatPage = {
-  body: string;
+/** Shared shape for records attached to a Tour through a join row (stop, flat_page, medium). */
+type TPositionedRecord = {
   id: number;
-  orphaned: true;
   position: number;
   relation_id: number;
+};
+
+export type TFlatPage = TPositionedRecord & {
+  body: string;
+  orphaned: boolean;
   slug: string;
   title: string;
   tour_count: number;
@@ -89,7 +74,7 @@ export type TRelateModel =
 
 export type TMapType = "hybrid" | "roadmap" | "satellite" | "terrain";
 
-export type TMedium = {
+export type TMedium = TPositionedRecord & {
   caption: string;
   desktop_width: number;
   embed?: string;
@@ -102,13 +87,10 @@ export type TMedium = {
     desktop: string;
     lqip: string;
   };
-  id: number;
   lqip?: number;
   mobile_width: number;
   original_image: string;
-  position: number;
   provider?: "youtube" | "vimeo" | "soundcloud";
-  relation_id: number;
   tablet_width: number;
   title: string;
   video?: string;
@@ -125,18 +107,16 @@ export type TTourTravelMode = TTravelMode & {
   relation_id: number;
 };
 
-export type TStop = {
-  next: {
-    id: number;
-    slug: string;
-    title: string;
-  };
-  position: number;
-  previous: {
-    id: number;
-    slug: string;
-    title: string;
-  };
+/** Preview of an adjacent stop, as returned alongside a Stop's own data. */
+type TAdjacentStop = {
+  id: number;
+  slug: string;
+  title: string;
+};
+
+export type TStop = TPositionedRecord & {
+  next: TAdjacentStop;
+  previous: TAdjacentStop;
   address: string;
   article_link?: string;
   description: string;
@@ -144,17 +124,15 @@ export type TStop = {
   direction_notes?: string;
   icon?: string;
   icon_color: string;
-  id: number;
   lat: number;
   lng: number;
   map_icon?: string;
   media: TMedium[];
   meta_description: string;
   orphaned: boolean;
-  parking_address: string | undefined;
-  parking_lat: number | undefined;
-  parking_lng: number | undefined;
-  relation_id: number;
+  parking_address?: string;
+  parking_lat?: number;
+  parking_lng?: number;
   slug: string;
   title: string;
   tour_count: number;
@@ -291,6 +269,3 @@ export type TServerError = {
   };
 };
 
-export type TServerErrors = {
-  errors: TServerError[];
-};

@@ -1,4 +1,4 @@
-FROM node:20.12.1-slim
+FROM node:24.15.0-slim
 WORKDIR /src
 COPY . .
 RUN npm install

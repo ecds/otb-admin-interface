@@ -28,8 +28,8 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ToolTip from "../inputs/ToolTip";
 import Reuse from "../Reuse";
 import type { TServerResponse, TStop } from "~/types";
-import { waitForElement } from "~/utils/wait_for_element";
 import { joinImage } from "~/utils/image_upload";
+import { getErrorMessage } from "~/utils/errors";
 import { useRevalidator } from "react-router";
 
 const StopsList = () => {
@@ -38,6 +38,9 @@ const StopsList = () => {
   const { setFeedback } = useContext(FeedbackContext);
   const [openOtherStops, setOpenReuseStops] = useState<boolean>(false);
   const [items, setItems] = useState<TStop[]>([]);
+  const [pendingOpenSlug, setPendingOpenSlug] = useState<string | undefined>(
+    undefined,
+  );
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -50,9 +53,19 @@ const StopsList = () => {
     setItems(tour.stops);
   }, [tour]);
 
+  // Runs after React has committed the newly added stop to the DOM, so the
+  // element is guaranteed to exist by the time this effect fires.
+  useEffect(() => {
+    if (!pendingOpenSlug) return;
+    const element = document.getElementById(pendingOpenSlug);
+    if (element) (element as HTMLDetailsElement).open = true;
+    setPendingOpenSlug(undefined);
+    setFeedback(undefined);
+  }, [pendingOpenSlug, items, setFeedback]);
+
   useEffect(() => {
     const sendRequest = async (newPosition: number, item: TStop) => {
-      await sendUpdate({
+      const { response, data } = await sendUpdate({
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
@@ -64,6 +77,13 @@ const StopsList = () => {
           },
         },
       });
+
+      if (!response.ok) {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the new stop order."),
+        });
+      }
     };
 
     items.forEach((item, index) => {
@@ -73,7 +93,7 @@ const StopsList = () => {
         sendRequest(newPosition, item);
       }
     });
-  }, [tour, relatedModel, items]);
+  }, [tour, relatedModel, items, setFeedback]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -131,12 +151,12 @@ const StopsList = () => {
 
     if (joinResponse.ok) {
       setItems((items) => [...items, joinData as TStop]);
-      waitForElement((data as TStop).slug, (element: Element) => {
-        (element as HTMLDetailsElement).open = true;
-        setFeedback(undefined);
-      });
+      setPendingOpenSlug((data as TStop).slug);
     } else {
-      setFeedback({ type: "error", message: joinData });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(joinData, "Could not add stop to tour."),
+      });
     }
   };
 
@@ -158,9 +178,10 @@ const StopsList = () => {
     if (response.ok) {
       await createJoin(data);
       if (stopToCopy) {
+        const failedMedia: string[] = [];
         for (const medium of (stopToCopy as TStop).media) {
           setFeedback({ type: "success", message: "Copying media." });
-          await joinImage({
+          const { response: joinResponse, data: joinData } = await joinImage({
             relatedType: "many",
             recordModel: "stop",
             relatedModel: "stop_medium",
@@ -168,12 +189,24 @@ const StopsList = () => {
             imageId: medium.id,
             tenant: tour.tenant,
           });
-          setFeedback(undefined);
+          if (!joinResponse.ok) {
+            failedMedia.push(
+              getErrorMessage(joinData, `Could not copy "${medium.title}".`),
+            );
+          }
         }
         revalidator.revalidate();
+        setFeedback(
+          failedMedia.length > 0
+            ? { type: "error", message: failedMedia.join(" ") }
+            : undefined,
+        );
       }
     } else {
-      setFeedback({ type: "error", message: data });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not create stop."),
+      });
     }
   };
 
@@ -195,7 +228,10 @@ const StopsList = () => {
       setItems((items) => items.filter((item) => item.relation_id !== id));
       setFeedback(undefined);
     } else {
-      setFeedback({ type: "error", message: data?.error ?? "Unknown Error" });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove stop."),
+      });
     }
   };
 

@@ -5,6 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
 import { ErrorContext, RecordContext, TourContext } from "~/contexts";
 import { useRevalidator } from "react-router";
+import { useSyncPoll } from "~/hooks/useSyncPoll";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -60,18 +61,20 @@ const SelectInput = ({
     }
   }, [error, tour, id, setIsSaving]);
 
-  useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval>;
-    if (tour[id as keyof typeof tour] !== currentValue && !error) {
-      intervalId = setInterval(revalidator.revalidate, 1000);
-      setIsSaving(true);
-    }
+  const isPendingSync = tour[id as keyof typeof tour] !== currentValue && !error;
 
-    return () => {
-      if (intervalId || error) clearInterval(intervalId);
-      setIsSaving(false);
-    };
-  }, [tour, currentValue, id, revalidator, error, setIsSaving]);
+  useSyncPoll({
+    pending: isPendingSync,
+    revalidate: revalidator.revalidate,
+    onTimeout: () => {
+      if (setError)
+        setError(`Could not confirm ${label} was saved. Please refresh.`);
+    },
+  });
+
+  useEffect(() => {
+    setIsSaving(isPendingSync);
+  }, [isPendingSync, setIsSaving]);
 
   const handleSelect = () => {
     if (!inputRef.current) return;

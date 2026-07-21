@@ -27,6 +27,7 @@ import Embed from "./Embed";
 import FileUpload from "../inputs/FileUpload";
 import ToolTip from "../inputs/ToolTip";
 import ReuseMedia from "../ReuseMedia";
+import { getErrorMessage } from "~/utils/errors";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
 
@@ -53,7 +54,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
     const sendRequest = async (newPosition: number, item: TMedium) => {
       setIsSaving(true);
       setFeedback({ type: "success", message: "Saving New Order" });
-      const { response } = await sendUpdate({
+      const { response, data } = await sendUpdate({
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
@@ -65,9 +66,14 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
           },
         },
       });
+      setIsSaving(false);
       if (response.ok) {
-        setIsSaving(false);
         setFeedback(undefined);
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the new media order."),
+        });
       }
     };
 
@@ -108,7 +114,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   };
 
   const handleDelete = async (id: number) => {
-    const { response } = await sendDelete({
+    const { response, data } = await sendDelete({
       tenant: tour.tenant,
       record: id,
       body: {
@@ -119,8 +125,14 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         },
       },
     });
-    if (response.ok)
+    if (response.ok) {
       setItems((items) => items.filter((item) => item.relation_id !== id));
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove media."),
+      });
+    }
   };
 
   const itemAdded = (newItem: unknown) => {

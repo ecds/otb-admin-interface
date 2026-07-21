@@ -15,6 +15,8 @@ import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
 import { useRevalidator } from "react-router";
 import { enforceA11yOnLinks } from "~/utils/a11y";
+import { useSyncPoll } from "~/hooks/useSyncPoll";
+import { findRecordValue } from "~/utils/find_in_tour";
 import type { InputProps, TServerResponse } from "~/types";
 
 const JoditEditor = lazy(() => import("jodit-react"));
@@ -65,6 +67,13 @@ const TextInput = ({
   const [serverError, setServerError] = useState<string | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
+  // Set only once a save has actually gone out, so we only poll while
+  // waiting to see OUR write reflected — not whenever `value` happens to
+  // differ from tour data for unrelated reasons (e.g. a live map viewport).
+  const savedValueRef = useRef<string | number | undefined>(undefined);
+  // Jodit is only sanitized/committed on blur, not on every keystroke — see
+  // handleRichTextChange for why.
+  const richTextRef = useRef<string>(typeof value === "string" ? value : "");
   const { tour, setLastUpdated, setIsSaving } = useContext(TourContext);
   const { recordId } = useContext(RecordContext);
   const revalidator = useRevalidator();
@@ -123,23 +132,24 @@ const TextInput = ({
 
   const update = useCallback(async () => {
     if (!tour) return;
+    const valueToSave = type === "rich-text" ? richTextRef.current : currentValue;
     setIsSaving(true);
     const { response, data } = await sendUpdate({
       tenant: tour.tenant,
       record: itemId ?? recordId,
       body: {
         model,
-        [model]: { [id]: currentValue },
+        [model]: { [id]: valueToSave },
         reindex: { id: tour.id, model: "tour" },
       },
     });
 
-    valueRef.current = currentValue;
-
     setIsSaving(false);
     if (response.ok) {
       setServerError(undefined);
-      valueRef.current = currentValue;
+      valueRef.current = valueToSave;
+      savedValueRef.current = valueToSave;
+      setCurrentValue(valueToSave);
       if (updateCallback) {
         updateCallback(data as TServerResponse);
         const now = new Date();
@@ -149,6 +159,7 @@ const TextInput = ({
       const detail = data?.errors?.[0]?.detail;
       setServerError(detail ?? "Could not save. Please try again.");
       setCurrentValue(valueRef.current);
+      if (type === "rich-text") richTextRef.current = valueRef.current as string;
     }
   }, [
     tour,
@@ -157,6 +168,7 @@ const TextInput = ({
     currentValue,
     id,
     itemId,
+    type,
     updateCallback,
     setLastUpdated,
     setIsSaving,
@@ -164,13 +176,31 @@ const TextInput = ({
 
   useEffect(() => {
     setCurrentValue(value);
-  }, [value]);
+    if (type === "rich-text" && typeof value === "string") {
+      richTextRef.current = value;
+    }
+  }, [value, type]);
+
+  const targetRecordId = itemId ?? recordId;
+  const confirmedValue = tour
+    ? findRecordValue(tour, model, targetRecordId, id)
+    : undefined;
+  const isPendingSync =
+    savedValueRef.current !== undefined &&
+    String(confirmedValue) !== String(savedValueRef.current);
+
+  useSyncPoll({
+    pending: isPendingSync,
+    revalidate: revalidator.revalidate,
+    onTimeout: () => {
+      setServerError("Could not confirm the save. Please refresh.");
+      savedValueRef.current = undefined;
+    },
+  });
 
   useEffect(() => {
-    if (onChange) return;
-
-    if (currentValue === valueRef.current) return;
-  }, [currentValue, id, model, recordId, update, onChange, type]);
+    if (!isPendingSync) savedValueRef.current = undefined;
+  }, [isPendingSync]);
 
   const handleChange = () => {
     if (!inputRef.current) return;
@@ -178,16 +208,16 @@ const TextInput = ({
     if (onChange) onChange(inputRef.current.value);
   };
 
-  // And update the onChange to run the HTML-level pass
-  // (catches pastes and source-mode edits that bypass afterInsertNode)
+  // Buffer into a ref instead of setState: feeding the sanitized value back
+  // into Jodit's controlled `value` prop on every keystroke made the cursor
+  // jump to the start and dropped keystrokes. The buffered value is only
+  // committed to state (and sent to the server) on blur, in `update()`.
   const handleRichTextChange = useCallback((newValue: string) => {
-    const enforced = enforceA11yOnLinks(newValue);
-    setCurrentValue(enforced);
+    richTextRef.current = enforceA11yOnLinks(newValue);
   }, []);
 
   const handleBlur = async () => {
     await update();
-    revalidator.revalidate();
   };
 
   return (

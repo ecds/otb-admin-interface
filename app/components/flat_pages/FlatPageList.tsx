@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import type { TFlatPage, TServerResponse } from "~/types";
 import Reuse from "../Reuse";
-import { waitForElement } from "~/utils/wait_for_element";
+import { getErrorMessage } from "~/utils/errors";
 
 const FlatPageList = () => {
   const { relatedModel } = useContext(RelatedContext);
@@ -36,6 +36,9 @@ const FlatPageList = () => {
   const { setFeedback } = useContext(FeedbackContext);
   const [items, setItems] = useState<TFlatPage[]>([]);
   const [openReuseFlatPages, setOpenReuseFlatPages] = useState<boolean>(false);
+  const [pendingOpenSlug, setPendingOpenSlug] = useState<string | undefined>(
+    undefined,
+  );
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -47,9 +50,19 @@ const FlatPageList = () => {
     setItems(tour.flat_pages);
   }, [tour]);
 
+  // Runs after React has committed the newly added page to the DOM, so the
+  // element is guaranteed to exist by the time this effect fires.
+  useEffect(() => {
+    if (!pendingOpenSlug) return;
+    const element = document.getElementById(pendingOpenSlug);
+    if (element) (element as HTMLDetailsElement).open = true;
+    setPendingOpenSlug(undefined);
+    setFeedback(undefined);
+  }, [pendingOpenSlug, items, setFeedback]);
+
   useEffect(() => {
     const sendRequest = async (newPosition: number, item: TFlatPage) => {
-      await sendUpdate({
+      const { response, data } = await sendUpdate({
         tenant: tour.tenant,
         record: item.relation_id,
         body: {
@@ -62,6 +75,13 @@ const FlatPageList = () => {
           },
         },
       });
+
+      if (!response.ok) {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the new page order."),
+        });
+      }
     };
 
     items.forEach((item, index) => {
@@ -71,7 +91,7 @@ const FlatPageList = () => {
         sendRequest(newPosition, item);
       }
     });
-  }, [tour, relatedModel, items]);
+  }, [tour, relatedModel, items, setFeedback]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -130,9 +150,11 @@ const FlatPageList = () => {
 
     if (joinResponse.ok) {
       setItems((items) => [...items, joinData as TFlatPage]);
-      waitForElement((data as TFlatPage).slug, (element: Element) => {
-        (element as HTMLDetailsElement).open = true;
-        setFeedback(undefined);
+      setPendingOpenSlug((data as TFlatPage).slug);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(joinData, "Could not add page to tour."),
       });
     }
   };
@@ -155,7 +177,10 @@ const FlatPageList = () => {
     if (response.ok) {
       createJoin(data);
     } else {
-      setFeedback({ type: "error", message: data });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not create page."),
+      });
     }
   };
 
@@ -177,7 +202,10 @@ const FlatPageList = () => {
       setItems((items) => items.filter((item) => item.relation_id === id));
       setFeedback(undefined);
     } else {
-      setFeedback({ type: "error", message: data?.error ?? "Unknown Error" });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove page."),
+      });
     }
   };
 

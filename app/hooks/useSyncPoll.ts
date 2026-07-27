@@ -42,16 +42,20 @@ export const useSyncPoll = ({
       return;
     }
 
-    if (attemptsRef.current >= maxAttempts) {
-      onTimeoutRef.current?.();
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
+    // setInterval keeps ticking on its own clock once started, so it keeps
+    // polling for as long as `pending` stays true across renders — a
+    // setTimeout here would only ever fire once, since nothing re-runs this
+    // effect while `pending`'s boolean value doesn't change between renders.
+    const intervalId = setInterval(() => {
+      if (attemptsRef.current >= maxAttempts) {
+        clearInterval(intervalId);
+        onTimeoutRef.current?.();
+        return;
+      }
       attemptsRef.current += 1;
       revalidateRef.current();
     }, intervalMs);
 
-    return () => clearTimeout(timeoutId);
+    return () => clearInterval(intervalId);
   }, [pending, intervalMs, maxAttempts]);
 };

@@ -165,6 +165,7 @@ type TTourContext = {
 
 export const TourContext = createContext<TTourContext>({
   tour: {
+    voice_overs: [],
     blank_map: false,
     bounds: {
       south: 0,

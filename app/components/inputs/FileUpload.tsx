@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type { TModel } from "~/types";
+import { safeId } from "~/utils/a11y";
 
 interface Props {
   onSuccess?: (arg: unknown) => void;
@@ -21,6 +22,9 @@ interface Props {
   className?: string;
   updateId?: number;
   attribute?: string;
+  accept?: string;
+  multiple?: boolean;
+  handleUpload?: (inputElement: HTMLInputElement) => void;
 }
 
 const FileUpload = ({
@@ -33,6 +37,9 @@ const FileUpload = ({
   className,
   updateId,
   attribute = "file",
+  accept,
+  multiple = true,
+  handleUpload,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { tour } = useContext(TourContext);
@@ -40,9 +47,15 @@ const FileUpload = ({
   const { relatedModel, relatedType } = useContext(RelatedContext);
   const { setFeedback } = useContext(FeedbackContext);
 
+  const inputId = safeId();
+
   const handleFileSelected = async () => {
     if (onStart) onStart();
     if (!inputRef.current) return;
+    if (handleUpload) {
+      handleUpload(inputRef.current);
+      return;
+    }
     if (!inputRef.current.files) return;
 
     for (const file of inputRef.current.files) {
@@ -88,6 +101,7 @@ const FileUpload = ({
         className ??
         "text-white hover:text-black file:py-2 h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
       }
+      htmlFor={inputId}
     >
       {children ? (
         <>{children}</>
@@ -98,11 +112,12 @@ const FileUpload = ({
       )}
       <input
         ref={inputRef}
+        id={inputId}
         type="file"
         onChange={handleFileSelected}
-        multiple
+        multiple={multiple}
         className="hidden"
-        accept="image/*"
+        accept={accept ?? "image/*"}
       />
     </label>
   );

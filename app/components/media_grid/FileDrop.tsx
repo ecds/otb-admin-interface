@@ -40,7 +40,6 @@ const FileDrop = ({
           recordId,
           imageId: uploadData.id,
           tenant: tour.tenant,
-          tourId: tour?.id,
         });
         if (response.ok && onSuccess) {
           onSuccess(data);

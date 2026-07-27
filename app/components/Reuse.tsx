@@ -15,19 +15,24 @@ import type { TFlatPage, TServerResponse, TStop } from "~/types";
 import ToolTip from "./inputs/ToolTip";
 import DeleteButton from "./buttons/DeleteButton";
 
-interface Props {
+interface Props<T extends TFlatPage | TStop> {
   itemIds: number[];
   model: "stops" | "flat_pages";
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  copy: (item: TFlatPage | TStop | undefined) => Promise<void>;
+  copy: (item: T | undefined) => Promise<void>;
   add: (item: TServerResponse) => Promise<unknown>;
 }
 
-const Reuse = ({ itemIds, model, isOpen, setIsOpen, copy, add }: Props) => {
-  const [items, setItems] = useState<TStop[] | TFlatPage[] | undefined>(
-    undefined,
-  );
+const Reuse = <T extends TFlatPage | TStop>({
+  itemIds,
+  model,
+  isOpen,
+  setIsOpen,
+  copy,
+  add,
+}: Props<T>) => {
+  const [items, setItems] = useState<T[] | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const { tour } = useContext(TourContext);
   const [paginationLinks, setPaginationLinks] =
@@ -85,7 +90,7 @@ const Reuse = ({ itemIds, model, isOpen, setIsOpen, copy, add }: Props) => {
                       </th>
                       <th scope="col" className="px-6 py-3 font-medium text-lg">
                         Add{" "}
-                        <ToolTip id="reuse-stop">
+                        <ToolTip>
                           Add a stop from another tour. If you edit the stop in
                           one tour, the changes will appear in other tours. If
                           you would like to add the stop but only have changes
@@ -94,7 +99,7 @@ const Reuse = ({ itemIds, model, isOpen, setIsOpen, copy, add }: Props) => {
                       </th>
                       <th scope="col" className="px-6 py-3 font-medium text-lg">
                         Copy{" "}
-                        <ToolTip id="copy-stop">
+                        <ToolTip>
                           Copy a stop from another tour. if you edit the stop in
                           one tour, the changes will not appear in other tours.
                           If you would like to have edits apply to other tours,
@@ -103,7 +108,7 @@ const Reuse = ({ itemIds, model, isOpen, setIsOpen, copy, add }: Props) => {
                       </th>
                       <th scope="col" className="px-6 py-3 font-medium text-lg">
                         Delete{" "}
-                        <ToolTip id="delete-stop">
+                        <ToolTip>
                           You can only delete a stop if it is not part of tour.
                         </ToolTip>
                       </th>

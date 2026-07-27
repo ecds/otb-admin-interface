@@ -12,7 +12,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { sendDelete, sendUpdate } from "~/utils/requests";
 import {
   FeedbackContext,
@@ -33,6 +33,11 @@ import type { TMedium } from "~/types";
 
 const MediaGrid = ({ media }: { media: TMedium[] }) => {
   const [items, setItems] = useState(media);
+  // Edits applied locally (via itemUpdated) that the server hasn't
+  // confirmed yet — a `media` prop refresh triggered by an unrelated
+  // revalidate can arrive before the ES-backed read reflects this edit,
+  // and would otherwise clobber it back to the stale value.
+  const pendingUpdatesRef = useRef<Map<number, TMedium>>(new Map());
   const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
   const [openReuseMedia, setOpenReuseMedia] = useState<boolean>(false);
   const { recordId, recordModel } = useContext(RecordContext);
@@ -47,7 +52,17 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   );
 
   useEffect(() => {
-    setItems(media);
+    setItems(
+      media.map((item) => {
+        const pending = pendingUpdatesRef.current.get(item.relation_id);
+        if (!pending) return item;
+        if (JSON.stringify(pending) === JSON.stringify(item)) {
+          pendingUpdatesRef.current.delete(item.relation_id);
+          return item;
+        }
+        return pending;
+      }),
+    );
   }, [media]);
 
   useEffect(() => {
@@ -140,12 +155,13 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   };
 
   const itemUpdated = (updatedItem: unknown) => {
-    items.splice(
-      (updatedItem as TMedium).position - 1,
-      1,
-      updatedItem as TMedium,
+    const updated = updatedItem as TMedium;
+    pendingUpdatesRef.current.set(updated.relation_id, updated);
+    setItems((items) =>
+      items.map((item) =>
+        item.relation_id === updated.relation_id ? updated : item,
+      ),
     );
-    setItems((items) => items);
     setFeedback(undefined);
   };
 
@@ -176,9 +192,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
           >
             Reuse Media
           </button>
-          <ToolTip id="add-other-media">
-            Add media from other tours or stops.
-          </ToolTip>
+          <ToolTip>Add media from other tours or stops.</ToolTip>
         </div>
         <p className="mt-8">Media Count: {items.length}</p>
         <SortableContext items={items} strategy={rectSortingStrategy}>

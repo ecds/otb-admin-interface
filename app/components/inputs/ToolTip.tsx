@@ -1,13 +1,14 @@
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { ReactNode } from "react";
+import { safeId } from "~/utils/a11y";
 
 interface Props {
   children: ReactNode;
-  id: string;
 }
 
-const ToolTip = ({ children, id }: Props) => {
+const ToolTip = ({ children }: Props) => {
+  const id = safeId();
   return (
     <div className="relative group inline">
       <button aria-describedby={id} className="drop-shadow-2xl cursor-help">

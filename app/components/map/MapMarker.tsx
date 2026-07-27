@@ -29,7 +29,7 @@ const MapMarker = ({ draggable, onDragEnd, center = false }: Props) => {
   useEffect(() => {
     if (!center || !marker || !map || !lat || !lng) return;
 
-    map.setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
+    map.setCenter({ lat, lng });
     map.setZoom(16);
   }, [center, marker, map, lat, lng]);
 

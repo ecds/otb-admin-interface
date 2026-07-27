@@ -160,9 +160,7 @@ const StopsList = () => {
     }
   };
 
-  const createStop = async (
-    stopToCopy: TServerResponse | undefined = undefined,
-  ) => {
+  const createStop = async (stopToCopy: TStop | undefined = undefined) => {
     setFeedback({ type: "success", message: "Creating Stop" });
 
     const { response, data } = await sendCreate({
@@ -254,7 +252,7 @@ const StopsList = () => {
                 >
                   <FontAwesomeIcon icon={faPlus} /> Create New
                 </button>{" "}
-                <ToolTip id="new-stop">
+                <ToolTip>
                   Create a new stop. Each stop MUST have a unique name for your
                   entire Tour Site. Each stop MUST have a location. You can
                   reuse locations.
@@ -267,7 +265,7 @@ const StopsList = () => {
                 >
                   Reuse Stops
                 </button>{" "}
-                <ToolTip id="add-stop">Reuse stops from other tours.</ToolTip>
+                <ToolTip>Reuse stops from other tours.</ToolTip>
               </div>
             </div>
             {items.map((stop) => (

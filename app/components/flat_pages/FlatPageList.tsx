@@ -160,7 +160,7 @@ const FlatPageList = () => {
   };
 
   const createFlatPage = async (
-    flatPageToCopy: TServerResponse | undefined = undefined,
+    flatPageToCopy: TFlatPage | undefined = undefined,
   ) => {
     setFeedback({ type: "success", message: "Creating Page." });
 
@@ -228,7 +228,7 @@ const FlatPageList = () => {
                 >
                   <FontAwesomeIcon icon={faPlus} /> Create New
                 </button>{" "}
-                <ToolTip id="add-flat-page">
+                <ToolTip>
                   Create a new page. You can add an About page to describe the
                   project, copyright information, or other data or images using
                   html and the wysiwyg editor. The pages will show up in the
@@ -242,9 +242,7 @@ const FlatPageList = () => {
                 >
                   Reuse Pages
                 </button>{" "}
-                <ToolTip id="new-flat-page">
-                  Reuse pages from other tours.
-                </ToolTip>
+                <ToolTip>Reuse pages from other tours.</ToolTip>
               </div>
             </div>
             {items.map((flatPage) => (

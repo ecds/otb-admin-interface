@@ -78,7 +78,7 @@ const MarkerStyle = () => {
             >
               <span className="flex flex-row gap-2">
                 Upload New Icon{" "}
-                <ToolTip id="new-icon-tooltip">
+                <ToolTip>
                   Upload a custom icon for this stop. The file must be an image
                   (jpeg, png, or webp) and no larger than 80 pixels by 80
                   pixels. Once uploaded, the icon be used on other stops by
@@ -95,9 +95,7 @@ const MarkerStyle = () => {
           >
             Use Existing Icon{" "}
           </button>
-          <ToolTip id="existing-icon-tooltip">
-            Reuse previously added icon.
-          </ToolTip>
+          <ToolTip>Reuse previously added icon.</ToolTip>
         </div>
         <IconModal open={iconModalOpen} setOpen={setIconModalOpen} />
         {mapIcon && (
@@ -109,9 +107,7 @@ const MarkerStyle = () => {
               >
                 Remove Custom Icon
               </DeleteButton>
-              <ToolTip id="remove-icon-tooltip">
-                This will only remove the from this stop.
-              </ToolTip>
+              <ToolTip>This will only remove the from this stop.</ToolTip>
             </div>
           </FormContext.Provider>
         )}

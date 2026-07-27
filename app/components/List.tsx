@@ -25,7 +25,7 @@ const List = ({ items, handleDelete, heading, children, tenant }: Props) => {
           {heading === "Tours" && (
             <th className="flex justify-center">
               Published{" "}
-              <ToolTip id="publish_tour">
+              <ToolTip>
                 Until published, the tour will only be visible when signed in to
                 OpenTour.
               </ToolTip>

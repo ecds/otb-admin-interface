@@ -26,12 +26,13 @@ export const findRecordValue = (
       return flatPage?.[field as keyof typeof flatPage];
     }
     case "medium": {
-      const allMedia = [
-        ...tour.media,
-        ...tour.stops.flatMap((s) => s.media),
-      ];
+      const allMedia = [...tour.media, ...tour.stops.flatMap((s) => s.media)];
       const medium = allMedia.find((m) => m.id === recordId);
       return medium?.[field as keyof typeof medium];
+    }
+    case "tour_voice_over": {
+      const vo = tour.voice_overs.find((v) => v.id === recordId);
+      return vo;
     }
     default:
       return undefined;

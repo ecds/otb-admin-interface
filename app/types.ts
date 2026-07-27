@@ -41,6 +41,13 @@ type TPositionedRecord = {
   relation_id: number;
 };
 
+export type TVoiceOver = {
+  filename: string;
+  id: number;
+  language: string;
+  source_url: string;
+};
+
 export type TFlatPage = TPositionedRecord & {
   body: string;
   orphaned: boolean;
@@ -60,7 +67,9 @@ export type TModel =
   | "medium"
   | "flat_page"
   | "tour_set"
-  | "map_overlay";
+  | "map_overlay"
+  | "map_icon"
+  | "voice_over";
 
 export type TRelateModel =
   | "tour_flat_page"
@@ -136,6 +145,7 @@ export type TStop = TPositionedRecord & {
   slug: string;
   title: string;
   tour_count: number;
+  voice_overs: TVoiceOver[];
 };
 
 export type TTour = {
@@ -174,6 +184,7 @@ export type TTour = {
   };
   title: string;
   use_directions: boolean;
+  voice_overs: TVoiceOver[];
 };
 
 export type TTourSet = {
@@ -218,6 +229,7 @@ export type TSelectableProps =
   | "blank_map"
   | "default_lng"
   | "is_geo"
+  | "language"
   | "map_type"
   | "published"
   | "restrict_bounds"
@@ -268,4 +280,3 @@ export type TServerError = {
     pointer: string;
   };
 };
-

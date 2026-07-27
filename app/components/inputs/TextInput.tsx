@@ -132,7 +132,8 @@ const TextInput = ({
 
   const update = useCallback(async () => {
     if (!tour) return;
-    const valueToSave = type === "rich-text" ? richTextRef.current : currentValue;
+    const valueToSave =
+      type === "rich-text" ? richTextRef.current : currentValue;
     setIsSaving(true);
     const { response, data } = await sendUpdate({
       tenant: tour.tenant,
@@ -159,7 +160,8 @@ const TextInput = ({
       const detail = data?.errors?.[0]?.detail;
       setServerError(detail ?? "Could not save. Please try again.");
       setCurrentValue(valueRef.current);
-      if (type === "rich-text") richTextRef.current = valueRef.current as string;
+      if (type === "rich-text")
+        richTextRef.current = valueRef.current as string;
     }
   }, [
     tour,
@@ -230,7 +232,7 @@ const TextInput = ({
       </label>
       {helpText && (
         <Description as="div">
-          <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
+          <ToolTip>{helpText}</ToolTip>
         </Description>
       )}
       <div className="basis-full me-0">

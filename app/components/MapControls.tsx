@@ -186,7 +186,7 @@ const MapControls = () => {
                 />
                 <div className="mb-8">
                   Drag Overlay to Position{" "}
-                  <ToolTip id="toggle-draggable">
+                  <ToolTip>
                     You can use the the white dots in the corners and along the
                     sides to resize the overlay. Use this toggle if you want to
                     drag the map into position without moving the underlying

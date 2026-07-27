@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import type { InputProps, TChoices, TSelectableProps } from "~/types";
+import { safeId } from "~/utils/a11y";
 
 type SelectProps = {
   value: string | boolean;
@@ -36,6 +37,7 @@ const SelectInput = ({
   const { recordId } = useContext(RecordContext);
   const { error, setError } = useContext(ErrorContext);
   const revalidator = useRevalidator();
+  const inputId = safeId();
 
   useEffect(() => {
     const update = async () => {
@@ -56,12 +58,13 @@ const SelectInput = ({
 
   useEffect(() => {
     if (error) {
-      setCurrentValue(tour[id]);
+      setCurrentValue(valueRef.current);
       setIsSaving(false);
     }
   }, [error, tour, id, setIsSaving]);
 
-  const isPendingSync = tour[id as keyof typeof tour] !== currentValue && !error;
+  const isPendingSync =
+    tour[id as keyof typeof tour] !== currentValue && !error;
 
   useSyncPoll({
     pending: isPendingSync,
@@ -85,19 +88,20 @@ const SelectInput = ({
     return (
       <InputWrapper className="flex flex-wrap space-x-3">
         <label
-          htmlFor={`${model}-${id}`}
+          htmlFor={inputId}
           className="block mb-2.5 font-medium text-black/75"
         >
           {label}
         </label>
         {helpText && (
           <Description as="div">
-            <ToolTip id={`text-${model}-${id}`}>{helpText}</ToolTip>
+            <ToolTip>{helpText}</ToolTip>
           </Description>
         )}
         <div className="relative basis-full">
           <Select
             name={id}
+            id={inputId}
             ref={inputRef}
             className="appearance-none border w-full border-gray-300 border-default-medium text-heading text-base rounded-base focus:ring-brand focus:border-brand block rounded-md px-4 py-3.5 shadow-xs me-0"
             onChange={handleSelect}
@@ -139,7 +143,7 @@ const SelectInput = ({
         <Label className="font-medium text-black/75 select-none">{label}</Label>
         {helpText && (
           <Description as="div">
-            <ToolTip id={`toggle-${id}-${recordId}`}>{helpText}</ToolTip>
+            <ToolTip>{helpText}</ToolTip>
           </Description>
         )}
       </>

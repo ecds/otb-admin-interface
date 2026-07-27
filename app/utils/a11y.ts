@@ -1,5 +1,5 @@
 // Paste this utility somewhere shared, e.g. ~/utils/a11y.ts
-export function enforceA11yOnLinks(html: string): string {
+export const enforceA11yOnLinks = (html: string): string => {
   if (typeof window === "undefined" || !html) return html;
 
   const parser = new DOMParser();
@@ -31,4 +31,8 @@ export function enforceA11yOnLinks(html: string): string {
     });
 
   return mutated ? doc.body.innerHTML : html;
-}
+};
+
+export const safeId = () => {
+  return `el-${crypto.randomUUID()}`;
+};

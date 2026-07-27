@@ -77,7 +77,7 @@ const SiteLogo = ({ tourSet }: Props) => {
           onSuccess={onSuccess}
           className=""
         />{" "}
-        <ToolTip id="logo-upload">
+        <ToolTip>
           Upload an image to replace the OpenTour logo on your tours. Note: due
           to size and design considerations your image will be automatically
           proportionally resized to have a max width of 300 pixels and a max

@@ -29,7 +29,10 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
   };
 
   useEffect(() => {
-    if (!modalOpen && mediumRef.current) onUpdate(mediumRef.current);
+    if (!modalOpen && mediumRef.current) {
+      onUpdate(mediumRef.current);
+      mediumRef.current = undefined;
+    }
   }, [modalOpen, onUpdate]);
 
   const handleUpdate = (data: unknown) => {
@@ -92,7 +95,7 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
                 >
                   Replace Image
                 </FileUpload>{" "}
-                <ToolTip id={`replace-${medium.id}`}>
+                <ToolTip>
                   Replace default image from{" "}
                   {medium.provider ?? "medium provider"}.
                 </ToolTip>

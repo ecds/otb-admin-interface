@@ -68,7 +68,6 @@ export type UpdateBody = AllowedAttributes & {
   related_type?: "belongs_to" | "many" | undefined;
   reindex?: Reindex;
   logo?: null;
-  user?: number;
   tour_ids?: FormDataEntryValue[];
 };
 

@@ -24,6 +24,8 @@ import TravelModes from "~/components/TravelModes";
 import type { TTour, TTravelMode } from "~/types";
 import type { LoaderFunctionArgs } from "react-router";
 import SaveButton from "~/components/buttons/SaveButton";
+import VoiceOverUpload from "~/components/voice_overs/VoiceOverUpload";
+import VoiceOverList from "~/components/voice_overs/VoiceOverList";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: tour, response } = await request({
@@ -112,6 +114,8 @@ const TourRoute = () => {
                 id="description"
                 model="tour"
               />
+              <VoiceOverUpload tour_id={tour.id} />
+              <VoiceOverList voiceOvers={tour.voice_overs} />
               <TextInput
                 type="text-area"
                 label="Tour Meta Description"
@@ -131,7 +135,7 @@ const TourRoute = () => {
               <Fieldset className="space-y-8">
                 <Legend className="text-2xl flex space-x-3">
                   <div>External Link</div>
-                  <ToolTip id={`external-link-${tour.id}`}>
+                  <ToolTip>
                     Link that will display along with the pages. This allows you
                     to provide a link to an external site or page. The link will
                     open in a new tab or window.

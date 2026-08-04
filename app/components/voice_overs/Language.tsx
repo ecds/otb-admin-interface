@@ -1,29 +1,35 @@
 import { Dialog, DialogBackdrop, DialogPanel, Select } from "@headlessui/react";
 import { VOICE_OVER_LANGUAGES } from "~/utils/voice_over_languages";
-import { useRef, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState } from "react";
 import InputWrapper from "../inputs/InputWrapper";
 import { safeId } from "~/utils/a11y";
 
 interface Props {
-  language: string | undefined;
-  setLanguage: Dispatch<SetStateAction<string | undefined>>;
   takenLanguages: string[];
   show: boolean;
+  onSelect: (language: string) => void;
+  onCancel: () => void;
 }
 
-const Language = ({ language, setLanguage, takenLanguages, show }: Props) => {
+const Language = ({ takenLanguages, show, onSelect, onCancel }: Props) => {
   const inputRef = useRef<HTMLSelectElement>(null);
-  // if (!voiceOver) return <></>;
+  const [language, setLanguage] = useState<string | undefined>(undefined);
 
   const inputId = safeId();
+
+  // Start fresh each time the dialog reopens for a new upload.
+  useEffect(() => {
+    if (!show) setLanguage(undefined);
+  }, [show]);
 
   const handleSelect = () => {
     if (!inputRef.current) return;
     setLanguage(inputRef.current.value);
+    onSelect(inputRef.current.value);
   };
 
   return (
-    <Dialog open={show} onClose={() => setLanguage(undefined)}>
+    <Dialog open={show} onClose={onCancel}>
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4 z-1000">
         <DialogPanel className="max-w-lg space-y-4 border bg-white p-12">
@@ -70,6 +76,7 @@ const Language = ({ language, setLanguage, takenLanguages, show }: Props) => {
               })}
             </Select>
           </div>
+          <button onClick={onCancel}>Cancel</button>
         </DialogPanel>
       </div>
     </Dialog>

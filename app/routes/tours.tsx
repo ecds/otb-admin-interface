@@ -15,6 +15,7 @@ import SiteLogo from "~/components/SiteLogo";
 import PendingApproval from "~/components/PendingApproval";
 import { Button } from "@headlessui/react";
 import ManageSiteAccess from "~/components/ManageSiteAccess";
+import TextInput from "~/components/inputs/TextInput";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
   const { data: accessRequests } = await request({
@@ -73,16 +74,26 @@ const TourSetRoute = () => {
       <List items={tourSet.tours} handleDelete={() => {}} heading="Tours">
         <SiteLogo tourSet={tourSet} />
         {(currentUser.super || currentTenantAdmin) && (
-          <div className="flex flex-row space-x-4">
-            <button
-              className="w-max text-white hover:text-black h-8 px-2 py-1 mb-4 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
-              onClick={handleCreate}
-            >
-              <FontAwesomeIcon icon={faPlus} /> New Tour
-            </button>
-            <PendingApproval accessRequests={accessRequests} />
-            <ManageSiteAccess />
-          </div>
+          <>
+            <div className="flex flex-row space-x-4">
+              <button
+                className="w-max text-white hover:text-black h-8 px-2 py-1 mb-4 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
+                onClick={handleCreate}
+              >
+                <FontAwesomeIcon icon={faPlus} /> New Tour
+              </button>
+              <PendingApproval accessRequests={accessRequests} />
+              <ManageSiteAccess />
+            </div>
+            <TextInput
+              type="rich-text"
+              label="Description"
+              value={tourSet.description}
+              id="description"
+              model="tour_set"
+              helpText="This is an optional description for your site. It will appear above the list of tours."
+            />
+          </>
         )}
       </List>
     </div>

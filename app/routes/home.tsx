@@ -7,6 +7,7 @@ import Navbar from "~/components/Navbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import type { TTourSet } from "~/types";
+import CreateTourSet from "~/components/CreateTourSet";
 
 export const meta = () => {
   return [
@@ -53,8 +54,6 @@ const HomeRoute = () => {
     );
   }, [currentUser, tourSets]);
 
-  const handleCreate = async () => {};
-
   if (!signedIn || !currentUser) return <></>;
 
   if (
@@ -94,12 +93,7 @@ const HomeRoute = () => {
         <Navbar />
         <div className="my-24">
           <List items={tourSets} handleDelete={() => {}} heading="Tour Site">
-            <button
-              className="text-white hover:text-black h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg mb-8"
-              onClick={handleCreate}
-            >
-              <FontAwesomeIcon icon={faPlus} /> Create New
-            </button>
+            <CreateTourSet />
           </List>
         </div>
       </>

@@ -15,7 +15,7 @@ import { safeId } from "~/utils/a11y";
 interface Props {
   onSuccess?: (arg: unknown) => void;
   fileUploading?: Dispatch<SetStateAction<string | undefined>>;
-  btnText?: string;
+  btnText?: string | ReactNode;
   children?: ReactNode;
   model?: TModel;
   onStart?: () => void;
@@ -25,6 +25,7 @@ interface Props {
   accept?: string;
   multiple?: boolean;
   handleUpload?: (inputElement: HTMLInputElement) => void;
+  disabled?: boolean;
 }
 
 const FileUpload = ({
@@ -40,6 +41,7 @@ const FileUpload = ({
   accept,
   multiple = true,
   handleUpload,
+  disabled = false,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { tour } = useContext(TourContext);
@@ -54,6 +56,9 @@ const FileUpload = ({
     if (!inputRef.current) return;
     if (handleUpload) {
       handleUpload(inputRef.current);
+      // Reset so selecting the same file again (e.g. after canceling)
+      // still fires onChange — browsers only fire it when the value changes.
+      inputRef.current.value = "";
       return;
     }
     if (!inputRef.current.files) return;
@@ -93,6 +98,9 @@ const FileUpload = ({
     }
 
     if (fileUploading) fileUploading(undefined);
+    // Reset so selecting the same file again still fires onChange —
+    // browsers only fire it when the value changes.
+    inputRef.current.value = "";
   };
 
   return (
@@ -118,6 +126,7 @@ const FileUpload = ({
         multiple={multiple}
         className="hidden"
         accept={accept ?? "image/*"}
+        disabled={disabled}
       />
     </label>
   );

@@ -103,7 +103,7 @@ const TourRoute = () => {
                 />
                 {tour.published_on && (
                   <p>
-                    <span className="">Published On:</span> 2026-01-01
+                    <span className="">Published On:</span> {tour.published_on}
                   </p>
                 )}
               </div>

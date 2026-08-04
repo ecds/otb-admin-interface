@@ -189,6 +189,7 @@ export type TTour = {
 
 export type TTourSet = {
   id: number;
+  description: string;
   external_url: string;
   footer_logo: string;
   name: string;

@@ -9,6 +9,8 @@ import { getErrorMessage } from "~/utils/errors";
 import { useSyncPoll } from "~/hooks/useSyncPoll";
 import { useRevalidator } from "react-router";
 import type { TVoiceOver } from "~/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   stop_id?: number;
@@ -16,27 +18,23 @@ interface Props {
 }
 
 const VoiceOverUpload = ({ stop_id, tour_id }: Props) => {
-  const { tour } = useContext(TourContext);
+  const { tour, setIsSaving } = useContext(TourContext);
   const { stop } = useContext(RecordContext);
-  const [language, setLanguage] = useState<string | undefined>(undefined);
-  const [uploaded, setUploaded] = useState<boolean>(false);
-  const [showLanguageOption, setShowLanguageOption] = useState<boolean>(false);
-  const [takenLanguages, setTakenLanguages] = useState<string[]>([]);
-  const [voUpload, setVoUpload] = useState<FormData | undefined>(undefined);
   const { setFeedback } = useContext(FeedbackContext);
-  const savedValueRef = useRef<TVoiceOver | undefined>(undefined);
   const revalidator = useRevalidator();
 
-  const savedInPayload = () => {
-    if (stop && stop_id) {
-      return !stop.voice_overs.some(
-        (vo) => vo.id === savedValueRef.current?.id,
-      );
-    }
-    return !tour.voice_overs.some((vo) => vo.id === savedValueRef.current?.id);
-  };
+  const [showLanguageOption, setShowLanguageOption] = useState<boolean>(false);
+  const [voUpload, setVoUpload] = useState<FormData | undefined>(undefined);
+  const savedValueRef = useRef<TVoiceOver | undefined>(undefined);
 
-  const isPendingSync = savedValueRef.current !== undefined && savedInPayload();
+  // Whichever list this instance is scoped to, per the same stop_id/stop
+  // check used when the upload is attached to a record below.
+  const voiceOvers = stop_id && stop ? stop.voice_overs : tour.voice_overs;
+  const takenLanguages = voiceOvers.map((vo) => vo.language);
+
+  const isPendingSync =
+    savedValueRef.current !== undefined &&
+    !voiceOvers.some((vo) => vo.id === savedValueRef.current?.id);
 
   useSyncPoll({
     pending: isPendingSync,
@@ -54,50 +52,35 @@ const VoiceOverUpload = ({ stop_id, tour_id }: Props) => {
     if (!isPendingSync) savedValueRef.current = undefined;
   }, [isPendingSync]);
 
-  useEffect(() => {
-    if (tour) setTakenLanguages(tour.voice_overs.map((vo) => vo.language));
-    if (stop) setTakenLanguages(stop.voice_overs.map((vo) => vo.language));
-  }, [stop, tour]);
+  const selectLanguage = async (language: string) => {
+    if (!voUpload) return;
 
-  useEffect(() => {
-    if (!language || !voUpload) return;
-    const upload = async () => {
-      setShowLanguageOption(false);
-      voUpload.append("[voice_over][language]", language);
-      setFeedback({ type: "success", message: "Uploading Voice Over" });
-      const { response, data } = await sendUpload({
-        tenant: tour.tenant,
-        body: voUpload,
+    setShowLanguageOption(false);
+
+    voUpload.append("[voice_over][language]", language);
+
+    setFeedback({ type: "success", message: "Uploading Voice Over" });
+
+    setIsSaving(true);
+
+    const { response, data } = await sendUpload({
+      tenant: tour.tenant,
+      body: voUpload,
+    });
+
+    if (response.ok) {
+      setFeedback(undefined);
+      savedValueRef.current = data;
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not upload Voice Over File."),
       });
-
-      if (response.ok) {
-        setFeedback(undefined);
-        savedValueRef.current = data;
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not upload Voice Over File."),
-        });
-        setVoUpload(undefined);
-      }
-
-      setUploaded(true);
-    };
-
-    upload();
-  }, [language, setFeedback, tour, voUpload]);
-
-  useEffect(() => {
-    if (uploaded) {
-      setVoUpload(undefined);
-      setLanguage(undefined);
-      setShowLanguageOption(false);
     }
-  }, [uploaded]);
 
-  useEffect(() => {
-    if (!voUpload) setUploaded(false);
-  }, [voUpload]);
+    setIsSaving(false);
+    setVoUpload(undefined);
+  };
 
   const upload = async (inputElement: HTMLInputElement) => {
     if (!inputElement.files || inputElement.files.length === 0 || !tour) return;
@@ -114,13 +97,29 @@ const VoiceOverUpload = ({ stop_id, tour_id }: Props) => {
     setShowLanguageOption(true);
   };
 
+  const cancel = () => {
+    setVoUpload(undefined);
+    setShowLanguageOption(false);
+  };
+
   return (
-    <InputWrapper className="flex flex-wrap space-x-3">
+    <InputWrapper
+      className={`flex flex-wrap space-x-3 ${isPendingSync ? "opacity-50" : "opacity-100"}`}
+    >
       <FileUpload
-        btnText="Upload Voice Over"
+        btnText={
+          isPendingSync ? (
+            <span>
+              <FontAwesomeIcon icon={faSpinner} spin /> Saving
+            </span>
+          ) : (
+            "Upload Voice Over"
+          )
+        }
         accept="audio/mpeg, audio/mp4, audio/m4a, audio/x-m4a"
         multiple={false}
         handleUpload={upload}
+        disabled={isPendingSync}
       />
       <ToolTip>
         Upload an audio file to replace the robot voice that reads the
@@ -129,10 +128,10 @@ const VoiceOverUpload = ({ stop_id, tour_id }: Props) => {
         uploading the file.
       </ToolTip>
       <Language
-        language={language}
-        setLanguage={setLanguage}
         takenLanguages={takenLanguages}
         show={showLanguageOption}
+        onSelect={selectLanguage}
+        onCancel={cancel}
       />
     </InputWrapper>
   );

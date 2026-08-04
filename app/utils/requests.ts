@@ -42,7 +42,8 @@ type AllowedAttributes = {
     mode_id: number;
   };
   tour_set?: {
-    logo: null;
+    logo?: null;
+    name?: string | undefined;
   };
   user?:
     | {
@@ -81,6 +82,7 @@ type CreateBody = AllowedAttributes & {
         medium_id?: number;
         file?: File;
         title?: string;
+        name?: string;
       }
     | FormData;
   reindex?: Reindex;

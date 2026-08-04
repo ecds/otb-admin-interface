@@ -98,7 +98,10 @@ const TextInput = ({
       statusbar: false,
       height: 200,
       toolbarAdaptive: false,
-
+      showCharsCounter: false,
+      showWordsCounter: false,
+      hidePoweredByJodit: true,
+      showXPathInStatusbar: false,
       // Enforce a11y whenever Jodit processes a link dialog save
       // or the user pastes content with links
       events: {

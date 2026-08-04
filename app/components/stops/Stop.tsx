@@ -6,9 +6,11 @@ import { RecordContext, RelatedContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import StopMap from "../map/StopMap";
 import { useRef } from "react";
-import type { TStop } from "~/types";
 import MediaGrid from "../media_grid/MediaGrid";
 import DeleteButton from "../buttons/DeleteButton";
+import VoiceOverUpload from "../voice_overs/VoiceOverUpload";
+import VoiceOverList from "../voice_overs/VoiceOverList";
+import type { TStop } from "~/types";
 
 const Stop = ({ stop }: { stop: TStop }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -47,6 +49,7 @@ const Stop = ({ stop }: { stop: TStop }) => {
               value={{
                 recordId: stop.id,
                 recordModel: "stop",
+                stop,
               }}
             >
               <TextInput
@@ -71,6 +74,9 @@ const Stop = ({ stop }: { stop: TStop }) => {
                 label="Meta Description"
                 model="stop"
               />
+              <VoiceOverUpload stop_id={stop.id} />
+              <VoiceOverList voiceOvers={stop.voice_overs} />
+
               <StopMap stop={stop} />
               <TextInput
                 type="rich-text"

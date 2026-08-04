@@ -98,6 +98,7 @@ type TStopMapContext = {
 
 export const TourSetContext = createContext<TTourSet>({
   id: 0,
+  description: "",
   external_url: "",
   footer_logo: "",
   name: "",

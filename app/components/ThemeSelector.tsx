@@ -5,7 +5,8 @@ import { Field, Legend, Radio, RadioGroup } from "@headlessui/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { themes } from "~/choices";
 import { sendUpdate } from "~/utils/requests";
-import { RecordContext, TourContext } from "~/contexts";
+import { FeedbackContext, RecordContext, TourContext } from "~/contexts";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   theme: number;
@@ -16,10 +17,11 @@ const ThemeSelector = ({ theme }: Props) => {
   const valueRef = useRef<number>(currentValue);
   const { tour } = useContext(TourContext);
   const { recordId } = useContext(RecordContext);
+  const { setFeedback } = useContext(FeedbackContext);
 
   useEffect(() => {
     const update = async () => {
-      await sendUpdate({
+      const { response, data } = await sendUpdate({
         tenant: tour.tenant,
         record: recordId,
         body: {
@@ -30,11 +32,20 @@ const ThemeSelector = ({ theme }: Props) => {
           related_type: "belongs_to",
         },
       });
-      valueRef.current = currentValue;
+
+      if (response.ok) {
+        valueRef.current = currentValue;
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the theme."),
+        });
+        setCurrentValue(valueRef.current);
+      }
     };
 
     if (currentValue !== valueRef.current) update();
-  }, [tour, recordId, currentValue]);
+  }, [tour, recordId, currentValue, setFeedback]);
 
   return (
     <RadioGroup

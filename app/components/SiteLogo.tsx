@@ -3,6 +3,7 @@ import DeleteButton from "./buttons/DeleteButton";
 import { FeedbackContext, FormContext, RecordContext } from "~/contexts";
 import { useContext, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 import ToolTip from "./inputs/ToolTip";
 import type { TTourSet } from "~/types";
 
@@ -35,7 +36,10 @@ const SiteLogo = ({ tourSet }: Props) => {
       setCurrentValue(undefined);
       setFeedback(undefined);
     } else {
-      setFeedback({ type: "error", message: data?.error ?? "Unknown Error" });
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove the site logo."),
+      });
     }
   };
 

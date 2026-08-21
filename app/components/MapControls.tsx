@@ -3,6 +3,7 @@ import ClientOnly from "./ClientOnly";
 import SelectInput from "./inputs/SelectInput";
 import TourMap from "./map/TourMap.client";
 import {
+  FeedbackContext,
   FormContext,
   OverlayContext,
   RelatedContext,
@@ -20,10 +21,12 @@ import DeleteButton from "./buttons/DeleteButton";
 import MapOverlayRectangle from "./map/MapOverlayRectangle";
 import { Switch } from "@headlessui/react";
 import ToolTip from "./inputs/ToolTip";
+import { getErrorMessage } from "~/utils/errors";
 import type { TMapOverlay, TTour } from "~/types";
 
 const MapControls = () => {
   const { tour, setIsSaving } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const [south, setSouth] = useState<number | undefined>(undefined);
   const [north, setNorth] = useState<number | undefined>(undefined);
   const [east, setEast] = useState<number | undefined>(undefined);
@@ -68,16 +71,26 @@ const MapControls = () => {
 
   const deleteOverlay = async (id: number) => {
     setDeleting(true);
-    await sendUpdate({
-      record: tour.id,
-      tenant: tour.tenant,
-      body: {
-        model: "tour",
-        tour: { blank_map: false },
-      },
-    });
+    const { response: blankMapResponse, data: blankMapData } =
+      await sendUpdate({
+        record: tour.id,
+        tenant: tour.tenant,
+        body: {
+          model: "tour",
+          tour: { blank_map: false },
+        },
+      });
 
-    const { response } = await sendDelete({
+    if (!blankMapResponse.ok) {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(blankMapData, "Could not remove the map overlay."),
+      });
+      setDeleting(false);
+      return;
+    }
+
+    const { response, data } = await sendDelete({
       tenant: tour.tenant,
       record: id,
       body: {
@@ -88,8 +101,13 @@ const MapControls = () => {
 
     if (response.ok) {
       revalidator.revalidate();
-      setDeleting(false);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove the map overlay."),
+      });
     }
+    setDeleting(false);
   };
 
   return (

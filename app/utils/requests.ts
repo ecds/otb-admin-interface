@@ -44,6 +44,7 @@ type AllowedAttributes = {
   tour_set?: {
     logo?: null;
     name?: string | undefined;
+    description?: string;
   };
   user?:
     | {
@@ -70,6 +71,9 @@ export type UpdateBody = AllowedAttributes & {
   reindex?: Reindex;
   logo?: null;
   tour_ids?: FormDataEntryValue[];
+  tour_id?: number | string;
+  user_id?: number | string;
+  username?: string;
 };
 
 type CreateBody = AllowedAttributes & {
@@ -131,10 +135,23 @@ export const request = async ({
       return { response, data: {}, status, headers };
     }
 
-    const data = await response.json();
+    // Some responses (e.g. head(:not_found)/head(:unauthorized) on the
+    // Rails side) have no body at all despite not being a 204. Parsing
+    // those as JSON throws — fall back to {} but keep the real response,
+    // so callers can still inspect response.status/response.ok correctly
+    // instead of losing them to the catch block below.
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
     return { response, data, status, headers };
   } catch (error) {
-    return { response: { ok: false, error } };
+    // A network-level failure (offline, CORS, DNS, etc.) never got a real
+    // Response — status: 0 is the conventional sentinel for that, and lets
+    // callers safely check response.status without a separate type branch.
+    return { response: { ok: false, status: 0, error }, data: undefined };
   }
 };
 

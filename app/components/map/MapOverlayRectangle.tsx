@@ -1,12 +1,14 @@
 import { useMap } from "@vis.gl/react-google-maps";
 import { useContext, useEffect, useRef } from "react";
-import { OverlayContext, TourContext } from "~/contexts";
+import { FeedbackContext, OverlayContext, TourContext } from "~/contexts";
 import { debounce } from "~/utils/debounce";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 
 const MapOverlayRectangle = () => {
   const map = useMap();
   const { tour, setIsSaving } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const {
     south,
     north,
@@ -35,7 +37,7 @@ const MapOverlayRectangle = () => {
       if (setNorth) setNorth(newBounds.getNorthEast().lat());
       if (setEast) setEast(newBounds.getNorthEast().lng());
 
-      await sendUpdate({
+      const { response, data } = await sendUpdate({
         tenant: tour.tenant,
         record: tour.map_overlay.id,
         body: {
@@ -52,6 +54,13 @@ const MapOverlayRectangle = () => {
           },
         },
       });
+
+      if (!response.ok) {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the map overlay position."),
+        });
+      }
 
       setIsSaving(false);
     }, 300);
@@ -109,6 +118,7 @@ const MapOverlayRectangle = () => {
     setEast,
     tour,
     setIsSaving,
+    setFeedback,
     draggable,
   ]);
 

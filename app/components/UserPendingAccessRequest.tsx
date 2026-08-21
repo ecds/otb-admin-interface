@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@headlessui/react";
 import { useCallback, useContext, useState } from "react";
 import { useRevalidator } from "react-router";
-import { TourSetContext } from "~/contexts";
-import type { TAccessRequest } from "~/types";
+import { FeedbackContext, TourSetContext } from "~/contexts";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
+import type { TAccessRequest } from "~/types";
 
 interface Props {
   request: TAccessRequest;
@@ -16,9 +17,9 @@ interface Props {
 }
 
 const UserPendingAccessRequest = ({ request, index }: Props) => {
-  const tourSet = useContext(TourSetContext);
+  const { tourSet } = useContext(TourSetContext);
   const [selectedTour, setSelectedTour] = useState<string>("");
-  const [feedback, setFeedback] = useState<string | undefined>(undefined);
+  const { setFeedback } = useContext(FeedbackContext);
   const revalidator = useRevalidator();
 
   const updateApproval = useCallback(
@@ -31,18 +32,23 @@ const UserPendingAccessRequest = ({ request, index }: Props) => {
           model: "access_request",
           access_request: {
             approved,
-            tour_ids: [selectedTour],
+            tour_ids: request.tour_ids,
           },
         },
       });
 
       if (response.ok) {
         setTimeout(() => {
-          setFeedback(undefined);
           revalidator.revalidate();
         }, 1000);
       } else {
-        console.error("⚠️ ~ UserPendingAccessRequest ~ data:", data);
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(
+            data,
+            "Could not update this access request.",
+          ),
+        });
       }
     },
     [setFeedback, revalidator, tourSet, selectedTour],
@@ -72,7 +78,7 @@ const UserPendingAccessRequest = ({ request, index }: Props) => {
               {tourSet.tours.map((tour) => {
                 return (
                   <option key={tour.id} value={tour.id}>
-                    {feedback ?? tour.title}
+                    {tour.title}
                   </option>
                 );
               })}

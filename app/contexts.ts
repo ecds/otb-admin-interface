@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import type {
+  TAccessRequest,
   TModel,
   TRelateModel,
   TStop,
@@ -96,18 +97,30 @@ type TStopMapContext = {
   stop: TStop;
 };
 
-export const TourSetContext = createContext<TTourSet>({
-  id: 0,
-  description: "",
-  external_url: "",
-  footer_logo: "",
-  name: "",
-  logo_url: "",
-  notes: "",
-  subdir: "",
-  tours: [],
-  admins: [],
-  tour_authors: [],
+type TTourSetContext = {
+  tourSet: TTourSet;
+  accessRequests: TAccessRequest[];
+  accessRequestModalOpen: boolean;
+  setAccessRequestModalOpen: Dispatch<SetStateAction<boolean>>;
+};
+
+export const TourSetContext = createContext<TTourSetContext>({
+  tourSet: {
+    id: 0,
+    description: "",
+    external_url: "",
+    footer_logo: "",
+    name: "",
+    logo_url: "",
+    notes: "",
+    subdir: "",
+    tours: [],
+    admins: [],
+    tour_authors: [],
+  },
+  accessRequests: [],
+  accessRequestModalOpen: false,
+  setAccessRequestModalOpen: (_: SetStateAction<boolean>) => {},
 });
 
 export const RecordContext = createContext<TRecordContext>({

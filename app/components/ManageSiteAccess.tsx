@@ -13,14 +13,91 @@ import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
+  Select,
 } from "@headlessui/react";
-import { Fragment, useContext, useState } from "react";
-import { TourSetContext } from "~/contexts";
-import { sendDelete } from "~/utils/requests";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { FeedbackContext, TourSetContext } from "~/contexts";
+import { request, sendDelete } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
+import { useRevalidator } from "react-router";
+
+const TourSelect = ({
+  adminId,
+  username,
+}: {
+  adminId: number;
+  username: string;
+}) => {
+  const { tourSet } = useContext(TourSetContext);
+  const [selectedTour, setSelectedTour] = useState<string | undefined>(
+    undefined,
+  );
+  const selectRef = useRef<HTMLSelectElement>(null);
+  const revalidator = useRevalidator();
+  const [reassigned, setReassigned] = useState<boolean>(false);
+
+  useEffect(() => {
+    const reassign = async () => {
+      const { response } = await sendDelete({
+        tenant: tourSet.subdir,
+        record: adminId,
+        body: {
+          model: "tour_set_admin",
+        },
+      });
+
+      if (response.ok && selectRef.current) {
+        const { response: tourAuthorResponse } = await request({
+          path: `${tourSet.subdir}/v4/admin/tour_authors`,
+          method: "POST",
+          body: {
+            tour_id: selectRef.current.value,
+            username,
+            model: "tour_author",
+          },
+        });
+
+        if (tourAuthorResponse.ok) {
+          revalidator.revalidate();
+          setReassigned(true);
+        }
+      }
+    };
+
+    if (selectedTour && selectedTour === selectRef.current?.value) reassign();
+  }, [adminId, tourSet, revalidator, selectedTour, username]);
+
+  const handleSelect = () => {
+    if (!selectRef.current) return;
+
+    setSelectedTour(selectRef.current.value);
+  };
+
+  return (
+    <Select
+      ref={selectRef}
+      className={`truncate w-[20ch]`}
+      value={selectedTour ?? ""}
+      onChange={handleSelect}
+    >
+      <option value="" disabled>
+        Assign to Tour
+      </option>
+      {tourSet.tours.map((tour) => {
+        return (
+          <option key={tour.id} value={tour.id}>
+            {tour.title}
+          </option>
+        );
+      })}
+    </Select>
+  );
+};
 
 const ManageSiteAccess = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const tourSet = useContext(TourSetContext);
+  const { tourSet } = useContext(TourSetContext);
+  const { setFeedback } = useContext(FeedbackContext);
 
   const handleRevoke = async ({
     record,
@@ -29,7 +106,7 @@ const ManageSiteAccess = () => {
     record: number;
     model: string;
   }) => {
-    const { response } = await sendDelete({
+    const { response, data } = await sendDelete({
       record,
       tenant: tourSet.subdir,
       body: {
@@ -39,6 +116,11 @@ const ManageSiteAccess = () => {
 
     if (response.ok) {
       document.getElementById(`${model}-${record}`)?.remove();
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not revoke access."),
+      });
     }
   };
 
@@ -139,6 +221,7 @@ const ManageSiteAccess = () => {
                 <thead className="font-bold">
                   <tr>
                     <td className="px-2">Admin</td>
+                    <td>Change Access</td>
                     <td className="text-center">Revoke</td>
                   </tr>
                 </thead>
@@ -151,6 +234,12 @@ const ManageSiteAccess = () => {
                         className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-white"} py-8 my-8`}
                       >
                         <td className="p-2">{admin.display_name}</td>
+                        <td>
+                          <TourSelect
+                            adminId={admin.id}
+                            username={admin.display_name}
+                          />
+                        </td>
                         <td className="text-center">
                           <Button
                             aria-label={`Revoke access for ${admin.display_name}`}

@@ -2,10 +2,9 @@ import { useLoaderData } from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
-import List from "~/components/List";
+import TourSetList from "~/components/TourSetList";
+import TourList from "~/components/TourList";
 import Navbar from "~/components/Navbar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import type { TTourSet } from "~/types";
 import CreateTourSet from "~/components/CreateTourSet";
 
@@ -92,9 +91,9 @@ const HomeRoute = () => {
       <>
         <Navbar />
         <div className="my-24">
-          <List items={tourSets} handleDelete={() => {}} heading="Tour Site">
+          <TourSetList items={tourSets} heading="Tour Site">
             <CreateTourSet />
-          </List>
+          </TourSetList>
         </div>
       </>
     );
@@ -110,15 +109,14 @@ const HomeRoute = () => {
               <h2 className="mt-8 mb-4 text-xl w-5/6 mx-auto text-black/72">
                 Tour Sites
               </h2>
-              <List
+              <TourSetList
                 items={myTourSets.filter((ts) =>
                   currentUser.tour_sets
                     .map((uts) => uts.subdir)
                     .includes(ts.subdir),
                 )}
-                handleDelete={() => {}}
                 heading="Site"
-              ></List>
+              />
             </>
           )}
           {currentUser.tours && (
@@ -128,12 +126,12 @@ const HomeRoute = () => {
               </h2>
               {currentUser.tours.map((tourAuthor) => {
                 return (
-                  <List
+                  <TourList
                     key={tourAuthor.tour_set.subdir}
-                    items={tourAuthor.tours}
+                    tours={tourAuthor.tours}
                     heading={tourAuthor.tour_set.name}
                     tenant={tourAuthor.tour_set.subdir}
-                  ></List>
+                  />
                 );
               })}
             </>

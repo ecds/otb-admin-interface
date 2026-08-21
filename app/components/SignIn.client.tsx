@@ -32,7 +32,7 @@ const SignIn = ({
       const left = screen.width / 2 - width / 2;
       const top = screen.height / 2 - height / 2;
       signInWindowRef.current = window.open(
-        `https://auth.ecds.io/auth/google_oauth2?origin=https://${redirect}/admin`,
+        `https://auth.ecds.io/login?origin=https://${redirect}`,
         "signInWindow",
         `width=${width}, height=${height}, left=${left},top=${top}`,
       );
@@ -41,9 +41,11 @@ const SignIn = ({
     }
   };
   return (
-    <button className={className} onClick={handleSignIn}>
-      {children ?? "Sign In"}
-    </button>
+    <div className="flex">
+      <button className={className} onClick={handleSignIn}>
+        {children ?? "Sign In"}
+      </button>
+    </div>
   );
 };
 

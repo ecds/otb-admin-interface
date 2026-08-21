@@ -6,6 +6,7 @@ export type TAccessRequest = {
   email: string;
   site: string;
   tours: string[] | null;
+  tour_ids: number[] | null;
   date: string;
 };
 
@@ -207,7 +208,7 @@ export type InputProps = {
   model: string;
   value: string | boolean | number | undefined;
   helpText?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | number) => void;
 };
 
 export type TChoices = {

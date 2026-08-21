@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import {
+  FeedbackContext,
   FormContext,
   RelatedContext,
   StopMapContext,
@@ -12,6 +13,7 @@ import DeleteButton from "../buttons/DeleteButton";
 import ToolTip from "../inputs/ToolTip";
 import IconModal from "../stops/IconModal";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 import type { TServerResponse, TStop } from "~/types";
 
 const MarkerStyle = () => {
@@ -19,6 +21,7 @@ const MarkerStyle = () => {
   if (!context) throw new Error("StopMapContext is undefined");
   const { iconColor, mapIcon, setIconColor, setMapIcon, stop } = context;
   const { tour, setIsSaving } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const [upLoading, setUpLoading] = useState<boolean>(false);
   const [iconModalOpen, setIconModalOpen] = useState<boolean>(false);
 
@@ -34,7 +37,7 @@ const MarkerStyle = () => {
 
   const handleDelete = async () => {
     if (!tour) return;
-    const { response } = await sendUpdate({
+    const { response, data } = await sendUpdate({
       tenant: tour.tenant,
       record: stop.id,
       body: {
@@ -46,7 +49,14 @@ const MarkerStyle = () => {
         },
       },
     });
-    if (response.ok && setMapIcon) setMapIcon(undefined);
+    if (response.ok && setMapIcon) {
+      setMapIcon(undefined);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove the custom icon."),
+      });
+    }
   };
 
   return (

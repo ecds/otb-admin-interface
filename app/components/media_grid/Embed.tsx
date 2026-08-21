@@ -11,6 +11,7 @@ import {
 import type { TEmbedProvider, TMedium } from "~/types";
 import { sendCreate } from "~/utils/requests";
 import { joinImage } from "~/utils/image_upload";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   onSuccess: (data: TMedium) => void;
@@ -80,16 +81,21 @@ const Embed = ({ onSuccess }: Props) => {
         imageId: createData.id,
         tenant: tour.tenant,
       });
-      setFeedback(undefined);
       if (response.ok && onSuccess) {
+        setFeedback(undefined);
         onSuccess(data);
         setEmbedUrl(undefined);
         setEmbedCode(undefined);
         setProvider(undefined);
         setLink(undefined);
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not add this embed to the tour."),
+        });
       }
     } else {
-      setError(createData.errors[0].detail);
+      setError(getErrorMessage(createData, "Could not create this embed."));
     }
   };
 

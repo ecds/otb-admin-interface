@@ -6,6 +6,7 @@ import {
   TourContext,
 } from "~/contexts";
 import { imageUpload, joinImage } from "~/utils/image_upload";
+import { getErrorMessage } from "~/utils/errors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
@@ -89,12 +90,18 @@ const FileUpload = ({
         if (response.ok && onSuccess) {
           onSuccess(data);
           setFeedback(undefined);
-        } else if (uploadData.errors) {
-          setFeedback({ type: "error", message: uploadData.errors[0].detail });
-        } else setFeedback({ type: "error", message: "Unknown Error" });
-      } else if (uploadData.errors) {
-        setFeedback({ type: "error", message: uploadData.errors[0].detail });
-      } else setFeedback({ type: "error", message: "Unknown Error" });
+        } else {
+          setFeedback({
+            type: "error",
+            message: getErrorMessage(data, "Could not add this file."),
+          });
+        }
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(uploadData, "Could not upload this file."),
+        });
+      }
     }
 
     if (fileUploading) fileUploading(undefined);

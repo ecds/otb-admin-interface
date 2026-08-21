@@ -23,6 +23,7 @@ const DeleteButton = ({
   description,
   message,
   iconClassName,
+  id,
 }: {
   children?: ReactNode;
   removing: string;
@@ -33,12 +34,14 @@ const DeleteButton = ({
   description?: string;
   message?: string;
   iconClassName?: string;
+  id?: number;
 }) => {
   const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
 
   const deleteRecord = async () => {
     if (handleDelete && recordId) handleDelete(recordId);
+    if (handleDelete && id) handleDelete(id);
     setAskConfirm(false);
   };
 

@@ -1,7 +1,7 @@
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { ReactNode } from "react";
 import { safeId } from "~/utils/a11y";
+import type { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;

@@ -30,7 +30,7 @@ const VoiceOverUpload = ({ stop_id, tour_id }: Props) => {
   // Whichever list this instance is scoped to, per the same stop_id/stop
   // check used when the upload is attached to a record below.
   const voiceOvers = stop_id && stop ? stop.voice_overs : tour.voice_overs;
-  const takenLanguages = voiceOvers.map((vo) => vo.language);
+  const takenLanguages = voiceOvers ? voiceOvers.map((vo) => vo.language) : [];
 
   const isPendingSync =
     savedValueRef.current !== undefined &&

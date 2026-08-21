@@ -3,10 +3,11 @@ import Account from "./Account";
 import { useContext } from "react";
 import { AuthContext, TourSetContext } from "~/contexts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faExternalLink } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
-  const tourSet = useContext(TourSetContext);
+  const { tourSet, accessRequests, setAccessRequestModalOpen } =
+    useContext(TourSetContext);
   const { currentUser } = useContext(AuthContext);
   return (
     <nav className="bg-gray-200 fixed top-0 w-screen px-6 h-12 flex justify-between items-center z-50 drop-shadow-md">
@@ -58,6 +59,28 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="flex items-center space-x-12 pe-8">
+        {accessRequests.length > 0 && (
+          <div className="relative group inline">
+            <button
+              className="relative"
+              onClick={() => setAccessRequestModalOpen(true)}
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className="sr-only">
+                {accessRequests.length} Pending Access Requests
+              </span>
+              <div className="absolute inline-flex text-white text-[0.5rem] items-center justify-center w-4 h-4 font-bold bg-red-500 border-2 border-buffer rounded-full -top-1 -end-2">
+                {accessRequests.length}
+              </div>
+            </button>
+            <div
+              role="tooltip"
+              className="absolute right-full w-max transform -translate-y-1/2 top-1/2 mb-2 hidden group-hover:block bg-black/75 text-white rounded py-1 px-2 z-10 transition-opacity duration-1000 opacity-0 group-hover:opacity-100"
+            >
+              There are {accessRequests.length} Pending Access Requests
+            </div>
+          </div>
+        )}
         <Account />
       </div>
     </nav>

@@ -117,14 +117,19 @@ const UsersRoute = () => {
 
   const updateSort = (sortFieldParam: SortField) => {
     setFeedback({ type: "success", message: "Updating Sort Order" });
+
     const sortDirectionParam = searchParams.get("sort_dir");
-    let sortDirection = "asc";
-    if (sortDirectionParam) {
-      sortDirection = sortDirectionParam === "asc" ? "decs" : "asc";
-    } else {
-      sortDirection = sortFieldParam === sortFieldRef.current ? "decs" : "asc";
-    }
+
+    const sortDirection = sortDirectionParam
+      ? sortDirectionParam === "acs"
+        ? "decs"
+        : "acs"
+      : sortFieldParam === sortFieldRef.current
+        ? "decs"
+        : "asc";
+
     setSearchParams({ sort_field: sortFieldParam, sort_dir: sortDirection });
+
     sortFieldRef.current = sortFieldParam;
   };
 

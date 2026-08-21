@@ -7,27 +7,38 @@ import {
 import { request } from "~/utils/requests";
 import { AuthContext, TourSetContext } from "~/contexts";
 import Navbar from "~/components/Navbar";
-import { useContext, useEffect } from "react";
-import type { TTourSet } from "~/types";
+import { useContext, useEffect, useState } from "react";
+import type { TAccessRequest, TTourSet } from "~/types";
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
-  const { response, data } = await request({
+  const { response, data: tourSet } = await request({
     path: `public/v4/admin/tour_sets/${params.tourSet}`,
   });
-  if (response.ok && data.null) return { tourSet: { tenant: params.tourSet } };
-  if (data.error) return { error: data.error };
 
-  return { tourSet: data };
+  if (response.ok && tourSet.null)
+    return { tourSet: { tenant: params.tourSet } };
+  if (tourSet.error) return { error: tourSet.error };
+
+  const { data: accessRequests } = await request({
+    path: `${params.tourSet}/v4/admin/access_requests`,
+  });
+
+  if (accessRequests.error) return { error: accessRequests.error };
+
+  return { tourSet, accessRequests };
 };
 
 clientLoader.hydrate = true as const;
 
 const TourSetRoute = () => {
-  const { tourSet, error } = useLoaderData<{
+  const { tourSet, accessRequests, error } = useLoaderData<{
     tourSet: TTourSet;
     error?: string;
+    accessRequests: TAccessRequest[];
   }>();
   const { currentUser, setCurrentTenantAdmin } = useContext(AuthContext);
+  const [accessRequestModalOpen, setAccessRequestModalOpen] =
+    useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,7 +55,14 @@ const TourSetRoute = () => {
 
   if (tourSet) {
     return (
-      <TourSetContext.Provider value={tourSet}>
+      <TourSetContext.Provider
+        value={{
+          tourSet,
+          accessRequests,
+          accessRequestModalOpen,
+          setAccessRequestModalOpen,
+        }}
+      >
         <Navbar />
         <Outlet />;
       </TourSetContext.Provider>

@@ -20,8 +20,8 @@ const SignInRoute = () => {
     <div className="flex flex-col h-[calc(100vh-8rem)] items-center justify-center">
       <h1 className="text-5xl text-black/75">Open Tour Builder</h1>
       {}
-      <SignIn className="m-16 text-white bg-red-500 text-3xl p-8 rounded-lg">
-        <FontAwesomeIcon icon={faGoogle} /> Sign In with Google
+      <SignIn className="m-16 text-white bg-blue-500 text-3xl p-8 rounded-lg">
+        Sign In or Create Account
       </SignIn>
       <p>
         By signing in you agree to Emory Center for Digital Scholarship&apos;s{" "}

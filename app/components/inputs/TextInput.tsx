@@ -210,7 +210,10 @@ const TextInput = ({
   const handleChange = () => {
     if (!inputRef.current) return;
     setCurrentValue(inputRef.current.value);
-    if (onChange) onChange(inputRef.current.value);
+    if (onChange)
+      onChange(
+        type === "rich-text" ? richTextRef.current : inputRef.current.value,
+      );
   };
 
   // Buffer into a ref instead of setState: feeding the sanitized value back
@@ -222,7 +225,13 @@ const TextInput = ({
   }, []);
 
   const handleBlur = async () => {
-    await update();
+    if (onChange) {
+      const newValue =
+        type === "rich-text" ? richTextRef.current : inputRef.current?.value;
+      onChange(newValue ?? "");
+    } else {
+      await update();
+    }
   };
 
   return (

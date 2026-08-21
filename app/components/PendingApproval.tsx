@@ -9,32 +9,30 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { useState } from "react";
-import type { TAccessRequest } from "~/types";
+import { useContext } from "react";
 import UserPendingAccessRequest from "./UserPendingAccessRequest";
+import { TourSetContext } from "~/contexts";
 
-const PendingApproval = ({
-  accessRequests,
-}: {
-  accessRequests: TAccessRequest[];
-}) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+const PendingApproval = () => {
+  const { accessRequests, accessRequestModalOpen, setAccessRequestModalOpen } =
+    useContext(TourSetContext);
 
   if (!accessRequests || accessRequests.length == 0) return <></>;
 
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => setAccessRequestModalOpen(true)}
         className={
           "bg-amber-600 text-white px-2 py-1 mb-8 rounded-md drop-shadow-md active:drop-shadow-sm"
         }
       >
-        <FontAwesomeIcon icon={faBell} /> Pending Access Requests
+        <FontAwesomeIcon icon={faBell} /> {accessRequests.length} Pending Access
+        Requests
       </Button>
       <Dialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
+        open={accessRequestModalOpen}
+        onClose={() => setAccessRequestModalOpen(false)}
         className="relative z-50"
       >
         <DialogBackdrop className="fixed inset-0 bg-black/30"></DialogBackdrop>
@@ -64,7 +62,7 @@ const PendingApproval = ({
                   <tr>
                     <td>Requester</td>
                     <td>Email</td>
-                    <td>Tour(s)</td>
+                    <td>Tour</td>
                     <td className="text-center">Deny</td>
                     <td className="text-center">Approve</td>
                   </tr>

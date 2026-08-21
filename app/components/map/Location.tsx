@@ -10,8 +10,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
 import { Fieldset, Input, Label } from "@headlessui/react";
 import InputWrapper from "../inputs/InputWrapper";
-import { StopMapContext, TourContext } from "~/contexts";
+import { FeedbackContext, StopMapContext, TourContext } from "~/contexts";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   lng: number | undefined;
@@ -36,6 +37,7 @@ const Location = ({
   const latInputRef = useRef<HTMLInputElement>(null);
   const lngInputRef = useRef<HTMLInputElement>(null);
   const { setIsSaving, setLastUpdated, tour } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const stopContext = useContext(StopMapContext);
   if (!stopContext) throw new Error("StopMapContext is undefined");
   const { stop } = stopContext;
@@ -52,7 +54,7 @@ const Location = ({
     const update = async () => {
       setIsSaving(true);
 
-      const { response } = await sendUpdate({
+      const { response, data } = await sendUpdate({
         record: stop.id,
         tenant: tour.tenant,
         body: {
@@ -70,6 +72,11 @@ const Location = ({
       if (response.ok) {
         const now = new Date();
         setLastUpdated(now.toLocaleString());
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not save the location."),
+        });
       }
     };
 
@@ -91,7 +98,17 @@ const Location = ({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [lat, lng, address, prefix, stop, tour, setIsSaving, setLastUpdated]);
+  }, [
+    lat,
+    lng,
+    address,
+    prefix,
+    stop,
+    tour,
+    setIsSaving,
+    setLastUpdated,
+    setFeedback,
+  ]);
 
   const handleInput = () => {
     if (

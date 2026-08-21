@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import Pagination from "./Pagination";
 import { joinImage } from "~/utils/image_upload";
+import { getErrorMessage } from "~/utils/errors";
 import type { TMedium } from "~/types";
 import type { PaginationLinks } from "~/utils/linkHeader";
 
@@ -52,11 +53,16 @@ const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
         setMedia(data);
         // @ts-expect-error: We know headers will be part of response.
         setPaginationLinks(parseLinkHeader(response.headers.get("link")));
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not load media to reuse."),
+        });
       }
     };
 
     if (isOpen) loadMedia();
-  }, [isOpen, tour, page, itemIds]);
+  }, [isOpen, tour, page, itemIds, setFeedback]);
 
   const addMedium = async (medium: TMedium) => {
     setIsOpen(false);
@@ -72,6 +78,11 @@ const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
     if (response.ok && onSuccess) {
       onSuccess(data);
       setFeedback(undefined);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, `Could not add ${medium.filename}.`),
+      });
     }
   };
 

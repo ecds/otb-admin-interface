@@ -1,9 +1,11 @@
 import { faSquare, faSquareCheck } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Checkbox } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
+import { FeedbackContext } from "~/contexts";
 import type { TTourSet, TUser } from "~/types";
 import { sendCreate, sendDelete } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   tourSet: TTourSet;
@@ -14,6 +16,7 @@ const UserTourSet = ({ tourSet, user }: Props) => {
   const [value, setValue] = useState<boolean>(
     user.tour_sets.map((ts) => ts.subdir).includes(tourSet.subdir),
   );
+  const { setFeedback } = useContext(FeedbackContext);
 
   const handleChange = async () => {
     if (value) {
@@ -22,7 +25,7 @@ const UserTourSet = ({ tourSet, user }: Props) => {
         (ts) => ts.subdir === tourSet.subdir,
       );
       if (!tourSetAdmin) return; // Abort if not actually found
-      const { response } = await sendDelete({
+      const { response, data } = await sendDelete({
         tenant: "public",
         record: tourSetAdmin.id,
         body: {
@@ -30,9 +33,16 @@ const UserTourSet = ({ tourSet, user }: Props) => {
         },
       });
 
-      if (response.ok) setValue(!value);
+      if (response.ok) {
+        setValue(!value);
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not remove access."),
+        });
+      }
     } else {
-      const { response } = await sendCreate({
+      const { response, data } = await sendCreate({
         tenant: "public",
         body: {
           model: "tour_set_admin",
@@ -43,7 +53,14 @@ const UserTourSet = ({ tourSet, user }: Props) => {
         },
       });
 
-      if (response.ok) setValue(!value);
+      if (response.ok) {
+        setValue(!value);
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not grant access."),
+        });
+      }
     }
   };
 

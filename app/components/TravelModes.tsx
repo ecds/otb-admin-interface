@@ -1,6 +1,7 @@
 import { Checkbox, Fieldset, Legend } from "@headlessui/react";
 import { useContext, useState } from "react";
-import { RelatedContext, TourContext } from "~/contexts";
+import { FeedbackContext, RelatedContext, TourContext } from "~/contexts";
+import { getErrorMessage } from "~/utils/errors";
 import {
   faBicycle,
   faCar,
@@ -30,6 +31,7 @@ const ICON = (mode: TTravelModeTitle) => {
 
 const TravelModes = () => {
   const { tour, modes, setIsSaving } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const [tourModes, setTourModes] = useState<number[]>(() => {
     if (tour.modes.length == 0) {
       return modes.map((mode) => mode.id);
@@ -47,16 +49,21 @@ const TravelModes = () => {
     if (tourModes.includes(mode.id)) {
       const relationId = tour.modes.find((m) => m.id === mode.id)?.relation_id;
       if (!relationId) return;
-      const { response } = await sendDelete({
+      const { response, data } = await sendDelete({
         tenant: tour.tenant,
         record: relationId,
         body: { model: "tour_mode" },
       });
       if (response.ok) {
         setTourModes(tourModes.filter((m) => m !== mode.id));
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not disable this travel mode."),
+        });
       }
     } else {
-      const { response } = await sendCreate({
+      const { response, data } = await sendCreate({
         tenant: tour.tenant,
         body: {
           model: "tour_mode",
@@ -65,6 +72,11 @@ const TravelModes = () => {
       });
       if (response.ok) {
         setTourModes([...tourModes, mode.id]);
+      } else {
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(data, "Could not enable this travel mode."),
+        });
       }
     }
     setSaving(undefined);
@@ -74,7 +86,7 @@ const TravelModes = () => {
   const handleDefault = async (mode: TTravelMode) => {
     setSaving(mode.id);
     setIsSaving(true);
-    const { response } = await sendUpdate({
+    const { response, data } = await sendUpdate({
       tenant: tour.tenant,
       record: tour.id,
       body: {
@@ -84,6 +96,11 @@ const TravelModes = () => {
     });
     if (response.ok) {
       setCurrentDefaultMode(mode);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not set the default travel mode."),
+      });
     }
     setSaving(undefined);
     setIsSaving(false);

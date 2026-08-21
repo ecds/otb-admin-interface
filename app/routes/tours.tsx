@@ -1,13 +1,14 @@
+import { useNavigate } from "react-router";
+import { sendDelete } from "~/utils/requests";
+import TourList from "~/components/TourList";
+import { useContext, useState } from "react";
 import {
-  useLoaderData,
-  useNavigate,
-  type LoaderFunctionArgs,
-} from "react-router";
-import { request } from "~/utils/requests";
-import List from "~/components/List";
-import { useContext } from "react";
-import { AuthContext, FeedbackContext, TourSetContext } from "~/contexts";
-import type { TAccessRequest, TServerError, TTour } from "~/types";
+  AuthContext,
+  FeedbackContext,
+  FormContext,
+  TourSetContext,
+} from "~/contexts";
+import { getErrorMessage } from "~/utils/errors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { createTour } from "~/utils/create";
@@ -15,25 +16,13 @@ import SiteLogo from "~/components/SiteLogo";
 import PendingApproval from "~/components/PendingApproval";
 import { Button } from "@headlessui/react";
 import ManageSiteAccess from "~/components/ManageSiteAccess";
-import TextInput from "~/components/inputs/TextInput";
-
-export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
-  const { data: accessRequests } = await request({
-    path: `${params.tourSet}/v4/admin/access_requests`,
-  });
-
-  return { accessRequests };
-};
-
-clientLoader.hydrate = true as const;
+import TourSetDescription from "~/components/TourSetDescription";
+import type { TTour } from "~/types";
 
 const TourSetRoute = () => {
-  const { accessRequests } = useLoaderData<{
-    tours: TTour[];
-    accessRequests: TAccessRequest[];
-  }>();
   const { currentUser, currentTenantAdmin } = useContext(AuthContext);
-  const tourSet = useContext(TourSetContext);
+  const { tourSet } = useContext(TourSetContext);
+  const [listItems, setListItems] = useState<TTour[]>(tourSet.tours);
   const { setFeedback } = useContext(FeedbackContext);
   const navigate = useNavigate();
 
@@ -43,12 +32,30 @@ const TourSetRoute = () => {
     if (response.ok) {
       navigate(`edit/${data.id}`);
       setFeedback(undefined);
-    }
-    if (!response.ok)
+    } else {
       setFeedback({
         type: "error",
-        message: data.errors.map((e: TServerError) => e.detail),
+        message: getErrorMessage(data, "Could not create the tour."),
       });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const { response, data } = await sendDelete({
+      tenant: tourSet.subdir,
+      record: id,
+      body: {
+        model: "tour",
+      },
+    });
+    if (response.ok) {
+      setListItems((listItems) => listItems.filter((item) => item.id !== id));
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not delete tour."),
+      });
+    }
   };
 
   if (!currentUser) return <></>;
@@ -70,33 +77,28 @@ const TourSetRoute = () => {
   }
 
   return (
-    <div className="mt-24">
-      <List items={tourSet.tours} handleDelete={() => {}} heading="Tours">
-        <SiteLogo tourSet={tourSet} />
-        {(currentUser.super || currentTenantAdmin) && (
-          <>
-            <div className="flex flex-row space-x-4">
-              <button
-                className="w-max text-white hover:text-black h-8 px-2 py-1 mb-4 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
-                onClick={handleCreate}
-              >
-                <FontAwesomeIcon icon={faPlus} /> New Tour
-              </button>
-              <PendingApproval accessRequests={accessRequests} />
-              <ManageSiteAccess />
-            </div>
-            <TextInput
-              type="rich-text"
-              label="Description"
-              value={tourSet.description}
-              id="description"
-              model="tour_set"
-              helpText="This is an optional description for your site. It will appear above the list of tours."
-            />
-          </>
-        )}
-      </List>
-    </div>
+    <FormContext.Provider value={{ handleDelete }}>
+      <div className="mt-24">
+        <TourList tours={listItems} heading="Tours">
+          {(currentUser.super || currentTenantAdmin) && (
+            <>
+              <SiteLogo tourSet={tourSet} />
+              <div className="flex flex-row space-x-4">
+                <button
+                  className="w-max text-white hover:text-black h-8 px-2 py-1 mb-4 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg"
+                  onClick={handleCreate}
+                >
+                  <FontAwesomeIcon icon={faPlus} /> New Tour
+                </button>
+                <PendingApproval />
+                <ManageSiteAccess />
+              </div>
+              <TourSetDescription tourSet={tourSet} />
+            </>
+          )}
+        </TourList>
+      </div>
+    </FormContext.Provider>
   );
 };
 

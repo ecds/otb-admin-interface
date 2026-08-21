@@ -21,7 +21,9 @@ const VoiceOverList = ({ voiceOvers }: Props) => {
   );
   const itemToDeleteRef = useRef<number | undefined>(undefined);
 
-  const currentVOs = tour.voice_overs.map((vo) => vo.id);
+  const currentVOs = tour.voice_overs
+    ? tour.voice_overs.map((vo) => vo.id)
+    : [];
   const isPendingSync =
     itemToDelete !== undefined && currentVOs.includes(itemToDelete);
 

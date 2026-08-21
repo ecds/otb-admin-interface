@@ -5,11 +5,13 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useContext } from "react";
-import { AuthContext } from "~/contexts";
+import { AuthContext, FeedbackContext } from "~/contexts";
 import { sendUpdate } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 
 const Terms = () => {
   const { currentUser, setCurrentUser } = useContext(AuthContext);
+  const { setFeedback } = useContext(FeedbackContext);
 
   const agree = async () => {
     if (!currentUser) return;
@@ -22,7 +24,14 @@ const Terms = () => {
       },
     });
 
-    if (response.ok) setCurrentUser(data);
+    if (response.ok) {
+      setCurrentUser(data);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not save your acceptance. Please try again."),
+      });
+    }
   };
 
   return (

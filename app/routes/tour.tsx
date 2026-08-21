@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
 import { request } from "~/utils/requests";
 import TextInput from "~/components/inputs/TextInput";
 import {
@@ -26,11 +26,26 @@ import type { LoaderFunctionArgs } from "react-router";
 import SaveButton from "~/components/buttons/SaveButton";
 import VoiceOverUpload from "~/components/voice_overs/VoiceOverUpload";
 import VoiceOverList from "~/components/voice_overs/VoiceOverList";
+import TourAuthors from "~/components/TourAuthors";
+
+// A tour's admin `show` endpoint reads from Elasticsearch, which can lag
+// slightly behind a just-completed create — retry a few times before
+// treating a 404 as the tour genuinely not existing.
+const TOUR_LOAD_INTERVAL_MS = 1000;
+const TOUR_LOAD_MAX_ATTEMPTS = 10;
 
 export const clientLoader = async ({ params }: LoaderFunctionArgs) => {
-  const { data: tour, response } = await request({
-    path: `${params.tourSet}/v4/admin/tours/${params.tour_id}`,
-  });
+  const path = `${params.tourSet}/v4/admin/tours/${params.tour_id}`;
+  let result = await request({ path });
+
+  let attempts = 0;
+  while (result.response.status === 404 && attempts < TOUR_LOAD_MAX_ATTEMPTS) {
+    await new Promise((resolve) => setTimeout(resolve, TOUR_LOAD_INTERVAL_MS));
+    result = await request({ path });
+    attempts += 1;
+  }
+
+  const { data: tour, response } = result;
   const { data: modes } = await request({
     path: `${params.tourSet}/v4/public/modes`,
   });
@@ -49,6 +64,7 @@ const TourRoute = () => {
   const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { tourSet } = useParams();
 
   useEffect(() => {
     if (response.status === 401) navigate("/signin");
@@ -86,6 +102,7 @@ const TourRoute = () => {
           <ErrorContext.Provider value={{ error, setError }}>
             <Error />
             <div className="my-24 px-8 md:px-0 xl:px-12 mx-auto max-full md:max-w-10/12 text-black/75">
+              <TourAuthors />
               <TextInput
                 type="text"
                 label="Tour Title"
@@ -222,6 +239,23 @@ const TourRoute = () => {
           </div>
         </RecordContext.Provider>
       </TourContext.Provider>
+    );
+  }
+
+  if (response.status === 404) {
+    return (
+      <div className="my-24 flex flex-col items-center space-y-4 text-black/75">
+        <p className="text-2xl">This tour could not be found.</p>
+        <p>It may have been deleted, or the link may be incorrect.</p>
+        {tourSet && (
+          <a
+            href={`/admin/${tourSet}`}
+            className="bg-blue-500 hover:bg-blue-800 text-white px-2 py-1 rounded-md drop-shadow-2xl uppercase font-light tracking-wide"
+          >
+            Back to tours
+          </a>
+        )}
+      </div>
     );
   }
 

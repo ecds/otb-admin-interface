@@ -6,10 +6,11 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useContext, useEffect, useState } from "react";
-import { StopMapContext, TourContext } from "~/contexts";
+import { FeedbackContext, StopMapContext, TourContext } from "~/contexts";
 import type { TV3MapIcon, TV3MapIconResponse } from "~/types";
 import type { Dispatch, SetStateAction } from "react";
 import { sendUpdate, type UpdateBody } from "~/utils/requests";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ interface Props {
 const IconModal = ({ open, setOpen }: Props) => {
   const [icons, setIcons] = useState<TV3MapIcon[] | undefined>(undefined);
   const { tour } = useContext(TourContext);
+  const { setFeedback } = useContext(FeedbackContext);
   const context = useContext(StopMapContext);
   if (!context) throw new Error("StopMapContext is undefined");
   const { setMapIcon, stop } = context;
@@ -31,11 +33,16 @@ const IconModal = ({ open, setOpen }: Props) => {
       if (response.ok) {
         const data: TV3MapIconResponse = await response.json();
         setIcons(data.data);
+      } else {
+        setFeedback({
+          type: "error",
+          message: "Could not load map icons. Please try again.",
+        });
       }
     };
 
     if (open) fetchIcons();
-  }, [tour, open]);
+  }, [tour, open, setFeedback]);
 
   const addIcon = async (icon: TV3MapIcon) => {
     if (!stop) return;
@@ -51,7 +58,7 @@ const IconModal = ({ open, setOpen }: Props) => {
       },
     };
 
-    const { response } = await sendUpdate({
+    const { response, data } = await sendUpdate({
       tenant: tour.tenant,
       record: stop.id,
       body,
@@ -59,6 +66,11 @@ const IconModal = ({ open, setOpen }: Props) => {
     if (response.ok && setMapIcon) {
       setMapIcon(icon.attributes.original_image_url);
       setOpen(false);
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not set the map icon."),
+      });
     }
   };
 

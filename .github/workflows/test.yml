@@ -58,6 +58,9 @@ jobs:
           IMAGE=310867200447.dkr.ecr.us-east-1.amazonaws.com/otb_admin
           docker build \
             --platform linux/amd64 \
+            --build-arg VITE_GOOGLE_MAPS_API_KEY="${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" \
+            --build-arg VITE_API_ENDPOINT="${{ secrets.VITE_API_ENDPOINT }}" \
+            --build-arg VITE_SIGN_IN_REDIRECT="${{ secrets.VITE_SIGN_IN_REDIRECT }}" \
             -t otb_admin \
             --no-cache \
             .

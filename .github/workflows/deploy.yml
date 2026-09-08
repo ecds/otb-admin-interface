@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types: [completed]
+    branches: [main, develop]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set deploy environment
+        id: env
+        run: |
+          if [ "${{ github.event.workflow_run.head_branch }}" = "main" ]; then
+            echo "tag=stable" >> "$GITHUB_OUTPUT"
+            echo "service=${{ vars.PROD_ECS_SERVICE }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "service=${{ vars.DEV_ECS_SERVICE }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=310867200447.dkr.ecr.us-east-1.amazonaws.com/otb_admin
+          docker build \
+            --platform linux/amd64 \
+            -t otb_admin \
+            --no-cache \
+            .
+          docker tag otb_admin "$IMAGE:${{ steps.env.outputs.tag }}"
+          docker push "$IMAGE:${{ steps.env.outputs.tag }}"
+
+      - name: Force ECS redeployment
+        run: |
+          aws ecs update-service \
+            --cluster otb-admin \
+            --service "${{ steps.env.outputs.service }}" \
+            --force-new-deployment \
+            --region us-east-1

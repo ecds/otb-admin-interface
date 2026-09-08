@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@layer base {
+
+  ul,
+  ol {
+    list-style: revert;
+    /* Reverts to the browser's default list style */
+    /* or you can specify a value like: list-style-type: disc; */
+  }
+}
+
+html,
+body {
+  /* @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  } */
+
+  .jodit-wysiwyg p {
+    margin-bottom: 1rem;
+  }
+
+  .jodit-wysiwyg ul,
+  .jodit-wysiwyg ol {
+    margin: 1rem;
+  }
+
+  nav ul {
+    list-style: none;
+  }
+
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details summary {
+    list-style: none;
+  }
+
+  button,
+  label {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}

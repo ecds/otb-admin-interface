@@ -32,6 +32,8 @@ const TourAuthors = () => {
     if (currentUser?.super || currentTenantAdmin) fetchAuthors();
   }, [tourSet, tour, currentTenantAdmin, currentUser]);
 
+  const close = () => setIsOpen(false);
+
   if ((currentUser?.super || currentTenantAdmin) && tourAuthors) {
     return (
       <>
@@ -55,13 +57,12 @@ const TourAuthors = () => {
               >
                 <DialogTitle
                   as="h3"
-                  className="text-base/7 font-medium text-white"
+                  className="text-base/7 font-medium text-black"
                 >
-                  Payment successful
+                  Manage Tour Authors
                 </DialogTitle>
-                <p className="mt-2 text-sm/6 text-white/50">
-                  Your payment has been successfully submitted. We’ve sent you
-                  an email with all of the details of your order.
+                <p className="mt-2 text-sm/6 text-black/70">
+                  Not yet implemented.
                 </p>
                 <div className="mt-4">
                   <Button

@@ -10,12 +10,7 @@ import importPlugin from "eslint-plugin-import";
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
-    ignores: [
-      "**/build/**",
-      "**/node_modules/**",
-      ".tmp/**",
-      "pnpm-lock.yaml",
-    ],
+    ignores: ["**/build/**", "**/node_modules/**", ".tmp/**", "pnpm-lock.yaml"],
   },
 
   // Base JS
@@ -99,6 +94,13 @@ export default [
         node: { extensions: [".ts", ".tsx"] },
         typescript: { alwaysTryTypes: true },
       },
+    },
+  },
+  // Relax rules that conflict with Vitest mock factory patterns in test files
+  {
+    files: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/consistent-type-imports": "off",
     },
   },
 ];

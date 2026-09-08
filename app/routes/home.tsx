@@ -5,8 +5,8 @@ import { request } from "~/utils/requests";
 import TourSetList from "~/components/TourSetList";
 import TourList from "~/components/TourList";
 import Navbar from "~/components/Navbar";
-import type { TTourSet } from "~/types";
 import CreateTourSet from "~/components/CreateTourSet";
+import type { TTourSet } from "~/types";
 
 export const meta = () => {
   return [

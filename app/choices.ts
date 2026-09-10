@@ -137,6 +137,10 @@ export const themes = [
     value: 15,
     label: "ksu",
   },
+  {
+    value: 16,
+    label: "hrcga",
+  },
 ];
 
 export const modes = [

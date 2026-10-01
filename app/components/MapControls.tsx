@@ -71,20 +71,24 @@ const MapControls = () => {
 
   const deleteOverlay = async (id: number) => {
     setDeleting(true);
-    const { response: blankMapResponse, data: blankMapData } =
-      await sendUpdate({
+    const { response: blankMapResponse, data: blankMapData } = await sendUpdate(
+      {
         record: tour.id,
         tenant: tour.tenant,
         body: {
           model: "tour",
           tour: { blank_map: false },
         },
-      });
+      },
+    );
 
     if (!blankMapResponse.ok) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(blankMapData, "Could not remove the map overlay."),
+        message: getErrorMessage(
+          blankMapData,
+          "Could not remove the map overlay.",
+        ),
       });
       setDeleting(false);
       return;
@@ -144,6 +148,15 @@ const MapControls = () => {
             model="tour"
             value={tour?.map_type}
             options={mapTypes}
+          />
+          <TextInput
+            label="Icon Color"
+            type="color"
+            value={tour.icon_color ?? "#D32F2F"}
+            model="tour"
+            id="icon_color"
+            helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
+            updateCallback={() => {}}
           />
           {!tour.map_overlay && (
             <RelatedContext

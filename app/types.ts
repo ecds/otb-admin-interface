@@ -156,6 +156,7 @@ export type TTour = {
   description: string;
   est_time: string;
   flat_pages: TFlatPage[];
+  icon_color: string;
   id: number;
   map_overlay: TMapOverlay;
   map_type: TMapType;

@@ -65,7 +65,7 @@ const MarkerStyle = () => {
         label="Icon Color"
         type="color"
         value={iconColor ?? "#D32F2F"}
-        model="stop"
+        model="tour_stop"
         id="icon_color"
         helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
         updateCallback={updateIconColor}

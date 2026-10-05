@@ -2,13 +2,18 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { RecordContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import { useRef } from "react";
 import type { TFlatPage } from "~/types";
 import DeleteButton from "../buttons/DeleteButton";
 
-const FlatPage = ({ flatPage }: { flatPage: TFlatPage }) => {
+const FlatPage = ({
+  flatPage,
+  onDelete,
+}: {
+  flatPage: TFlatPage;
+  onDelete: () => void;
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: flatPage.id });
 
@@ -46,29 +51,24 @@ const FlatPage = ({ flatPage }: { flatPage: TFlatPage }) => {
             </div>
           </summary>
           <div className="bg-white mt-4 p-4 mx-auto w-full text-black/75">
-            <RecordContext.Provider
-              value={{
-                recordId: flatPage.id,
-                recordModel: "flat_page",
-              }}
-            >
-              <TextInput
-                valueType="text"
-                value={flatPage.title}
-                id="title"
-                label="Title"
-                type="text"
-                model="stop"
-              />
-              <TextInput
-                type="rich-text"
-                value={flatPage.body}
-                id="body"
-                label="Body"
-                model="flat_page"
-              />
-              <DeleteButton removing="Page from the tour" />
-            </RecordContext.Provider>
+            <TextInput
+              itemId={flatPage.id}
+              valueType="text"
+              value={flatPage.title}
+              id="title"
+              label="Title"
+              type="text"
+              model="stop"
+            />
+            <TextInput
+              itemId={flatPage.id}
+              type="rich-text"
+              value={flatPage.body}
+              id="body"
+              label="Body"
+              model="flat_page"
+            />
+            <DeleteButton removing="Page from the tour" onDelete={onDelete} />
           </div>
         </details>
         <FontAwesomeIcon

@@ -19,6 +19,7 @@ import Feedback from "./components/Feedback";
 import type { Route } from "./+types/root";
 import type { TUser } from "./types";
 import Terms from "./components/Terms";
+import { QueryProvider } from "./providers/QueryProvider";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -90,21 +91,23 @@ export default function App() {
   }, [signedIn, navigate, searchParams]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        signedIn,
-        currentUser,
-        setCurrentUser,
-        currentTenantAdmin,
-        setCurrentTenantAdmin,
-      }}
-    >
-      <Terms />
-      <FeedbackContext.Provider value={{ feedback, setFeedback }}>
-        <Feedback />
-        <Outlet />
-      </FeedbackContext.Provider>
-    </AuthContext.Provider>
+    <QueryProvider>
+      <AuthContext.Provider
+        value={{
+          signedIn,
+          currentUser,
+          setCurrentUser,
+          currentTenantAdmin,
+          setCurrentTenantAdmin,
+        }}
+      >
+        <Terms />
+        <FeedbackContext.Provider value={{ feedback, setFeedback }}>
+          <Feedback />
+          <Outlet />
+        </FeedbackContext.Provider>
+      </AuthContext.Provider>
+    </QueryProvider>
   );
 }
 

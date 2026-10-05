@@ -5,8 +5,6 @@ import { AuthContext } from "~/contexts";
 import type { TUser, TTour, TTravelMode } from "~/types";
 
 // ── component mocks ──────────────────────────────────────────────────────────
-// These sub-components either require data-router context, call external APIs,
-// or are out of scope for tour-author role assertions.
 
 vi.mock("~/components/TourAuthors", async () => {
   const { useContext } = await import("react");
@@ -74,29 +72,27 @@ vi.mock("~/components/Preview", () => ({
   default: () => <div>Preview</div>,
 }));
 
-vi.mock("~/components/Error", () => ({
-  default: () => null,
-}));
-
 vi.mock("@vis.gl/react-google-maps", () => ({
   APIProvider: ({ children }: { children: import("react").ReactNode }) => (
     <>{children}</>
   ),
 }));
 
-// ── router mocks ─────────────────────────────────────────────────────────────
+// ── data / store mocks ───────────────────────────────────────────────────────
+
+vi.mock("~/hooks/useTourQuery");
+vi.mock("~/store/tourStore");
 
 vi.mock("react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-router")>();
   return {
     ...actual,
-    useLoaderData: vi.fn(),
-    useNavigate: vi.fn(() => vi.fn()),
     useParams: vi.fn(() => ({ tourSet: "ecds", tour_id: "2" })),
   };
 });
 
-import { useLoaderData, useNavigate } from "react-router";
+import { useTourQuery } from "~/hooks/useTourQuery";
+import { useTourStore } from "~/store/tourStore";
 import TourRoute from "./tour";
 
 // ── fixtures ──────────────────────────────────────────────────────────────────
@@ -142,13 +138,33 @@ const baseTour: TTour = {
 
 const modes: TTravelMode[] = [];
 
-const okResponse = { status: 200, ok: true } as unknown as Response;
-const unauthorizedResponse = { status: 401, ok: false } as unknown as Response;
-const notFoundResponse = { status: 404, ok: false } as unknown as Response;
-
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-const authContextValue = (user: TUser | undefined, tenantAdmin = false) => ({
+const setupSuccess = (tour: TTour = baseTour) => {
+  vi.mocked(useTourQuery).mockReturnValue({
+    data: { tour, modes },
+    status: "success",
+  } as ReturnType<typeof useTourQuery>);
+  vi.mocked(useTourStore).mockReturnValue(tour);
+};
+
+const setupPending = () => {
+  vi.mocked(useTourQuery).mockReturnValue({
+    data: undefined,
+    status: "pending",
+  } as unknown as ReturnType<typeof useTourQuery>);
+  vi.mocked(useTourStore).mockReturnValue(null);
+};
+
+const setupError = () => {
+  vi.mocked(useTourQuery).mockReturnValue({
+    data: undefined,
+    status: "error",
+  } as unknown as ReturnType<typeof useTourQuery>);
+  vi.mocked(useTourStore).mockReturnValue(null);
+};
+
+const authCtx = (user: TUser | undefined, tenantAdmin = false) => ({
   signedIn: true,
   currentUser: user,
   setCurrentUser: vi.fn(),
@@ -156,108 +172,101 @@ const authContextValue = (user: TUser | undefined, tenantAdmin = false) => ({
   setCurrentTenantAdmin: vi.fn(),
 });
 
-const renderTour = (
-  tour: TTour | Partial<TTour>,
-  response: Response = okResponse,
-  user: TUser = tourAuthorUser,
-) => {
-  vi.mocked(useLoaderData).mockReturnValue({ tour, modes, response });
-
-  return render(
+const renderTour = (user: TUser = tourAuthorUser) =>
+  render(
     <MemoryRouter>
-      <AuthContext.Provider value={authContextValue(user)}>
+      <AuthContext.Provider value={authCtx(user)}>
         <TourRoute />
       </AuthContext.Provider>
     </MemoryRouter>,
   );
-};
 
 // ── tests ─────────────────────────────────────────────────────────────────────
 
-describe("TourRoute — tour author (no tour_sets, super: false)", () => {
+describe("TourRoute — loading state", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("shows a loading indicator while the query is pending", () => {
+    setupPending();
+    renderTour();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  });
+});
+
+describe("TourRoute — error / not found state", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("shows a not-found message when the query errors", () => {
+    setupError();
+    renderTour();
+    expect(
+      screen.getByText("This tour could not be found."),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a Back to tours link pointing to the tour set", () => {
+    setupError();
+    renderTour();
+    expect(
+      screen.getByRole("link", { name: /back to tours/i }),
+    ).toHaveAttribute("href", "/admin/ecds");
+  });
+});
+
+describe("TourRoute — tour author (super: false, not tenant admin)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupSuccess();
+  });
+
   it("renders the tour title field with the tour's title", () => {
-    renderTour(baseTour);
+    renderTour();
     expect(screen.getByRole("textbox", { name: "Tour Title" })).toHaveValue(
       "Erich's Awesome Test",
     );
   });
 
   it("renders the Published select", () => {
-    renderTour(baseTour);
+    renderTour();
     expect(screen.getByText("Published")).toBeInTheDocument();
   });
 
   it("renders the Description field", () => {
-    renderTour(baseTour);
+    renderTour();
     expect(screen.getByText("Description")).toBeInTheDocument();
   });
 
   it("does not show the Manage Tour Authors button", () => {
-    renderTour(baseTour);
+    renderTour();
     expect(
       screen.queryByRole("button", { name: /Manage Tour Authors/i }),
     ).not.toBeInTheDocument();
   });
 
   it("shows a Save button", () => {
-    renderTour(baseTour);
+    renderTour();
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
-  });
-
-  it("redirects to /signin on a 401 response", () => {
-    const navigate = vi.fn();
-    vi.mocked(useNavigate).mockReturnValue(navigate);
-    renderTour({} as TTour, unauthorizedResponse);
-    expect(navigate).toHaveBeenCalledWith("/signin");
-  });
-
-  it("shows a not-found message on a 404 response", () => {
-    renderTour({} as TTour, notFoundResponse);
-    expect(
-      screen.getByText("This tour could not be found."),
-    ).toBeInTheDocument();
-  });
-
-  it("shows a Back to tours link on 404 that points to the tour set", () => {
-    renderTour({} as TTour, notFoundResponse);
-    const link = screen.getByRole("link", { name: /back to tours/i });
-    expect(link).toHaveAttribute("href", "/admin/ecds");
   });
 });
 
 describe("TourRoute — super user / tenant admin sees Manage Tour Authors", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupSuccess();
+  });
 
   it("shows the Manage Tour Authors button for a super user", () => {
     const superUser = { ...tourAuthorUser, super: true } as TUser;
-    vi.mocked(useLoaderData).mockReturnValue({
-      tour: baseTour,
-      modes,
-      response: okResponse,
-    });
-    render(
-      <MemoryRouter>
-        <AuthContext.Provider value={authContextValue(superUser)}>
-          <TourRoute />
-        </AuthContext.Provider>
-      </MemoryRouter>,
-    );
+    renderTour(superUser);
     expect(
       screen.getByRole("button", { name: /Manage Tour Authors/i }),
     ).toBeInTheDocument();
   });
 
   it("shows the Manage Tour Authors button for a tenant admin", () => {
-    vi.mocked(useLoaderData).mockReturnValue({
-      tour: baseTour,
-      modes,
-      response: okResponse,
-    });
     render(
       <MemoryRouter>
-        <AuthContext.Provider value={authContextValue(tourAuthorUser, true)}>
+        <AuthContext.Provider value={authCtx(tourAuthorUser, true)}>
           <TourRoute />
         </AuthContext.Provider>
       </MemoryRouter>,

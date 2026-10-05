@@ -2,12 +2,7 @@ import { useNavigate } from "react-router";
 import { sendDelete } from "~/utils/requests";
 import TourList from "~/components/TourList";
 import { useContext, useState } from "react";
-import {
-  AuthContext,
-  FeedbackContext,
-  FormContext,
-  TourSetContext,
-} from "~/contexts";
+import { AuthContext, FeedbackContext, TourSetContext } from "~/contexts";
 import { getErrorMessage } from "~/utils/errors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -77,9 +72,9 @@ const TourSetRoute = () => {
   }
 
   return (
-    <FormContext.Provider value={{ handleDelete }}>
+    <>
       <div className="mt-24">
-        <TourList tours={listItems} heading="Tours">
+        <TourList tours={listItems} heading="Tours" onDelete={handleDelete}>
           {(currentUser.super || currentTenantAdmin) && (
             <>
               <SiteLogo tourSet={tourSet} />
@@ -98,7 +93,7 @@ const TourSetRoute = () => {
           )}
         </TourList>
       </div>
-    </FormContext.Provider>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
-type Method = "GET" | "POST" | "PUT" | "DELETE";
+import type { TTour } from "~/types";
+type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type Reindex = {
   model: string;
@@ -28,13 +29,13 @@ type AllowedAttributes = {
     address?: string;
   };
   tour_flat_page?: {
-    flat_page_id: number;
-    tour_id: number;
+    flat_page_id?: number;
+    tour_id?: number;
     position: number;
   };
   tour_stop?: {
-    stop_id: number;
-    tour_id: number;
+    stop_id?: number;
+    tour_id?: number;
     position: number;
   };
   tour_mode?: {
@@ -104,7 +105,7 @@ type FetchOptions = {
   method?: Method;
   requestHeaders?: HeadersInit;
   credentials?: "include" | "omit" | "same-origin";
-  body?: UpdateBody | CreateBody | FormData;
+  body?: UpdateBody | CreateBody | FormData | { tour: TTour };
 };
 export const request = async ({
   path,
@@ -266,5 +267,14 @@ export const sendDelete = async ({
     path: `${tenant}/v4/admin/crud/${record}`,
     method: "DELETE",
     body,
+  });
+};
+
+// Whole-document save; the response is the tour rebuilt from the database.
+export const saveTour = async (tenant: string, tour: TTour) => {
+  return await request({
+    path: `${tenant}/v4/admin/tours/${tour.id}`,
+    method: "PATCH",
+    body: { tour },
   });
 };

@@ -1,32 +1,26 @@
 import { useContext, useEffect, useState } from "react";
 import { parseEmbedUrl } from "~/utils/embed_parser";
 import TextInput from "../inputs/TextInput";
-import {
-  ErrorContext,
-  FeedbackContext,
-  RecordContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
-import type { TEmbedProvider, TMedium } from "~/types";
+import { FeedbackContext } from "~/contexts";
+import { useTenant, useTourStore } from "~/store/tourStore";
+import type { TEmbedProvider, TJoin, TMedium } from "~/types";
 import { sendCreate } from "~/utils/requests";
 import { joinImage } from "~/utils/image_upload";
 import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
+  join: TJoin;
   onSuccess: (data: TMedium) => void;
 }
-const Embed = ({ onSuccess }: Props) => {
+const Embed = ({ join, onSuccess }: Props) => {
   const [embedUrl, setEmbedUrl] = useState<string | undefined>(undefined);
   const [embedCode, setEmbedCode] = useState<string | undefined>(undefined);
   const [link, setLink] = useState<string | undefined>(undefined);
   const [provider, setProvider] = useState<TEmbedProvider | undefined>(
     undefined,
   );
-  const { tour } = useContext(TourContext);
-  const { recordId, recordModel } = useContext(RecordContext);
-  const { relatedModel, relatedType } = useContext(RelatedContext);
-  const { setError } = useContext(ErrorContext);
+  const tenant = useTenant();
+  const tourId = useTourStore((s) => s.tour?.id);
   const { setFeedback } = useContext(FeedbackContext);
 
   useEffect(() => {
@@ -46,8 +40,8 @@ const Embed = ({ onSuccess }: Props) => {
     };
   }, [link]);
 
-  const handleInput = (value: string) => {
-    setLink(value);
+  const handleInput = (value: string | number) => {
+    setLink(String(value));
   };
 
   const addMedium = async () => {
@@ -62,24 +56,18 @@ const Embed = ({ onSuccess }: Props) => {
         video_provider: provider,
       },
       model: "medium",
-      reindex: {
-        model: "tour",
-        id: tour.id,
-      },
+      ...(tourId && { reindex: { model: "tour", id: tourId } }),
     };
     const { response: createResponse, data: createData } = await sendCreate({
-      tenant: tour.tenant,
+      tenant,
       body,
     });
 
     if (createResponse.ok) {
       const { response, data } = await joinImage({
-        relatedType,
-        recordModel,
-        relatedModel,
-        recordId,
+        ...join,
         imageId: createData.id,
-        tenant: tour.tenant,
+        tenant,
       });
       if (response.ok && onSuccess) {
         setFeedback(undefined);
@@ -91,11 +79,17 @@ const Embed = ({ onSuccess }: Props) => {
       } else {
         setFeedback({
           type: "error",
-          message: getErrorMessage(data, "Could not add this embed to the tour."),
+          message: getErrorMessage(
+            data,
+            "Could not add this embed to the tour.",
+          ),
         });
       }
     } else {
-      setError(getErrorMessage(createData, "Could not create this embed."));
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(createData, "Could not create this embed."),
+      });
     }
   };
 
@@ -104,7 +98,7 @@ const Embed = ({ onSuccess }: Props) => {
       <TextInput
         type="text"
         label="Embed Media"
-        model={recordModel}
+        model={join.recordModel}
         value={link ?? ""}
         id="embed"
         helpText='You can add a video hosted on YouTube or Vimeo by entering the link here. You can add SoundCloud audio by entering the share embed here. Other hosting will not work. The video or audio should appear below automatically if the url or embed is correct. If the media does not appear, double check the url or embed. Once the media appears you can add it to your tour with the "Yes! ADD THIS MEDIUM" button.'

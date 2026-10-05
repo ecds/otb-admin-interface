@@ -69,7 +69,7 @@ const Navbar = () => {
               <span className="sr-only">
                 {accessRequests.length} Pending Access Requests
               </span>
-              <div className="absolute inline-flex text-white text-[0.5rem] items-center justify-center w-4 h-4 font-bold bg-red-500 border-2 border-buffer rounded-full -top-1 -end-2">
+              <div className="absolute inline-flex text-white text-[0.5rem] items-center justify-center w-4 h-4 font-bold bg-red-500 border-2 border-buffer rounded-full -top-1 -inset-2">
                 {accessRequests.length}
               </div>
             </button>

@@ -12,8 +12,12 @@ const mockXhr = {
 class MockXHR {
   open = mockXhr.open;
   send = mockXhr.send;
-  get status() { return mockXhr.status; }
-  get responseText() { return mockXhr.responseText; }
+  get status() {
+    return mockXhr.status;
+  }
+  get responseText() {
+    return mockXhr.responseText;
+  }
 }
 vi.stubGlobal("XMLHttpRequest", MockXHR);
 
@@ -26,7 +30,9 @@ describe("parseEmbedUrl", () => {
 
   describe("YouTube", () => {
     it("parses watch URL", () => {
-      const result = parseEmbedUrl("https://www.youtube.com/watch?v=F9ULbmCvmxY");
+      const result = parseEmbedUrl(
+        "https://www.youtube.com/watch?v=F9ULbmCvmxY",
+      );
       expect(result).toEqual({
         provider: "youtube",
         embedCode: "F9ULbmCvmxY",
@@ -118,7 +124,9 @@ describe("parseEmbedUrl", () => {
 
   describe("Matterport", () => {
     it("parses a matterport show URL", () => {
-      const result = parseEmbedUrl("https://my.matterport.com/show/?m=SxQL3iGyvwk");
+      const result = parseEmbedUrl(
+        "https://my.matterport.com/show/?m=SxQL3iGyvwk",
+      );
       expect(result).toEqual({
         provider: "matterport",
         embedCode: "SxQL3iGyvwk",
@@ -144,7 +152,9 @@ describe("parseEmbedUrl", () => {
       const iframe = `<iframe src="https://3d-api.si.edu/voyager/3d_package:a1651b35"></iframe>`;
       const result = parseEmbedUrl(iframe);
       expect(result?.provider).toBe("unknown");
-      expect(result?.embedCode).toBe("//3d-api.si.edu/voyager/3d_package:a1651b35");
+      expect(result?.embedCode).toBe(
+        "//3d-api.si.edu/voyager/3d_package:a1651b35",
+      );
     });
   });
 });

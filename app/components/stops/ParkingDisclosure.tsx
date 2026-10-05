@@ -2,31 +2,29 @@ import {
   faChevronDown,
   faSquareParking,
 } from "@fortawesome/free-solid-svg-icons";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from "@headlessui/react";
-import { StopMapContext } from "~/contexts";
+import type { ParkingProps } from "../map/ParkingMarker";
 import type { ReactNode } from "react";
 import { useMap } from "@vis.gl/react-google-maps";
 
-interface Props {
+type Props = ParkingProps & {
   children: ReactNode;
-}
+};
 
-const ParkingDisclosure = ({ children }: Props) => {
-  const context = useContext(StopMapContext);
-  if (!context) throw new Error("StopMapContext is undefined");
-  const {
-    parkingLat,
-    parkingLng,
-    setParkingLat,
-    setParkingLng,
-    setParkingAddress,
-  } = context;
+const ParkingDisclosure = ({
+  children,
+  parkingLat,
+  parkingLng,
+  setParkingLat,
+  setParkingLng,
+  setParkingAddress,
+}: Props) => {
   const [isOpen, setIsOpen] = useState<boolean | undefined>(undefined);
   const map = useMap();
 
@@ -35,8 +33,8 @@ const ParkingDisclosure = ({ children }: Props) => {
     if (parkingLat && parkingLng) return;
 
     const onClick = (event: google.maps.MapMouseEvent) => {
-      if (setParkingLat) setParkingLat(event.latLng?.lat());
-      if (setParkingLng) setParkingLng(event.latLng?.lng());
+      setParkingLat(event.latLng?.lat());
+      setParkingLng(event.latLng?.lng());
     };
 
     const clickListener = map.addListener("click", onClick);
@@ -47,9 +45,9 @@ const ParkingDisclosure = ({ children }: Props) => {
   }, [isOpen, parkingLat, parkingLng, setParkingLat, setParkingLng, map]);
 
   const handelRemove = () => {
-    if (setParkingLat) setParkingLat(undefined);
-    if (setParkingLng) setParkingLng(undefined);
-    if (setParkingAddress) setParkingAddress(undefined);
+    setParkingLat(undefined);
+    setParkingLng(undefined);
+    setParkingAddress(undefined);
   };
 
   return (

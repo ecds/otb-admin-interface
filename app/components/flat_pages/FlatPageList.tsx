@@ -10,17 +10,12 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  FeedbackContext,
-  FormContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
 import FlatPage from "./FlatPage";
 import ToolTip from "../inputs/ToolTip";
@@ -30,11 +25,14 @@ import type { TFlatPage, TServerResponse } from "~/types";
 import Reuse from "../Reuse";
 import { getErrorMessage } from "~/utils/errors";
 
+const EMPTY: TFlatPage[] = [];
+
 const FlatPageList = () => {
-  const { relatedModel } = useContext(RelatedContext);
-  const { tour } = useContext(TourContext);
+  const tour = useTourStore((s) => s.tour);
+  const addFlatPage = useTourStore((s) => s.addFlatPage);
+  const removeFlatPage = useTourStore((s) => s.removeFlatPage);
+  const reorderFlatPages = useTourStore((s) => s.reorderFlatPages);
   const { setFeedback } = useContext(FeedbackContext);
-  const [items, setItems] = useState<TFlatPage[]>([]);
   const [openReuseFlatPages, setOpenReuseFlatPages] = useState<boolean>(false);
   const [pendingOpenSlug, setPendingOpenSlug] = useState<string | undefined>(
     undefined,
@@ -46,9 +44,7 @@ const FlatPageList = () => {
     }),
   );
 
-  useEffect(() => {
-    setItems(tour.flat_pages);
-  }, [tour]);
+  const flatPages = tour?.flat_pages ?? EMPTY;
 
   // Runs after React has committed the newly added page to the DOM, so the
   // element is guaranteed to exist by the time this effect fires.
@@ -58,56 +54,46 @@ const FlatPageList = () => {
     if (element) (element as HTMLDetailsElement).open = true;
     setPendingOpenSlug(undefined);
     setFeedback(undefined);
-  }, [pendingOpenSlug, items, setFeedback]);
+  }, [pendingOpenSlug, flatPages, setFeedback]);
 
-  useEffect(() => {
-    const sendRequest = async (newPosition: number, item: TFlatPage) => {
-      const { response, data } = await sendUpdate({
-        tenant: tour.tenant,
-        record: item.relation_id,
-        body: {
-          [relatedModel]: { position: newPosition },
-          model: relatedModel,
-          reindex: {
-            model: "tour",
-            id: tour.id,
-          },
+  if (!tour) return null;
+
+  const savePosition = async (flatPage: TFlatPage) => {
+    const { response, data } = await sendUpdate({
+      tenant: tour.tenant,
+      record: flatPage.relation_id,
+      body: {
+        tour_flat_page: { position: flatPage.position },
+        model: "tour_flat_page",
+        reindex: {
+          model: "tour",
+          id: tour.id,
         },
-      });
-
-      if (!response.ok) {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not save the new page order."),
-        });
-      }
-    };
-
-    items.forEach((item, index) => {
-      const newPosition = index + 1;
-      if (newPosition !== item.position) {
-        item.position = newPosition;
-        sendRequest(newPosition, item);
-      }
+      },
     });
-  }, [tour, relatedModel, items, setFeedback]);
+
+    if (!response.ok) {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not save the new page order."),
+      });
+    }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     event.activatorEvent.preventDefault();
-    if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((flatPage) => flatPage.id == active.id),
-        );
-        const newIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((flatPage) => flatPage.id == over.id),
-        );
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
+    if (over && active.id !== over.id) {
+      const oldIndex = flatPages.findIndex((page) => page.id == active.id);
+      const newIndex = flatPages.findIndex((page) => page.id == over.id);
+      const before = new Map(flatPages.map((page) => [page.id, page.position]));
+      reorderFlatPages(oldIndex, newIndex);
+      useTourStore
+        .getState()
+        .tour!.flat_pages.filter(
+          (page) => before.get(page.id) !== page.position,
+        )
+        .forEach(savePosition);
     }
 
     document
@@ -138,7 +124,7 @@ const FlatPageList = () => {
         tour_flat_page: {
           tour_id: tour.id,
           flat_page_id: data.id,
-          position: items.length + 1,
+          position: flatPages.length + 1,
         },
         reindex: {
           model: "tour",
@@ -148,7 +134,7 @@ const FlatPageList = () => {
     });
 
     if (joinResponse.ok) {
-      setItems((items) => [...items, joinData as TFlatPage]);
+      addFlatPage(joinData as TFlatPage);
       setPendingOpenSlug((data as TFlatPage).slug);
     } else {
       setFeedback({
@@ -174,7 +160,7 @@ const FlatPageList = () => {
     });
 
     if (response.ok) {
-      createJoin(data);
+      await createJoin(data);
     } else {
       setFeedback({
         type: "error",
@@ -198,7 +184,8 @@ const FlatPageList = () => {
     });
 
     if (response.ok || status === 404) {
-      setItems((items) => items.filter((item) => item.relation_id === id));
+      const removed = flatPages.find((page) => page.relation_id === id);
+      if (removed) removeFlatPage(removed.id);
       setFeedback(undefined);
     } else {
       setFeedback({
@@ -216,7 +203,10 @@ const FlatPageList = () => {
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
       >
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={flatPages}
+          strategy={verticalListSortingStrategy}
+        >
           <div>
             <div className="text-2xl flex space-x-3 my-8">Pages</div>
             <div className="flex flex-row gap-8">
@@ -244,13 +234,12 @@ const FlatPageList = () => {
                 <ToolTip>Reuse pages from other tours.</ToolTip>
               </div>
             </div>
-            {items.map((flatPage) => (
-              <FormContext.Provider
+            {flatPages.map((flatPage) => (
+              <FlatPage
                 key={flatPage.id}
-                value={{ recordId: flatPage.relation_id, handleDelete }}
-              >
-                <FlatPage flatPage={flatPage} />
-              </FormContext.Provider>
+                flatPage={flatPage}
+                onDelete={() => handleDelete(flatPage.relation_id)}
+              />
             ))}
           </div>
         </SortableContext>

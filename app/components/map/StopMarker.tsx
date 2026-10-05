@@ -1,46 +1,56 @@
-import { useContext } from "react";
 import MapMarker from "./MapMarker";
-import { StopMapContext } from "~/contexts";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import type { Dispatch, SetStateAction } from "react";
+import type { TStop } from "~/types";
 
-const StopMarker = () => {
-  const context = useContext(StopMapContext);
+interface Props {
+  stop: TStop;
+  lat: number | undefined;
+  lng: number | undefined;
+  setLat: Dispatch<SetStateAction<number | undefined>>;
+  setLng: Dispatch<SetStateAction<number | undefined>>;
+  setAddress: Dispatch<SetStateAction<string | undefined>>;
+}
+
+const StopMarker = ({ stop, lat, lng, setLat, setLng, setAddress }: Props) => {
   const geocoderLib = useMapsLibrary("geocoding");
-
-  if (!context) {
-    throw new Error("StopMapContext is undefined");
-  }
-  const { setLat, setLng, setAddress } = context;
 
   const handleDragEnd = (event: google.maps.MapMouseEvent) => {
     if (!event.latLng) return;
 
-    const newLat = event.latLng?.lat();
-    const newLng = event.latLng?.lng();
+    const newLat = event.latLng.lat();
+    const newLng = event.latLng.lng();
 
-    if (setLat) setLat(newLat);
-    if (setLng) setLng(newLng);
+    setLat(newLat);
+    setLng(newLng);
 
     if (geocoderLib) {
       const locater = new geocoderLib.Geocoder();
       locater.geocode(
-        {
-          location: { lat: newLat, lng: newLng },
-        },
+        { location: { lat: newLat, lng: newLng } },
         (result, status) => {
           if (status === "OK" && result) {
-            if (setAddress) setAddress(result[0].formatted_address);
+            setAddress(result[0].formatted_address);
           } else {
             console.error(status);
           }
         },
       );
-    } else {
-      // TODO: warn unable to update address.
     }
   };
 
-  return <MapMarker draggable={true} onDragEnd={handleDragEnd} center={true} />;
+  return (
+    <MapMarker
+      lat={lat}
+      lng={lng}
+      mapIcon={stop.map_icon}
+      iconColor={stop.icon_color}
+      position={stop.position}
+      draggable={true}
+      onDragEnd={handleDragEnd}
+      center={true}
+    />
+  );
 };
 
 export default StopMarker;

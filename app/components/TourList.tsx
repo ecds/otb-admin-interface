@@ -2,8 +2,7 @@ import { faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useParams } from "react-router";
 import ToolTip from "./inputs/ToolTip";
-import { useContext } from "react";
-import { FormContext } from "~/contexts";
+
 import DeleteButton from "./buttons/DeleteButton";
 import type { ReactNode } from "react";
 import type { TTour } from "~/types";
@@ -13,11 +12,11 @@ interface Props {
   heading: string;
   tenant?: string;
   children?: ReactNode;
+  onDelete?: (tourId: number) => void;
 }
 
-const TourList = ({ tours, heading, tenant, children }: Props) => {
+const TourList = ({ tours, heading, tenant, children, onDelete }: Props) => {
   const params = useParams();
-  const { handleDelete } = useContext(FormContext);
 
   return (
     <div className="w-11/12 lg:w-3/4 max-w-7xl m-auto">
@@ -33,7 +32,7 @@ const TourList = ({ tours, heading, tenant, children }: Props) => {
                 OpenTour.
               </ToolTip>
             </th>
-            {handleDelete && <th className="max-w-fit">Delete</th>}
+            {onDelete && <th className="max-w-fit">Delete</th>}
           </tr>
         </thead>
         <tbody>
@@ -59,11 +58,11 @@ const TourList = ({ tours, heading, tenant, children }: Props) => {
                   )}
                 </span>
               </td>
-              {handleDelete && (
+              {onDelete && (
                 <td className="text-center">
                   <DeleteButton
                     removing={tour.title}
-                    id={tour.id}
+                    onDelete={() => onDelete(tour.id)}
                     label=""
                     className=""
                   >

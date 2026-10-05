@@ -2,56 +2,56 @@ import { faCheckSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Field, Legend, Radio, RadioGroup } from "@headlessui/react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { themes } from "~/choices";
+import { useTourStore } from "~/store/tourStore";
 import { sendUpdate } from "~/utils/requests";
-import { FeedbackContext, RecordContext, TourContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
 import { getErrorMessage } from "~/utils/errors";
 
-interface Props {
-  theme: number;
-}
-
-const ThemeSelector = ({ theme }: Props) => {
-  const [currentValue, setCurrentValue] = useState<number>(theme);
-  const valueRef = useRef<number>(currentValue);
-  const { tour } = useContext(TourContext);
-  const { recordId } = useContext(RecordContext);
+const ThemeSelector = () => {
+  const tour = useTourStore((s) => s.tour);
+  const updateTourField = useTourStore((s) => s.updateTourField);
   const { setFeedback } = useContext(FeedbackContext);
+  const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    const update = async () => {
-      const { response, data } = await sendUpdate({
-        tenant: tour.tenant,
-        record: recordId,
-        body: {
-          model: "tour",
-          attribute: "theme",
-          value: currentValue,
-          related_model: "theme",
-          related_type: "belongs_to",
-        },
+  if (!tour) return null;
+
+  const handleChange = async (themeId: number) => {
+    const themeTitle = themes.find((t) => t.value === themeId)?.label ?? "";
+    // Optimistic store update — UI reflects the new theme immediately.
+    updateTourField("theme", { id: themeId, title: themeTitle });
+
+    setIsSaving(true);
+    const { response, data } = await sendUpdate({
+      tenant: tour.tenant,
+      record: tour.id,
+      body: {
+        model: "tour",
+        attribute: "theme",
+        value: themeId,
+        related_model: "theme",
+        related_type: "belongs_to",
+      },
+    });
+    setIsSaving(false);
+
+    if (!response.ok) {
+      // Roll back the optimistic update.
+      updateTourField("theme", tour.theme);
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not save the theme."),
       });
-
-      if (response.ok) {
-        valueRef.current = currentValue;
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not save the theme."),
-        });
-        setCurrentValue(valueRef.current);
-      }
-    };
-
-    if (currentValue !== valueRef.current) update();
-  }, [tour, recordId, currentValue, setFeedback]);
+    }
+  };
 
   return (
     <RadioGroup
-      value={currentValue}
+      value={tour.theme.id}
       className="flex flex-row flex-wrap space-x-6 space-y-6 justify-center-safe items-baseline-last"
-      onChange={setCurrentValue}
+      onChange={handleChange}
+      disabled={isSaving}
     >
       <Legend className="basis-full text-2xl">Themes</Legend>
       {themes.map((theme) => {
@@ -69,7 +69,9 @@ const ThemeSelector = ({ theme }: Props) => {
               <div className="text-center mt-2">
                 <FontAwesomeIcon
                   className="text-blue-500"
-                  icon={currentValue === theme.value ? faCheckSquare : faSquare}
+                  icon={
+                    tour.theme.id === theme.value ? faCheckSquare : faSquare
+                  }
                 />
               </div>
             </Radio>

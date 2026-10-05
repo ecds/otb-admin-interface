@@ -10,11 +10,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
 import { Fieldset, Input, Label } from "@headlessui/react";
 import InputWrapper from "../inputs/InputWrapper";
-import { FeedbackContext, StopMapContext, TourContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import { sendUpdate } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
+  stopId: number;
   lng: number | undefined;
   lat: number | undefined;
   address: string | undefined;
@@ -25,6 +27,7 @@ interface Props {
 }
 
 const Location = ({
+  stopId,
   lat,
   lng,
   address,
@@ -36,11 +39,12 @@ const Location = ({
   const addressInputRef = useRef<HTMLInputElement>(null);
   const latInputRef = useRef<HTMLInputElement>(null);
   const lngInputRef = useRef<HTMLInputElement>(null);
-  const { setIsSaving, setLastUpdated, tour } = useContext(TourContext);
   const { setFeedback } = useContext(FeedbackContext);
-  const stopContext = useContext(StopMapContext);
-  if (!stopContext) throw new Error("StopMapContext is undefined");
-  const { stop } = stopContext;
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const stop = useTourStore((s) =>
+    s.tour?.stops.find((st) => st.id === stopId),
+  );
+  const updateStopField = useTourStore((s) => s.updateStopField);
   const geocoderLib = useMapsLibrary("geocoding");
   const map = useMap();
 
@@ -50,50 +54,38 @@ const Location = ({
     map.setCenter({ lat, lng });
   }, [map, lat, lng]);
 
-  useEffect(() => {
-    const update = async () => {
-      setIsSaving(true);
+  const latKey = prefix ? "parking_lat" : "lat";
+  const lngKey = prefix ? "parking_lng" : "lng";
+  const addressKey = prefix ? "parking_address" : "address";
 
+  useEffect(() => {
+    if (!stop || !tenant) return;
+    if (
+      stop[latKey] === lat &&
+      stop[lngKey] === lng &&
+      stop[addressKey] === address
+    )
+      return;
+
+    const timeoutId = setTimeout(async () => {
       const { response, data } = await sendUpdate({
-        record: stop.id,
-        tenant: tour.tenant,
+        record: stopId,
+        tenant,
         body: {
           model: "stop",
-          stop: {
-            [prefix ? `${prefix}_address` : "address"]: address,
-            [prefix ? `${prefix}_lat` : "lng"]: lng,
-            [prefix ? `${prefix}_lng` : "lat"]: lat,
-          },
+          stop: { [addressKey]: address, [latKey]: lat, [lngKey]: lng },
         },
       });
 
-      setIsSaving(false);
-
       if (response.ok) {
-        const now = new Date();
-        setLastUpdated(now.toLocaleString());
+        updateStopField(stopId, latKey, lat);
+        updateStopField(stopId, lngKey, lng);
+        updateStopField(stopId, addressKey, address);
       } else {
         setFeedback({
           type: "error",
           message: getErrorMessage(data, "Could not save the location."),
         });
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      if (
-        prefix &&
-        (stop[`${prefix}_lat`] !== lat ||
-          stop[`${prefix}_lng`] !== lng ||
-          stop[`${prefix}_address`] !== address)
-      ) {
-        update();
-      } else if (
-        stop.lat !== lat ||
-        stop.lng !== lng ||
-        stop.address !== address
-      ) {
-        update();
       }
     }, 500);
 
@@ -102,11 +94,13 @@ const Location = ({
     lat,
     lng,
     address,
-    prefix,
+    latKey,
+    lngKey,
+    addressKey,
     stop,
-    tour,
-    setIsSaving,
-    setLastUpdated,
+    stopId,
+    tenant,
+    updateStopField,
     setFeedback,
   ]);
 

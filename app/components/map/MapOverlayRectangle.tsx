@@ -1,25 +1,29 @@
 import { useMap } from "@vis.gl/react-google-maps";
 import { useContext, useEffect, useRef } from "react";
-import { FeedbackContext, OverlayContext, TourContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import type { OverlayBounds } from "./MapOverlay.client";
+import { useTourStore } from "~/store/tourStore";
 import { debounce } from "~/utils/debounce";
 import { sendUpdate } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
 
-const MapOverlayRectangle = () => {
+interface Props {
+  bounds: OverlayBounds;
+  onBoundsChange: (bounds: OverlayBounds) => void;
+  draggable: boolean;
+}
+
+const MapOverlayRectangle = ({
+  bounds: { south, north, east, west },
+  onBoundsChange,
+  draggable,
+}: Props) => {
   const map = useMap();
-  const { tour, setIsSaving } = useContext(TourContext);
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const tourId = useTourStore((s) => s.tour?.id);
+  const overlayId = useTourStore((s) => s.tour?.map_overlay?.id);
+  const updateTourField = useTourStore((s) => s.updateTourField);
   const { setFeedback } = useContext(FeedbackContext);
-  const {
-    south,
-    north,
-    east,
-    west,
-    setSouth,
-    setNorth,
-    setEast,
-    setWest,
-    draggable,
-  } = useContext(OverlayContext);
   const rectangleRef = useRef<google.maps.Rectangle | undefined>(undefined);
 
   useEffect(() => {
@@ -29,40 +33,43 @@ const MapOverlayRectangle = () => {
     const handleDrag = debounce(async () => {
       if (!rectangleRef.current) return;
       const newBounds = rectangleRef.current.getBounds();
-      if (!newBounds) return;
+      if (!newBounds || !tenant || !tourId || !overlayId) return;
 
-      setIsSaving(true);
-      if (setSouth) setSouth(newBounds.getSouthWest().lat());
-      if (setWest) setWest(newBounds.getSouthWest().lng());
-      if (setNorth) setNorth(newBounds.getNorthEast().lat());
-      if (setEast) setEast(newBounds.getNorthEast().lng());
+      const bounds = {
+        south: newBounds.getSouthWest().lat(),
+        west: newBounds.getSouthWest().lng(),
+        north: newBounds.getNorthEast().lat(),
+        east: newBounds.getNorthEast().lng(),
+      };
+
+      onBoundsChange(bounds);
 
       const { response, data } = await sendUpdate({
-        tenant: tour.tenant,
-        record: tour.map_overlay.id,
+        tenant,
+        record: overlayId,
         body: {
           model: "map_overlay",
-          map_overlay: {
-            south: newBounds.getSouthWest().lat(),
-            west: newBounds.getSouthWest().lng(),
-            north: newBounds.getNorthEast().lat(),
-            east: newBounds.getNorthEast().lng(),
-          },
+          map_overlay: bounds,
           reindex: {
-            id: tour.id,
+            id: tourId,
             model: "tour",
           },
         },
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        const current = useTourStore.getState().tour?.map_overlay;
+        if (current?.id === overlayId)
+          updateTourField("map_overlay", { ...current, ...bounds });
+      } else {
         setFeedback({
           type: "error",
-          message: getErrorMessage(data, "Could not save the map overlay position."),
+          message: getErrorMessage(
+            data,
+            "Could not save the map overlay position.",
+          ),
         });
       }
-
-      setIsSaving(false);
     }, 300);
 
     map.setOptions({ gestureHandling: "greedy" });
@@ -112,12 +119,11 @@ const MapOverlayRectangle = () => {
     east,
     north,
     west,
-    setSouth,
-    setWest,
-    setNorth,
-    setEast,
-    tour,
-    setIsSaving,
+    onBoundsChange,
+    tenant,
+    tourId,
+    overlayId,
+    updateTourField,
     setFeedback,
     draggable,
   ]);

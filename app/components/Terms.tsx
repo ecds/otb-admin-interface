@@ -29,7 +29,10 @@ const Terms = () => {
     } else {
       setFeedback({
         type: "error",
-        message: getErrorMessage(data, "Could not save your acceptance. Please try again."),
+        message: getErrorMessage(
+          data,
+          "Could not save your acceptance. Please try again.",
+        ),
       });
     }
   };

@@ -4,40 +4,34 @@ import DeleteButton from "../buttons/DeleteButton";
 import EditButton from "../buttons/EditButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlayCircle } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useTourStore } from "~/store/tourStore";
 import TextInput from "../inputs/TextInput";
 import ToolTip from "../inputs/ToolTip";
 import FileUpload from "../inputs/FileUpload";
 import ScrollableModal from "../ScrollableModal";
+import RetryingImage from "./RetryingImage";
 import type { TMedium } from "~/types";
 
 interface Props {
   medium: TMedium;
-  onUpdate: (updatedItem: unknown) => void;
+  onDelete: () => void;
 }
 
-const SortableMedium = ({ medium, onUpdate }: Props) => {
+const SortableMedium = ({ medium, onDelete }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: medium.id });
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const mediumRef = useRef<TMedium | undefined>(undefined);
-  const [currentMedium, setCurrentMedium] = useState<TMedium>(medium);
+  const applySavedField = useTourStore((s) => s.applySavedField);
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
-  useEffect(() => {
-    if (!modalOpen && mediumRef.current) {
-      onUpdate(mediumRef.current);
-      mediumRef.current = undefined;
-    }
-  }, [modalOpen, onUpdate]);
-
-  const handleUpdate = (data: unknown) => {
-    mediumRef.current = { ...medium, ...(data as TMedium) };
-    setCurrentMedium(mediumRef.current);
+  // A medium can be shared by the tour and several stops; update every copy.
+  const imageReplaced = (data: unknown) => {
+    applySavedField("medium", medium.id, "files", (data as TMedium).files);
   };
 
   return (
@@ -56,13 +50,17 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
           }}
           tabIndex={0}
           {...listeners}
-          className={`flex items-center justify-center bg-gray-200/25 rounded-md h-44 cursor-grab active:cursor-grabbing bg-top bg-contain bg-no-repeat`}
-          style={{ backgroundImage: `url(${medium.files.mobile})` }}
+          className="relative flex items-center justify-center bg-gray-200/25 rounded-md h-44 cursor-grab active:cursor-grabbing"
         >
+          <RetryingImage
+            src={medium.files.mobile}
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain object-top"
+          />
           {medium.embed_id && (
             <FontAwesomeIcon
               icon={faPlayCircle}
-              className="text-6xl text-white/55"
+              className="relative text-6xl text-white/55"
             />
           )}
         </div>
@@ -71,7 +69,7 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
         </div>
         <div className="mb-6 flex space-x-2 justify-around items-end text-sm">
           <EditButton onClick={setModalOpen} />
-          <DeleteButton removing="image or video" />
+          <DeleteButton removing="image or video" onDelete={onDelete} />
         </div>
       </div>
       <ScrollableModal
@@ -82,14 +80,14 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
         <div>
           {medium.embed ? (
             <>
-              <img
-                src={currentMedium.files.tablet ?? medium.files.tablet}
+              <RetryingImage
+                src={medium.files.tablet}
                 alt={medium.caption ?? ""}
                 className="mx-auto"
               />
               <div className="my-4">
                 <FileUpload
-                  onSuccess={handleUpdate}
+                  onSuccess={imageReplaced}
                   className="text-blue-500 underline hover:text-blue-900 cursor-pointer"
                   updateId={medium.id}
                 >
@@ -102,7 +100,7 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
               </div>
             </>
           ) : (
-            <img
+            <RetryingImage
               src={medium.files.tablet}
               alt={medium.caption ?? ""}
               className="mx-auto"
@@ -115,7 +113,6 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
             model="medium"
             value={medium.title}
             itemId={medium.id}
-            updateCallback={handleUpdate}
             size="small"
           />
           <TextInput
@@ -125,7 +122,6 @@ const SortableMedium = ({ medium, onUpdate }: Props) => {
             model="medium"
             value={medium.caption}
             itemId={medium.id}
-            updateCallback={handleUpdate}
           />
         </div>
         <button

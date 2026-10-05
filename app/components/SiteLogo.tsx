@@ -1,6 +1,6 @@
 import FileUpload from "./inputs/FileUpload";
 import DeleteButton from "./buttons/DeleteButton";
-import { FeedbackContext, FormContext, RecordContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
 import { useContext, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
@@ -47,31 +47,31 @@ const SiteLogo = ({ tourSet }: Props) => {
 
   if (currentValue) {
     return (
-      <RecordContext.Provider
-        value={{ recordId: tourSet.id, recordModel: "tour_set" }}
-      >
-        <FormContext.Provider value={{ recordId: tourSet.id, handleDelete }}>
-          <div className="flex flex-col space-y-4 mb-8">
-            <img src={currentValue} alt="" className="w-min" />
-            <FileUpload
-              updateId={tourSet.id}
-              model="tour_set"
-              btnText="Update Site Logo"
-              className="w-fit"
-              onSuccess={onSuccess}
-              attribute="logo"
-            />
-            <DeleteButton removing="Site Logo" className="w-fit">
-              Remove Site Logo
-            </DeleteButton>
-          </div>
-        </FormContext.Provider>
-      </RecordContext.Provider>
+      <>
+        <div className="flex flex-col space-y-4 mb-8">
+          <img src={currentValue} alt="" className="w-min" />
+          <FileUpload
+            updateId={tourSet.id}
+            model="tour_set"
+            btnText="Update Site Logo"
+            className="w-fit"
+            onSuccess={onSuccess}
+            attribute="logo"
+          />
+          <DeleteButton
+            removing="Site Logo"
+            className="w-fit"
+            onDelete={() => handleDelete(tourSet.id)}
+          >
+            Remove Site Logo
+          </DeleteButton>
+        </div>
+      </>
     );
   }
 
   return (
-    <FormContext.Provider value={{ recordId: tourSet.id }}>
+    <>
       <div className="mb-8">
         <FileUpload
           model="tour_set"
@@ -88,7 +88,7 @@ const SiteLogo = ({ tourSet }: Props) => {
           height of 80 pixels.
         </ToolTip>
       </div>
-    </FormContext.Provider>
+    </>
   );
 };
 

@@ -1,23 +1,27 @@
 import { Map, useMap } from "@vis.gl/react-google-maps";
-import { useContext, useEffect } from "react";
-import { TourContext, StopMapContext } from "~/contexts";
+import { useEffect } from "react";
+import { useTourStore } from "~/store/tourStore";
 import MapMarker from "./MapMarker";
 import type { ReactNode } from "react";
 
 const TourMap = ({ children }: { children: ReactNode }) => {
-  const { tour } = useContext(TourContext);
+  const tour = useTourStore((s) => s.tour);
+  const bounds = tour?.bounds;
   const map = useMap();
 
+  // Only refit when the bounds themselves change, not on every tour edit.
   useEffect(() => {
-    if (!map || !tour.bounds) return;
+    if (!map || !bounds) return;
 
     map.fitBounds({
-      east: tour.bounds.east,
-      south: tour.bounds.south,
-      north: tour.bounds.north,
-      west: tour.bounds.west,
+      east: bounds.east,
+      south: bounds.south,
+      north: bounds.north,
+      west: bounds.west,
     });
-  }, [map, tour]);
+  }, [map, bounds?.east, bounds?.south, bounds?.north, bounds?.west]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!tour) return null;
 
   return (
     <Map
@@ -47,20 +51,14 @@ const TourMap = ({ children }: { children: ReactNode }) => {
       {tour.stops.map((stop) => {
         if (!stop.lat || !stop.lng) return <></>;
         return (
-          <StopMapContext.Provider
+          <MapMarker
             key={stop.id}
-            value={{
-              stop: stop,
-              lat: stop.lat,
-              lng: stop.lng,
-              mapIcon: stop.map_icon,
-              iconColor: stop.icon_color,
-              position: stop.position,
-              address: stop.address ?? "",
-            }}
-          >
-            <MapMarker />
-          </StopMapContext.Provider>
+            lat={stop.lat}
+            lng={stop.lng}
+            mapIcon={stop.map_icon}
+            iconColor={stop.icon_color}
+            position={stop.position}
+          />
         );
       })}
     </Map>

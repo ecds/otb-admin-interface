@@ -30,14 +30,22 @@ describe("getErrorMessage", () => {
 
   it("handles { errors: [{ detail }] } Rails validation shape", () => {
     expect(
-      getErrorMessage({ errors: [{ detail: "Title can't be blank" }] }, "fallback"),
+      getErrorMessage(
+        { errors: [{ detail: "Title can't be blank" }] },
+        "fallback",
+      ),
     ).toBe("Title can't be blank");
   });
 
   it("joins multiple error details with a space", () => {
     expect(
       getErrorMessage(
-        { errors: [{ detail: "Title can't be blank" }, { detail: "Lat is invalid" }] },
+        {
+          errors: [
+            { detail: "Title can't be blank" },
+            { detail: "Lat is invalid" },
+          ],
+        },
         "fallback",
       ),
     ).toBe("Title can't be blank Lat is invalid");
@@ -45,7 +53,10 @@ describe("getErrorMessage", () => {
 
   it("skips entries with no detail and no string value", () => {
     expect(
-      getErrorMessage({ errors: [{ detail: undefined }, { detail: "Valid" }] }, "fallback"),
+      getErrorMessage(
+        { errors: [{ detail: undefined }, { detail: "Valid" }] },
+        "fallback",
+      ),
     ).toBe("Valid");
   });
 

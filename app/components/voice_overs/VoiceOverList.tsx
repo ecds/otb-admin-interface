@@ -1,67 +1,52 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext, useEffect, useRef, useState } from "react";
-import { useRevalidator } from "react-router";
-import { FeedbackContext, TourContext } from "~/contexts";
-import { useSyncPoll } from "~/hooks/useSyncPoll";
+import { useContext, useState } from "react";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
+import { useVoiceOvers } from "./useVoiceOvers";
 import { sendDelete } from "~/utils/requests";
 import { VOICE_OVER_LANGUAGES } from "~/utils/voice_over_languages";
-import type { TVoiceOver } from "~/types";
 
 interface Props {
-  voiceOvers: TVoiceOver[];
+  stopId?: number;
 }
 
-const VoiceOverList = ({ voiceOvers }: Props) => {
-  const { tour } = useContext(TourContext);
+const VoiceOverList = ({ stopId }: Props) => {
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const tourId = useTourStore((s) => s.tour?.id);
+  const { voiceOvers, setVoiceOvers } = useVoiceOvers(stopId);
   const { setFeedback } = useContext(FeedbackContext);
-  const revalidator = useRevalidator();
-  const [itemToDelete, setItemToDelete] = useState<number | undefined>(
-    undefined,
-  );
-  const itemToDeleteRef = useRef<number | undefined>(undefined);
-
-  const currentVOs = tour.voice_overs
-    ? tour.voice_overs.map((vo) => vo.id)
-    : [];
-  const isPendingSync =
-    itemToDelete !== undefined && currentVOs.includes(itemToDelete);
-
-  useSyncPoll({
-    pending: isPendingSync,
-    revalidate: revalidator.revalidate,
-    onTimeout: () => {
-      setFeedback({
-        type: "error",
-        message: "Could not confirm the delete. Please refresh.",
-      });
-      itemToDeleteRef.current = undefined;
-    },
-  });
-
-  useEffect(() => {
-    if (!isPendingSync) setItemToDelete(undefined);
-  }, [isPendingSync]);
+  const [deletingId, setDeletingId] = useState<number | undefined>(undefined);
 
   const handleDelete = async (id: number) => {
-    if (!tour) return;
-    setItemToDelete(id);
-    itemToDeleteRef.current = id;
-    await sendDelete({
-      tenant: tour.tenant,
+    if (!tenant || !tourId) return;
+    setDeletingId(id);
+    const { response } = await sendDelete({
+      tenant,
       record: id,
       body: {
         model: "voice_over",
-        reindex: { id: tour.id, model: "tour" },
+        reindex: { id: tourId, model: "tour" },
       },
     });
+    setDeletingId(undefined);
+    if (response.ok) {
+      setVoiceOvers((current) => current.filter((vo) => vo.id !== id));
+    } else {
+      setFeedback({
+        type: "error",
+        message: "Could not delete voice over. Please try again.",
+      });
+    }
   };
 
-  if ((!isPendingSync && voiceOvers.length === 0) || !tour) return <></>;
+  if (voiceOvers.length === 0) return <></>;
+
+  const isDeleting = deletingId !== undefined;
 
   return (
     <table
-      className={`w-full p-8 m-auto mb-8 ${isPendingSync ? "opacity-50" : "opacity-100"}`}
+      className={`w-full p-8 m-auto mb-8 ${isDeleting ? "opacity-50" : "opacity-100"}`}
     >
       <caption className="caption-top text-left">Voice Overs</caption>
       <thead className="">
@@ -86,7 +71,10 @@ const VoiceOverList = ({ voiceOvers }: Props) => {
                 }
               </td>
               <td className="text-center">
-                <button onClick={() => handleDelete(vo.id)}>
+                <button
+                  onClick={() => handleDelete(vo.id)}
+                  disabled={isDeleting}
+                >
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
               </td>

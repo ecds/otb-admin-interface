@@ -5,24 +5,25 @@ import {
   useAdvancedMarkerRef,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { useContext, useEffect } from "react";
-import { StopMapContext } from "~/contexts";
+import { useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
-const ParkingMarker = () => {
+export type ParkingProps = {
+  parkingLat: number | undefined;
+  parkingLng: number | undefined;
+  setParkingLat: Dispatch<SetStateAction<number | undefined>>;
+  setParkingLng: Dispatch<SetStateAction<number | undefined>>;
+  setParkingAddress: Dispatch<SetStateAction<string | undefined>>;
+};
+
+const ParkingMarker = ({
+  parkingLat,
+  parkingLng,
+  setParkingLat,
+  setParkingLng,
+  setParkingAddress,
+}: ParkingProps) => {
   const geocoderLib = useMapsLibrary("geocoding");
-  const context = useContext(StopMapContext);
-
-  if (!context) {
-    throw new Error("StopMapContext is undefined");
-  }
-
-  const {
-    parkingLat,
-    parkingLng,
-    setParkingLat,
-    setParkingLng,
-    setParkingAddress,
-  } = context;
 
   const [markerRef, marker] = useAdvancedMarkerRef();
 
@@ -36,8 +37,8 @@ const ParkingMarker = () => {
     const newLat = event.latLng?.lat();
     const newLng = event.latLng?.lng();
 
-    if (setParkingLat) setParkingLat(newLat);
-    if (setParkingLng) setParkingLng(newLng);
+    setParkingLat(newLat);
+    setParkingLng(newLng);
 
     if (geocoderLib) {
       const locater = new geocoderLib.Geocoder();
@@ -47,8 +48,7 @@ const ParkingMarker = () => {
         },
         (result, status) => {
           if (status === "OK" && result) {
-            if (setParkingAddress)
-              setParkingAddress(result[0].formatted_address);
+            setParkingAddress(result[0].formatted_address);
           } else {
             console.error(status);
           }

@@ -6,29 +6,32 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useContext, useEffect, useState } from "react";
-import { FeedbackContext, StopMapContext, TourContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import type { TV3MapIcon, TV3MapIconResponse } from "~/types";
 import type { Dispatch, SetStateAction } from "react";
 import { sendUpdate, type UpdateBody } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
 
+export type TIconTarget = { model: "tour" | "tour_stop"; recordId: number };
+
 interface Props {
+  target: TIconTarget;
+  onSelect: (url: string) => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const IconModal = ({ open, setOpen }: Props) => {
+const IconModal = ({ target, onSelect, open, setOpen }: Props) => {
   const [icons, setIcons] = useState<TV3MapIcon[] | undefined>(undefined);
-  const { tour } = useContext(TourContext);
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const tourId = useTourStore((s) => s.tour?.id);
   const { setFeedback } = useContext(FeedbackContext);
-  const context = useContext(StopMapContext);
-  if (!context) throw new Error("StopMapContext is undefined");
-  const { setMapIcon, stop } = context;
 
   useEffect(() => {
     const fetchIcons = async () => {
       const response = await fetch(
-        `https://api.opentour.site/${tour.tenant}/map-icons`,
+        `https://api.opentour.site/${tenant}/map-icons`,
       );
       if (response.ok) {
         const data: TV3MapIconResponse = await response.json();
@@ -41,30 +44,32 @@ const IconModal = ({ open, setOpen }: Props) => {
       }
     };
 
-    if (open) fetchIcons();
-  }, [tour, open, setFeedback]);
+    if (open && tenant) fetchIcons();
+  }, [tenant, open, setFeedback]);
 
   const addIcon = async (icon: TV3MapIcon) => {
-    if (!stop) return;
+    if (!tenant || !tourId) return;
     const body: UpdateBody = {
-      model: "stop",
-      attribute: "map_icon_id",
+      model: target.model,
+      // The API assigns the looked-up MapIcon record to this attribute, so it
+      // must be the association, not the _id column.
+      attribute: "map_icon",
       value: icon.id,
       related_model: "map_icon",
       related_type: "belongs_to",
       reindex: {
         model: "tour",
-        id: tour.id,
+        id: tourId,
       },
     };
 
     const { response, data } = await sendUpdate({
-      tenant: tour.tenant,
-      record: stop.id,
+      tenant,
+      record: target.recordId,
       body,
     });
-    if (response.ok && setMapIcon) {
-      setMapIcon(icon.attributes.original_image_url);
+    if (response.ok) {
+      onSelect(icon.attributes.original_image_url);
       setOpen(false);
     } else {
       setFeedback({
@@ -85,7 +90,7 @@ const IconModal = ({ open, setOpen }: Props) => {
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="max-w-4xl space-y-4 bg-white p-8">
             <DialogTitle className="font-bold">Map Icons</DialogTitle>
-            <Description>Set Map Icon for Sto</Description>
+            <Description>Choose a map icon</Description>
             <ul className="flex flex-row flex-wrap gap-8">
               {icons.map((icon) => {
                 return (

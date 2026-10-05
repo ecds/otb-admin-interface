@@ -1,3 +1,4 @@
+import { useTenant } from "~/store/tourStore";
 import {
   Description,
   Dialog,
@@ -11,12 +12,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import {
-  FeedbackContext,
-  RecordContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FeedbackContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import { parseLinkHeader } from "~/utils/linkHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,30 +20,29 @@ import { faCircleXmark, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 import Pagination from "./Pagination";
 import { joinImage } from "~/utils/image_upload";
 import { getErrorMessage } from "~/utils/errors";
-import type { TMedium } from "~/types";
+import type { TJoin, TMedium } from "~/types";
 import type { PaginationLinks } from "~/utils/linkHeader";
 
 interface Props {
+  join: TJoin;
   onSuccess: (args: unknown) => void;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   itemIds: number[];
 }
 
-const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
+const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
   const [media, setMedia] = useState<TMedium[] | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const [paginationLinks, setPaginationLinks] =
     useState<PaginationLinks | null>(null);
-  const { tour } = useContext(TourContext);
-  const { recordId, recordModel } = useContext(RecordContext);
-  const { relatedModel, relatedType } = useContext(RelatedContext);
+  const tenant = useTenant();
   const { setFeedback } = useContext(FeedbackContext);
 
   useEffect(() => {
     const loadMedia = async () => {
       const { response, data } = await request({
-        path: `${tour.tenant}/v4/admin/media?page=${page}&per=20&exclude=${itemIds}`,
+        path: `${tenant}/v4/admin/media?page=${page}&per=20&exclude=${itemIds}`,
       });
       if (response.ok) {
         setMedia(data);
@@ -62,18 +57,15 @@ const ReuseMedia = ({ isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
     };
 
     if (isOpen) loadMedia();
-  }, [isOpen, tour, page, itemIds, setFeedback]);
+  }, [isOpen, tenant, page, itemIds, setFeedback]);
 
   const addMedium = async (medium: TMedium) => {
     setIsOpen(false);
     setFeedback({ type: "success", message: `Adding ${medium.filename}` });
     const { response, data } = await joinImage({
-      relatedType,
-      recordModel,
-      relatedModel,
-      recordId,
+      ...join,
       imageId: medium.id,
-      tenant: tour.tenant,
+      tenant,
     });
     if (response.ok && onSuccess) {
       onSuccess(data);

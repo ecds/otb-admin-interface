@@ -12,15 +12,10 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { sendDelete, sendUpdate } from "~/utils/requests";
-import {
-  FeedbackContext,
-  FormContext,
-  RecordContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import SortableMedium from "./SortableMedium";
 import FileDrop from "./FileDrop";
 import Embed from "./Embed";
@@ -31,19 +26,32 @@ import { getErrorMessage } from "~/utils/errors";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
 
-const MediaGrid = ({ media }: { media: TMedium[] }) => {
-  const [items, setItems] = useState(media);
-  // Edits applied locally (via itemUpdated) that the server hasn't
-  // confirmed yet — a `media` prop refresh triggered by an unrelated
-  // revalidate can arrive before the ES-backed read reflects this edit,
-  // and would otherwise clobber it back to the stale value.
-  const pendingUpdatesRef = useRef<Map<number, TMedium>>(new Map());
+const EMPTY: TMedium[] = [];
+
+interface Props {
+  recordModel: "tour" | "stop";
+  recordId: number;
+}
+
+const MediaGrid = ({ recordModel, recordId }: Props) => {
   const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
   const [openReuseMedia, setOpenReuseMedia] = useState<boolean>(false);
-  const { recordId, recordModel } = useContext(RecordContext);
-  const { tour, setIsSaving } = useContext(TourContext);
-  const { relatedModel } = useContext(RelatedContext);
+  const relatedModel = recordModel === "stop" ? "stop_medium" : "tour_medium";
+  const join = {
+    relatedModel,
+    relatedType: "many",
+    recordModel,
+    recordId,
+  } as const;
   const { setFeedback } = useContext(FeedbackContext);
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const items = useTourStore((s) =>
+    recordModel === "stop"
+      ? (s.tour?.stops.find((stop) => stop.id === recordId)?.media ?? EMPTY)
+      : (s.tour?.media ?? EMPTY),
+  );
+  const updateTourField = useTourStore((s) => s.updateTourField);
+  const updateStopField = useTourStore((s) => s.updateStopField);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -51,86 +59,60 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
     }),
   );
 
-  useEffect(() => {
-    setItems(
-      media.map((item) => {
-        const pending = pendingUpdatesRef.current.get(item.relation_id);
-        if (!pending) return item;
-        if (JSON.stringify(pending) === JSON.stringify(item)) {
-          pendingUpdatesRef.current.delete(item.relation_id);
-          return item;
-        }
-        return pending;
-      }),
-    );
-  }, [media]);
+  const currentMedia = () => {
+    const tour = useTourStore.getState().tour;
+    return recordModel === "stop"
+      ? (tour?.stops.find((stop) => stop.id === recordId)?.media ?? EMPTY)
+      : (tour?.media ?? EMPTY);
+  };
 
-  useEffect(() => {
-    const sendRequest = async (newPosition: number, item: TMedium) => {
-      setIsSaving(true);
-      setFeedback({ type: "success", message: "Saving New Order" });
-      const { response, data } = await sendUpdate({
-        tenant: tour.tenant,
-        record: item.relation_id,
-        body: {
-          model: relatedModel,
-          [relatedModel]: { position: newPosition },
-          reindex: {
-            model: recordModel,
-            id: recordId,
-          },
+  const setMedia = (media: TMedium[]) => {
+    if (recordModel === "stop") updateStopField(recordId, "media", media);
+    else updateTourField("media", media);
+  };
+
+  const savePosition = async (item: TMedium) => {
+    if (!tenant) return;
+    const { response, data } = await sendUpdate({
+      tenant,
+      record: item.relation_id,
+      body: {
+        model: relatedModel,
+        [relatedModel]: { position: item.position },
+        reindex: {
+          model: recordModel,
+          id: recordId,
         },
-      });
-      setIsSaving(false);
-      if (response.ok) {
-        setFeedback(undefined);
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not save the new media order."),
-        });
-      }
-    };
-
-    items.forEach((item, index) => {
-      const newPosition = index + 1;
-      if (newPosition !== item.position) {
-        item.position = newPosition;
-        sendRequest(newPosition, item);
-      }
+      },
     });
-  }, [
-    items,
-    tour,
-    relatedModel,
-    recordId,
-    recordModel,
-    setIsSaving,
-    setFeedback,
-  ]);
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((medium) => medium.id == active.id),
-        );
-        const newIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((medium) => medium.id == over.id),
-        );
-
-        return arrayMove(items, oldIndex, newIndex);
+    if (!response.ok) {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not save the new media order."),
       });
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((medium) => medium.id == active.id);
+    const newIndex = items.findIndex((medium) => medium.id == over.id);
+    const before = new Map(items.map((medium) => [medium.id, medium.position]));
+    const reordered = arrayMove(items, oldIndex, newIndex).map(
+      (medium, index) => ({ ...medium, position: index + 1 }),
+    );
+    setMedia(reordered);
+    reordered
+      .filter((medium) => before.get(medium.id) !== medium.position)
+      .forEach(savePosition);
+  };
+
   const handleDelete = async (id: number) => {
+    if (!tenant) return;
     const { response, data } = await sendDelete({
-      tenant: tour.tenant,
+      tenant,
       record: id,
       body: {
         model: relatedModel,
@@ -141,7 +123,7 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
       },
     });
     if (response.ok) {
-      setItems((items) => items.filter((item) => item.relation_id !== id));
+      setMedia(currentMedia().filter((item) => item.relation_id !== id));
     } else {
       setFeedback({
         type: "error",
@@ -151,30 +133,21 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
   };
 
   const itemAdded = (newItem: unknown) => {
-    setItems((items) => [...items, newItem as TMedium]);
-  };
-
-  const itemUpdated = (updatedItem: unknown) => {
-    const updated = updatedItem as TMedium;
-    pendingUpdatesRef.current.set(updated.relation_id, updated);
-    setItems((items) =>
-      items.map((item) =>
-        item.relation_id === updated.relation_id ? updated : item,
-      ),
-    );
-    setFeedback(undefined);
+    setMedia([...currentMedia(), newItem as TMedium]);
   };
 
   return (
     <div>
       <div className="text-2xl flex space-x-3 my-8">Media</div>
-      <Embed onSuccess={itemAdded} />
+      <Embed join={join} onSuccess={itemAdded} />
       <FileDrop
+        join={join}
         onSuccess={itemAdded}
         fileSaving={fileSaving}
         setFileSaving={setFileSaving}
       >
         <FileUpload
+          join={join}
           onSuccess={itemAdded}
           fileUploading={setFileSaving}
           btnText="Upload Images"
@@ -198,20 +171,17 @@ const MediaGrid = ({ media }: { media: TMedium[] }) => {
         <SortableContext items={items} strategy={rectSortingStrategy}>
           <div className="flex flex-row flex-wrap mt-8 space-x-6 space-y-6 justify-center-safe items-start">
             {items.map((medium) => (
-              <FormContext.Provider
+              <SortableMedium
                 key={medium.id}
-                value={{
-                  handleDelete,
-                  recordId: medium.relation_id,
-                }}
-              >
-                <SortableMedium medium={medium} onUpdate={itemUpdated} />
-              </FormContext.Provider>
+                medium={medium}
+                onDelete={() => handleDelete(medium.relation_id)}
+              />
             ))}
           </div>
         </SortableContext>
       </DndContext>
       <ReuseMedia
+        join={join}
         isOpen={openReuseMedia}
         setIsOpen={setOpenReuseMedia}
         onSuccess={itemAdded}

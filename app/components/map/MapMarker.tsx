@@ -4,19 +4,29 @@ import {
   useAdvancedMarkerRef,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { useContext, useEffect } from "react";
-import { StopMapContext } from "~/contexts";
+import { useEffect } from "react";
 
 interface Props {
+  lat: number | undefined;
+  lng: number | undefined;
+  mapIcon?: string;
+  iconColor?: string;
+  position: number;
   draggable?: boolean;
   onDragEnd?: (event: google.maps.MapMouseEvent) => void;
   center?: boolean;
 }
 
-const MapMarker = ({ draggable, onDragEnd, center = false }: Props) => {
-  const context = useContext(StopMapContext);
-  if (!context) throw new Error("StopMapContext is undefined");
-  const { iconColor, lat, lng, mapIcon, position } = context;
+const MapMarker = ({
+  lat,
+  lng,
+  mapIcon,
+  iconColor,
+  position,
+  draggable,
+  onDragEnd,
+  center = false,
+}: Props) => {
   const [markerRef, marker] = useAdvancedMarkerRef();
   const map = useMap();
 

@@ -10,8 +10,7 @@ import {
   DialogBackdrop,
   DialogPanel,
 } from "@headlessui/react";
-import { useContext, useState, type ReactNode } from "react";
-import { FormContext } from "~/contexts";
+import { useState, type ReactNode } from "react";
 
 const DeleteButton = ({
   children,
@@ -23,7 +22,7 @@ const DeleteButton = ({
   description,
   message,
   iconClassName,
-  id,
+  onDelete,
 }: {
   children?: ReactNode;
   removing: string;
@@ -34,14 +33,12 @@ const DeleteButton = ({
   description?: string;
   message?: string;
   iconClassName?: string;
-  id?: number;
+  onDelete?: () => void;
 }) => {
-  const { recordId, handleDelete } = useContext(FormContext);
   const [askConfirm, setAskConfirm] = useState<boolean>(false);
 
   const deleteRecord = async () => {
-    if (handleDelete && recordId) handleDelete(recordId);
-    if (handleDelete && id) handleDelete(id);
+    onDelete?.();
     setAskConfirm(false);
   };
 

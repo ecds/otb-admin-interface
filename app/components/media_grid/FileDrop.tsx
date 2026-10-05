@@ -1,9 +1,14 @@
 import { useContext, useState } from "react";
-import { RecordContext, RelatedContext, TourContext } from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { getErrorMessage } from "~/utils/errors";
+import { useTenant, useTourStore } from "~/store/tourStore";
 import { imageUpload, joinImage } from "~/utils/image_upload";
 import type { Dispatch, DragEvent, ReactNode, SetStateAction } from "react";
 
+import type { TJoin } from "~/types";
+
 interface Props {
+  join: TJoin;
   onSuccess: (args: unknown) => void;
   children: ReactNode;
   fileSaving: string | undefined;
@@ -11,43 +16,58 @@ interface Props {
 }
 
 const FileDrop = ({
+  join,
   onSuccess,
   children,
   fileSaving,
   setFileSaving,
 }: Props) => {
-  const { tour, setIsSaving } = useContext(TourContext);
-  const { recordId, recordModel } = useContext(RecordContext);
-  const { relatedModel, relatedType } = useContext(RelatedContext);
+  const tenant = useTenant();
+  const beginSave = useTourStore((s) => s.beginSave);
+  const endSave = useTourStore((s) => s.endSave);
+  const { setFeedback } = useContext(FeedbackContext);
   const [isOver, setIsOver] = useState<boolean>(false);
 
   const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(false);
 
+    beginSave();
+    let allOk = true;
     for (const file of event.dataTransfer.files) {
       setFileSaving(file.name);
-      setIsSaving(true);
       const { response: uploadResponse, data: uploadData } = await imageUpload({
-        tenant: tour.tenant,
+        tenant,
         file,
       });
-      if (relatedModel && relatedType && uploadResponse.ok) {
+      if (uploadResponse.ok) {
         const { response, data } = await joinImage({
-          relatedType,
-          recordModel,
-          relatedModel,
-          recordId,
+          ...join,
           imageId: uploadData.id,
-          tenant: tour.tenant,
+          tenant,
         });
-        if (response.ok && onSuccess) {
+        if (response.ok) {
           onSuccess(data);
+        } else {
+          allOk = false;
+          setFeedback({
+            type: "error",
+            message: getErrorMessage(data, `Could not add ${file.name}.`),
+          });
         }
+      } else {
+        allOk = false;
+        setFeedback({
+          type: "error",
+          message: getErrorMessage(
+            uploadData,
+            `Could not upload ${file.name}.`,
+          ),
+        });
       }
     }
     setFileSaving(undefined);
-    setIsSaving(false);
+    endSave(allOk);
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {

@@ -11,7 +11,7 @@ import {
 import { useContext, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLoaderData, useRevalidator } from "react-router";
 import InputWrapper from "~/components/inputs/InputWrapper";
-import { AuthContext, FeedbackContext, FormContext } from "~/contexts";
+import { AuthContext, FeedbackContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import Navbar from "~/components/Navbar";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
@@ -212,24 +212,18 @@ const AccessRequestRoute = () => {
                         </td>
                         <td className="text-left">{request.date}</td>
                         <td className="text-center">
-                          <FormContext.Provider
-                            value={{
-                              recordId: request.id,
-                              handleDelete: cancelRequest,
-                            }}
+                          <DeleteButton
+                            onDelete={() => cancelRequest(request.id)}
+                            label={`Cancel request for ${request.site}`}
+                            icon={faCircleXmark}
+                            className=""
+                            iconClassName="text-red-400 hover:text-red-600"
+                            removing="Access Request"
+                            description={`Cancel Access Request for ${request.site}`}
+                            message={`Are you sure you want to cancel your request for access to ${request.site}?`}
                           >
-                            <DeleteButton
-                              label={`Cancel request for ${request.site}`}
-                              icon={faCircleXmark}
-                              className=""
-                              iconClassName="text-red-400 hover:text-red-600"
-                              removing="Access Request"
-                              description={`Cancel Access Request for ${request.site}`}
-                              message={`Are you sure you want to cancel your request for access to ${request.site}?`}
-                            >
-                              {" "}
-                            </DeleteButton>
-                          </FormContext.Provider>
+                            {" "}
+                          </DeleteButton>
                         </td>
                       </tr>
                     );

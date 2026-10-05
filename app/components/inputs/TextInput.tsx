@@ -1,22 +1,11 @@
-import {
-  lazy,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Description, Input, Textarea } from "@headlessui/react";
 import { sendUpdate } from "~/utils/requests";
 import InputWrapper from "./InputWrapper";
-import { RecordContext, TourContext } from "~/contexts";
 import ToolTip from "./ToolTip";
 import ClientOnly from "../ClientOnly";
-import { useRevalidator } from "react-router";
 import { enforceA11yOnLinks } from "~/utils/a11y";
-import { useSyncPoll } from "~/hooks/useSyncPoll";
-import { findRecordValue } from "~/utils/find_in_tour";
+import { useTenant, useTourStore } from "~/store/tourStore";
 import type { InputProps, TServerResponse } from "~/types";
 
 const JoditEditor = lazy(() => import("jodit-react"));
@@ -67,16 +56,14 @@ const TextInput = ({
   const [serverError, setServerError] = useState<string | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<string | number>(value);
-  // Set only once a save has actually gone out, so we only poll while
-  // waiting to see OUR write reflected — not whenever `value` happens to
-  // differ from tour data for unrelated reasons (e.g. a live map viewport).
-  const savedValueRef = useRef<string | number | undefined>(undefined);
   // Jodit is only sanitized/committed on blur, not on every keystroke — see
   // handleRichTextChange for why.
   const richTextRef = useRef<string>(typeof value === "string" ? value : "");
-  const { tour, setLastUpdated, setIsSaving } = useContext(TourContext);
-  const { recordId } = useContext(RecordContext);
-  const revalidator = useRevalidator();
+  const tenant = useTenant();
+  const tourId = useTourStore((s) => s.tour?.id);
+  const beginSave = useTourStore((s) => s.beginSave);
+  const endSave = useTourStore((s) => s.endSave);
+  const applySavedField = useTourStore((s) => s.applySavedField);
 
   const config = useMemo(
     () => ({
@@ -134,31 +121,33 @@ const TextInput = ({
   );
 
   const update = useCallback(async () => {
-    if (!tour) return;
     const valueToSave =
       type === "rich-text" ? richTextRef.current : currentValue;
-    setIsSaving(true);
+    if (!itemId) return;
+    const record = itemId;
+    beginSave();
     const { response, data } = await sendUpdate({
-      tenant: tour.tenant,
-      record: itemId ?? recordId,
+      tenant,
+      record,
       body: {
         model,
         [model]: { [id]: valueToSave },
-        reindex: { id: tour.id, model: "tour" },
+        ...(tourId && { reindex: { id: tourId, model: "tour" } }),
       },
     });
 
-    setIsSaving(false);
+    endSave(response.ok);
     if (response.ok) {
       setServerError(undefined);
       valueRef.current = valueToSave;
-      savedValueRef.current = valueToSave;
       setCurrentValue(valueToSave);
-      if (updateCallback) {
-        updateCallback(data as TServerResponse);
-        const now = new Date();
-        setLastUpdated(now.toLocaleString());
-      }
+      applySavedField(
+        model,
+        record,
+        id,
+        valueType === "number" ? Number(valueToSave) : valueToSave,
+      );
+      if (updateCallback) updateCallback(data as TServerResponse);
     } else {
       const detail = data?.errors?.[0]?.detail;
       setServerError(detail ?? "Could not save. Please try again.");
@@ -167,16 +156,18 @@ const TextInput = ({
         richTextRef.current = valueRef.current as string;
     }
   }, [
-    tour,
-    recordId,
+    tenant,
+    tourId,
     model,
     currentValue,
     id,
     itemId,
     type,
     updateCallback,
-    setLastUpdated,
-    setIsSaving,
+    beginSave,
+    endSave,
+    applySavedField,
+    valueType,
   ]);
 
   useEffect(() => {
@@ -185,27 +176,6 @@ const TextInput = ({
       richTextRef.current = value;
     }
   }, [value, type]);
-
-  const targetRecordId = itemId ?? recordId;
-  const confirmedValue = tour
-    ? findRecordValue(tour, model, targetRecordId, id)
-    : undefined;
-  const isPendingSync =
-    savedValueRef.current !== undefined &&
-    String(confirmedValue) !== String(savedValueRef.current);
-
-  useSyncPoll({
-    pending: isPendingSync,
-    revalidate: revalidator.revalidate,
-    onTimeout: () => {
-      setServerError("Could not confirm the save. Please refresh.");
-      savedValueRef.current = undefined;
-    },
-  });
-
-  useEffect(() => {
-    if (!isPendingSync) savedValueRef.current = undefined;
-  }, [isPendingSync]);
 
   const handleChange = () => {
     if (!inputRef.current) return;
@@ -280,7 +250,6 @@ const TextInput = ({
             />
           </ClientOnly>
         )}
-        {/* {valueType === "file" && <input type={valueType} accept="image/*" />} */}
         {type === "color" && (
           <Input
             ref={inputRef}

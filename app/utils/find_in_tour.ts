@@ -1,4 +1,4 @@
-import type { TTour } from "~/types";
+import type { TMapOverlay, TTour } from "~/types";
 
 /**
  * Looks up the current (last-revalidated) value of a field on whichever
@@ -16,7 +16,7 @@ export const findRecordValue = (
     case "tour":
       return tour[field as keyof TTour];
     case "map_overlay":
-      return tour.map_overlay[field as keyof typeof tour.map_overlay];
+      return tour.map_overlay?.[field as keyof TMapOverlay];
     case "stop": {
       const stop = tour.stops.find((s) => s.id === recordId);
       return stop?.[field as keyof typeof stop];

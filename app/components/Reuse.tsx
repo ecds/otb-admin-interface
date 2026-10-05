@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { TourContext } from "~/contexts";
+import { useEffect, useState } from "react";
+import { useTenant } from "~/store/tourStore";
 import { request } from "~/utils/requests";
 import { Description, Dialog, DialogPanel } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,14 +34,14 @@ const Reuse = <T extends TFlatPage | TStop>({
 }: Props<T>) => {
   const [items, setItems] = useState<T[] | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
-  const { tour } = useContext(TourContext);
+  const tenant = useTenant();
   const [paginationLinks, setPaginationLinks] =
     useState<PaginationLinks | null>(null);
 
   useEffect(() => {
     const loadItems = async () => {
       const { response, data, headers } = await request({
-        path: `${tour.tenant}/v4/admin/${model}?page=${page}&per=20&exclude=${itemIds}`,
+        path: `${tenant}/v4/admin/${model}?page=${page}&per=20&exclude=${itemIds}`,
       });
       if (response.ok) {
         setItems(data);
@@ -51,7 +51,7 @@ const Reuse = <T extends TFlatPage | TStop>({
     };
 
     if (isOpen) loadItems();
-  }, [tour, itemIds, model, isOpen, page]);
+  }, [tenant, itemIds, model, isOpen, page]);
 
   return (
     <>

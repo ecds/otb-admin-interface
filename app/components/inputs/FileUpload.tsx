@@ -1,19 +1,16 @@
 import { useContext, useRef } from "react";
-import {
-  FeedbackContext,
-  RecordContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTenant } from "~/store/tourStore";
 import { imageUpload, joinImage } from "~/utils/image_upload";
 import { getErrorMessage } from "~/utils/errors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import type { TModel } from "~/types";
+import type { TJoin, TModel } from "~/types";
 import { safeId } from "~/utils/a11y";
 
 interface Props {
+  join?: TJoin;
   onSuccess?: (arg: unknown) => void;
   fileUploading?: Dispatch<SetStateAction<string | undefined>>;
   btnText?: string | ReactNode;
@@ -30,6 +27,7 @@ interface Props {
 }
 
 const FileUpload = ({
+  join,
   onSuccess,
   btnText,
   children,
@@ -45,9 +43,7 @@ const FileUpload = ({
   disabled = false,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { tour } = useContext(TourContext);
-  const { recordId, recordModel } = useContext(RecordContext);
-  const { relatedModel, relatedType } = useContext(RelatedContext);
+  const tenant = useTenant();
   const { setFeedback } = useContext(FeedbackContext);
 
   const inputId = safeId();
@@ -68,7 +64,7 @@ const FileUpload = ({
       if (fileUploading) fileUploading(file.name);
       setFeedback({ type: "success", message: "File Uploading." });
       const { response: uploadResponse, data: uploadData } = await imageUpload({
-        tenant: tour.tenant ?? "public",
+        tenant,
         file,
         model,
         recordId: updateId,
@@ -78,14 +74,11 @@ const FileUpload = ({
       if (uploadResponse.ok && updateId) {
         if (onSuccess) onSuccess(uploadData);
         setFeedback(undefined);
-      } else if (relatedModel && relatedType && uploadResponse.ok) {
+      } else if (join && uploadResponse.ok) {
         const { response, data } = await joinImage({
-          relatedType,
-          recordModel,
-          relatedModel,
-          recordId,
+          ...join,
           imageId: uploadData.id,
-          tenant: tour.tenant ?? "public",
+          tenant,
         });
         if (response.ok && onSuccess) {
           onSuccess(data);

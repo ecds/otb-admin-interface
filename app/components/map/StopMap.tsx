@@ -1,6 +1,6 @@
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { useContext, useState } from "react";
-import { OverlayContext, StopMapContext, TourContext } from "~/contexts";
+import { useState } from "react";
+import { useTourStore } from "~/store/tourStore";
 import ClientOnly from "../ClientOnly";
 import StopMarker from "./StopMarker";
 import ParkingMarker from "./ParkingMarker";
@@ -24,42 +24,24 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
   const [parkingAddress, setParkingAddress] = useState<string | undefined>(
     stop.parking_address,
   );
-  const [mapIcon, setMapIcon] = useState<string | undefined>(stop.map_icon);
-  const [iconColor, setIconColor] = useState<string | undefined>(
-    stop.icon_color,
-  );
-  const [position, setPosition] = useState<number>(stop.position);
-  const { tour } = useContext(TourContext);
+  const parking = {
+    parkingLat,
+    parkingLng,
+    setParkingLat,
+    setParkingLng,
+    setParkingAddress,
+  };
+  const mapType = useTourStore((s) => s.tour?.map_type);
+  const mapOverlay = useTourStore((s) => s.tour?.map_overlay);
 
   if (stop) {
     return (
-      <StopMapContext.Provider
-        value={{
-          lat,
-          lng,
-          parkingLat,
-          parkingLng,
-          address,
-          parkingAddress,
-          setLat,
-          setLng,
-          setAddress,
-          setParkingAddress,
-          setParkingLat,
-          setParkingLng,
-          stop,
-          mapIcon,
-          iconColor,
-          position,
-          setMapIcon,
-          setIconColor,
-          setPosition,
-        }}
-      >
+      <>
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <div className="flex flex-row w-full gap-8 mb-8">
             <div className="basis-1/2">
               <Location
+                stopId={stop.id}
                 lat={lat}
                 lng={lng}
                 address={address}
@@ -67,9 +49,10 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
                 setLng={setLng}
                 setAddress={setAddress}
               />
-              <MarkerStyle />
-              <ParkingDisclosure>
+              <MarkerStyle stopId={stop.id} />
+              <ParkingDisclosure {...parking}>
                 <Location
+                  stopId={stop.id}
                   prefix="parking"
                   lat={parkingLat}
                   lng={parkingLng}
@@ -85,7 +68,7 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
                 <ClientOnly>
                   <Map
                     disableDefaultUI
-                    mapTypeId={tour.map_type}
+                    mapTypeId={mapType}
                     mapId={(Math.random() + 1).toString(36).substring(7)}
                     defaultCenter={{ lat, lng }}
                     defaultZoom={16}
@@ -93,28 +76,25 @@ const StopMap = ({ stop, children }: { stop: TStop; children?: ReactNode }) => {
                     zoomControl
                   >
                     {children}
-                    {tour.map_overlay && (
-                      <OverlayContext.Provider
-                        value={{
-                          south: tour.map_overlay.south,
-                          north: tour.map_overlay.north,
-                          east: tour.map_overlay.east,
-                          west: tour.map_overlay.west,
-                          draggable: false,
-                        }}
-                      >
-                        <MapOverlay editable={false} />
-                      </OverlayContext.Provider>
+                    {mapOverlay && (
+                      <MapOverlay bounds={mapOverlay} editable={false} />
                     )}
-                    <StopMarker />
-                    <ParkingMarker />
+                    <StopMarker
+                      stop={stop}
+                      lat={lat}
+                      lng={lng}
+                      setLat={setLat}
+                      setLng={setLng}
+                      setAddress={setAddress}
+                    />
+                    <ParkingMarker {...parking} />
                   </Map>
                 </ClientOnly>
               )}
             </div>
           </div>
         </APIProvider>
-      </StopMapContext.Provider>
+      </>
     );
   }
 

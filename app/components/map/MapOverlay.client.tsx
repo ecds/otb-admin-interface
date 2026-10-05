@@ -1,6 +1,6 @@
 import { useMap } from "@vis.gl/react-google-maps";
-import { useContext, useEffect } from "react";
-import { OverlayContext, TourContext } from "~/contexts";
+import { useEffect } from "react";
+import { useTourStore } from "~/store/tourStore";
 
 // Usage
 // const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
@@ -19,13 +19,26 @@ import { OverlayContext, TourContext } from "~/contexts";
 //   map,
 // );
 
-const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
-  const { tour } = useContext(TourContext);
-  const { south, north, east, west } = useContext(OverlayContext);
+export type OverlayBounds = {
+  south: number | undefined;
+  north: number | undefined;
+  east: number | undefined;
+  west: number | undefined;
+};
+
+const MapOverlay = ({
+  bounds: { south, north, east, west },
+  editable = true,
+}: {
+  bounds: OverlayBounds;
+  editable?: boolean;
+}) => {
+  const imageUrl = useTourStore((s) => s.tour?.map_overlay?.image_url);
+  const blankMap = useTourStore((s) => s.tour?.blank_map);
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !tour.map_overlay) return;
+    if (!map || !imageUrl) return;
     if (!south || !north || !east || !west) return;
 
     class DraggableGroundOverlay extends google.maps.OverlayView {
@@ -159,17 +172,14 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
       zIndex: 1,
     });
 
-    if (tour.blank_map) mask.setMap(map);
+    if (blankMap) mask.setMap(map);
 
     const bounds = new google.maps.LatLngBounds(
       new google.maps.LatLng(south, west),
       new google.maps.LatLng(north, east),
     );
 
-    const overlay = new DraggableGroundOverlay(
-      bounds,
-      tour.map_overlay.image_url,
-    );
+    const overlay = new DraggableGroundOverlay(bounds, imageUrl);
 
     overlay.setMap(map);
 
@@ -177,7 +187,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
       overlay.setMap(null);
       mask.setMap(null);
     };
-  }, [map, tour, south, north, east, west]);
+  }, [map, imageUrl, blankMap, south, north, east, west]);
 
   // useEffect(() => {
   //   if (!map) return;
@@ -238,7 +248,7 @@ const MapOverlay = ({ editable = true }: { editable?: boolean }) => {
   //   };
   // }, [tour, map, south, north, east, west]);
 
-  if (!tour.map_overlay || !south || !north || !east || !west || !editable)
+  if (!imageUrl || !south || !north || !east || !west || !editable)
     return <></>;
 
   return <></>;

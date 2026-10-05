@@ -2,7 +2,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { RecordContext, RelatedContext } from "~/contexts";
 import TextInput from "../inputs/TextInput";
 import StopMap from "../map/StopMap";
 import { useRef } from "react";
@@ -12,7 +11,7 @@ import VoiceOverUpload from "../voice_overs/VoiceOverUpload";
 import VoiceOverList from "../voice_overs/VoiceOverList";
 import type { TStop } from "~/types";
 
-const Stop = ({ stop }: { stop: TStop }) => {
+const Stop = ({ stop, onDelete }: { stop: TStop; onDelete: () => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: stop.id });
 
@@ -45,53 +44,45 @@ const Stop = ({ stop }: { stop: TStop }) => {
             </div>
           </summary>
           <div className="bg-white mt-4 p-4 mx-auto w-full text-black/75">
-            <RecordContext.Provider
-              value={{
-                recordId: stop.id,
-                recordModel: "stop",
-                stop,
-              }}
-            >
-              <TextInput
-                valueType="text"
-                value={stop.title}
-                id="title"
-                label="Title"
-                type="text"
-                model="stop"
-              />
-              <TextInput
-                type="rich-text"
-                value={stop.description}
-                id="description"
-                label="Description"
-                model="stop"
-              />
-              <TextInput
-                type="text-area"
-                value={stop.meta_description}
-                id="meta_description"
-                label="Meta Description"
-                model="stop"
-              />
-              <VoiceOverUpload stop_id={stop.id} />
-              <VoiceOverList voiceOvers={stop.voice_overs} />
+            <TextInput
+              itemId={stop.id}
+              valueType="text"
+              value={stop.title}
+              id="title"
+              label="Title"
+              type="text"
+              model="stop"
+            />
+            <TextInput
+              itemId={stop.id}
+              type="rich-text"
+              value={stop.description}
+              id="description"
+              label="Description"
+              model="stop"
+            />
+            <TextInput
+              itemId={stop.id}
+              type="text-area"
+              value={stop.meta_description}
+              id="meta_description"
+              label="Meta Description"
+              model="stop"
+            />
+            <VoiceOverUpload stop_id={stop.id} />
+            <VoiceOverList stopId={stop.id} />
 
-              <StopMap stop={stop} />
-              <TextInput
-                type="rich-text"
-                value={stop.direction_notes ?? ""}
-                id="direction_notes"
-                label={"Directions"}
-                model="stop"
-              />
-              <RelatedContext.Provider
-                value={{ relatedModel: "stop_medium", relatedType: "many" }}
-              >
-                <MediaGrid media={stop.media} />
-                <DeleteButton removing="Stop for the tour" />
-              </RelatedContext.Provider>
-            </RecordContext.Provider>
+            <StopMap stop={stop} />
+            <TextInput
+              itemId={stop.id}
+              type="rich-text"
+              value={stop.direction_notes ?? ""}
+              id="direction_notes"
+              label={"Directions"}
+              model="stop"
+            />
+            <MediaGrid recordModel="stop" recordId={stop.id} />
+            <DeleteButton removing="Stop for the tour" onDelete={onDelete} />
           </div>
         </details>
         <FontAwesomeIcon

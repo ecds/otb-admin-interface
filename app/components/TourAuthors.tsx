@@ -2,25 +2,26 @@ import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useContext, useEffect, useState } from "react";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AuthContext, TourContext, TourSetContext } from "~/contexts";
+import { AuthContext, TourSetContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import { request } from "~/utils/requests";
 import type { TUser } from "~/types";
 
 const TourAuthors = () => {
   const { currentUser, currentTenantAdmin } = useContext(AuthContext);
   const { tourSet } = useContext(TourSetContext);
-  const { tour } = useContext(TourContext);
+  const tourId = useTourStore((s) => s.tour?.id);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [tourAuthors, setTourAuthors] = useState<TUser[] | undefined>(
     undefined,
   );
 
   useEffect(() => {
-    if (!tourSet) return;
+    if (!tourSet || !tourId) return;
 
     const fetchAuthors = async () => {
       const { data, response } = await request({
-        path: `${tourSet.subdir}/v4/admin/tour_authors?tour_id=${tour.id}`,
+        path: `${tourSet.subdir}/v4/admin/tour_authors?tour_id=${tourId}`,
         method: "GET",
       });
 
@@ -30,7 +31,7 @@ const TourAuthors = () => {
     };
 
     if (currentUser?.super || currentTenantAdmin) fetchAuthors();
-  }, [tourSet, tour, currentTenantAdmin, currentUser]);
+  }, [tourSet, tourId, currentTenantAdmin, currentUser]);
 
   const close = () => setIsOpen(false);
 

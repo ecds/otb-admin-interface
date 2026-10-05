@@ -1,10 +1,12 @@
 import { faDesktop, faMobile } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext, useEffect, useRef } from "react";
-import { TourContext } from "~/contexts";
+import { useEffect, useRef } from "react";
+import { useTourStore } from "~/store/tourStore";
 
 const Preview = () => {
-  const { tour } = useContext(TourContext);
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const slug = useTourStore((s) => s.tour?.slug);
+  const lastSaved = useTourStore((s) => s.lastSaved);
   // const [previewDesktop, setPreviewDesktop] = useState<boolean>(false);
   // const [previewMobile, setPreviewMobile] = useState<boolean>(false);
   const desktopWindowRef = useRef<WindowProxy>(null);
@@ -17,12 +19,12 @@ const Preview = () => {
     if (mobileWindowRef.current && !mobileWindowRef.current.closed) {
       mobileWindowRef.current.location.reload();
     }
-  }, [tour]);
+  }, [lastSaved]);
 
   const previewDesktop = () => {
     if (!desktopWindowRef.current || desktopWindowRef.current.closed) {
       desktopWindowRef.current = window.open(
-        `https://${tour.tenant}.opentour.site/${tour.slug}`,
+        `https://${tenant}.opentour.site/${slug}`,
         "desktopWindow",
         `width=${window.innerWidth}, height=${window.innerHeight}`,
       );
@@ -34,7 +36,7 @@ const Preview = () => {
   const previewMobile = () => {
     if (!mobileWindowRef.current || mobileWindowRef.current.closed) {
       mobileWindowRef.current = window.open(
-        `https://${tour.tenant}.opentour.site/${tour.slug}`,
+        `https://${tenant}.opentour.site/${slug}`,
         "mobileWindow",
         "width=410, height=730, resizable=no",
       );

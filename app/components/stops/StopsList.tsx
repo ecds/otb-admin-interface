@@ -10,18 +10,13 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import Stop from "./Stop";
-import {
-  FeedbackContext,
-  FormContext,
-  RelatedContext,
-  TourContext,
-} from "~/contexts";
+import { FeedbackContext } from "~/contexts";
+import { useTourStore } from "~/store/tourStore";
 import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -30,14 +25,17 @@ import Reuse from "../Reuse";
 import type { TServerResponse, TStop } from "~/types";
 import { joinImage } from "~/utils/image_upload";
 import { getErrorMessage } from "~/utils/errors";
-import { useRevalidator } from "react-router";
+
+const EMPTY: TStop[] = [];
 
 const StopsList = () => {
-  const { relatedModel } = useContext(RelatedContext);
-  const { tour } = useContext(TourContext);
+  const tour = useTourStore((s) => s.tour);
+  const addStop = useTourStore((s) => s.addStop);
+  const removeStop = useTourStore((s) => s.removeStop);
+  const reorderStops = useTourStore((s) => s.reorderStops);
+  const updateStopField = useTourStore((s) => s.updateStopField);
   const { setFeedback } = useContext(FeedbackContext);
   const [openOtherStops, setOpenReuseStops] = useState<boolean>(false);
-  const [items, setItems] = useState<TStop[]>([]);
   const [pendingOpenSlug, setPendingOpenSlug] = useState<string | undefined>(
     undefined,
   );
@@ -47,11 +45,8 @@ const StopsList = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  const revalidator = useRevalidator();
 
-  useEffect(() => {
-    setItems(tour.stops);
-  }, [tour]);
+  const stops = tour?.stops ?? EMPTY;
 
   // Runs after React has committed the newly added stop to the DOM, so the
   // element is guaranteed to exist by the time this effect fires.
@@ -61,55 +56,43 @@ const StopsList = () => {
     if (element) (element as HTMLDetailsElement).open = true;
     setPendingOpenSlug(undefined);
     setFeedback(undefined);
-  }, [pendingOpenSlug, items, setFeedback]);
+  }, [pendingOpenSlug, stops, setFeedback]);
 
-  useEffect(() => {
-    const sendRequest = async (newPosition: number, item: TStop) => {
-      const { response, data } = await sendUpdate({
-        tenant: tour.tenant,
-        record: item.relation_id,
-        body: {
-          [relatedModel]: { position: newPosition },
-          model: relatedModel,
-          reindex: {
-            model: "tour",
-            id: tour.id,
-          },
+  if (!tour) return null;
+
+  const savePosition = async (stop: TStop) => {
+    const { response, data } = await sendUpdate({
+      tenant: tour.tenant,
+      record: stop.relation_id,
+      body: {
+        tour_stop: { position: stop.position },
+        model: "tour_stop",
+        reindex: {
+          model: "tour",
+          id: tour.id,
         },
-      });
-
-      if (!response.ok) {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not save the new stop order."),
-        });
-      }
-    };
-
-    items.forEach((item, index) => {
-      const newPosition = index + 1;
-      if (newPosition !== item.position) {
-        item.position = newPosition;
-        sendRequest(newPosition, item);
-      }
+      },
     });
-  }, [tour, relatedModel, items, setFeedback]);
+
+    if (!response.ok) {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not save the new stop order."),
+      });
+    }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((stop) => stop.id == active.id),
-        );
-        const newIndex = items.indexOf(
-          // @ts-expect-error: We know it will be there.
-          items.find((stop) => stop.id == over.id),
-        );
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
+    if (over && active.id !== over.id) {
+      const oldIndex = stops.findIndex((stop) => stop.id == active.id);
+      const newIndex = stops.findIndex((stop) => stop.id == over.id);
+      const before = new Map(stops.map((stop) => [stop.id, stop.position]));
+      reorderStops(oldIndex, newIndex);
+      useTourStore
+        .getState()
+        .tour!.stops.filter((stop) => before.get(stop.id) !== stop.position)
+        .forEach(savePosition);
     }
 
     document
@@ -140,7 +123,7 @@ const StopsList = () => {
         tour_stop: {
           tour_id: tour.id,
           stop_id: data.id,
-          position: items.length + 1,
+          position: stops.length + 1,
         },
         reindex: {
           model: "tour",
@@ -150,14 +133,15 @@ const StopsList = () => {
     });
 
     if (joinResponse.ok) {
-      setItems((items) => [...items, joinData as TStop]);
+      addStop(joinData as TStop);
       setPendingOpenSlug((data as TStop).slug);
-    } else {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(joinData, "Could not add stop to tour."),
-      });
+      return true;
     }
+    setFeedback({
+      type: "error",
+      message: getErrorMessage(joinData, "Could not add stop to tour."),
+    });
+    return false;
   };
 
   const createStop = async (stopToCopy: TStop | undefined = undefined) => {
@@ -174,9 +158,10 @@ const StopsList = () => {
     });
 
     if (response.ok) {
-      await createJoin(data);
-      if (stopToCopy) {
+      const joined = await createJoin(data);
+      if (joined && stopToCopy) {
         const failedMedia: string[] = [];
+        const copiedMedia: TStop["media"] = [];
         for (const medium of (stopToCopy as TStop).media) {
           setFeedback({ type: "success", message: "Copying media." });
           const { response: joinResponse, data: joinData } = await joinImage({
@@ -187,13 +172,15 @@ const StopsList = () => {
             imageId: medium.id,
             tenant: tour.tenant,
           });
-          if (!joinResponse.ok) {
+          if (joinResponse.ok) {
+            copiedMedia.push(medium);
+          } else {
             failedMedia.push(
               getErrorMessage(joinData, `Could not copy "${medium.title}".`),
             );
           }
         }
-        revalidator.revalidate();
+        updateStopField(data.id, "media", copiedMedia);
         setFeedback(
           failedMedia.length > 0
             ? { type: "error", message: failedMedia.join(" ") }
@@ -223,7 +210,8 @@ const StopsList = () => {
     });
 
     if (response.ok || status === 404) {
-      setItems((items) => items.filter((item) => item.relation_id !== id));
+      const removed = stops.find((stop) => stop.relation_id === id);
+      if (removed) removeStop(removed.id);
       setFeedback(undefined);
     } else {
       setFeedback({
@@ -241,7 +229,7 @@ const StopsList = () => {
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
       >
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <SortableContext items={stops} strategy={verticalListSortingStrategy}>
           <div>
             <div className="text-2xl flex space-x-3 my-8">Stops</div>
             <div className="flex flex-row gap-8">
@@ -268,16 +256,12 @@ const StopsList = () => {
                 <ToolTip>Reuse stops from other tours.</ToolTip>
               </div>
             </div>
-            {items.map((stop) => (
-              <FormContext.Provider
+            {stops.map((stop) => (
+              <Stop
                 key={stop.id}
-                value={{
-                  recordId: stop.relation_id,
-                  handleDelete: deleteStop,
-                }}
-              >
-                <Stop stop={stop} />
-              </FormContext.Provider>
+                stop={stop}
+                onDelete={() => deleteStop(stop.relation_id)}
+              />
             ))}
           </div>
         </SortableContext>

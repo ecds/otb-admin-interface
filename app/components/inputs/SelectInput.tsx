@@ -3,9 +3,7 @@ import InputWrapper from "./InputWrapper";
 import ToolTip from "./ToolTip";
 import { useContext, useEffect, useRef, useState } from "react";
 import { sendUpdate } from "~/utils/requests";
-import { ErrorContext, RecordContext, TourContext } from "~/contexts";
-import { useRevalidator } from "react-router";
-import { useSyncPoll } from "~/hooks/useSyncPoll";
+import { FeedbackContext } from "~/contexts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -14,15 +12,18 @@ import {
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import type { InputProps, TChoices, TSelectableProps } from "~/types";
 import { safeId } from "~/utils/a11y";
+import { useTenant, useTourStore } from "~/store/tourStore";
 
 type SelectProps = {
   value: string | boolean;
   options?: TChoices[];
   id: TSelectableProps;
   handleSave?: () => void;
+  itemId: number;
 };
 
 const SelectInput = ({
+  itemId,
   id,
   label,
   model,
@@ -31,53 +32,54 @@ const SelectInput = ({
   options,
 }: InputProps & SelectProps) => {
   const [currentValue, setCurrentValue] = useState<string | boolean>(value);
+  const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLSelectElement>(null);
   const valueRef = useRef<string | boolean>(value);
-  const { tour, isSaving, setIsSaving } = useContext(TourContext);
-  const { recordId } = useContext(RecordContext);
-  const { error, setError } = useContext(ErrorContext);
-  const revalidator = useRevalidator();
+  const tenant = useTenant();
+  const beginSave = useTourStore((s) => s.beginSave);
+  const endSave = useTourStore((s) => s.endSave);
+  const { setFeedback } = useContext(FeedbackContext);
+  const applySavedField = useTourStore((s) => s.applySavedField);
   const inputId = safeId();
 
   useEffect(() => {
+    if (valueRef.current === currentValue) return;
+
     const update = async () => {
+      setIsSaving(true);
+      beginSave();
       const { response } = await sendUpdate({
-        tenant: tour.tenant,
-        record: recordId,
+        tenant,
+        record: itemId,
         body: { model, [model]: { [id]: currentValue } },
       });
+      setIsSaving(false);
+      endSave(response.ok);
       if (response.ok) {
         valueRef.current = currentValue;
+        applySavedField(model, itemId, id, currentValue);
       } else {
-        if (setError) setError(`An error occurred updating ${label}.`);
+        setCurrentValue(valueRef.current);
+        setFeedback({
+          type: "error",
+          message: `An error occurred updating ${label}.`,
+        });
       }
     };
 
-    if (valueRef.current !== currentValue) update();
-  }, [currentValue, model, id, recordId, revalidator, tour, setError, label]);
-
-  useEffect(() => {
-    if (error) {
-      setCurrentValue(valueRef.current);
-      setIsSaving(false);
-    }
-  }, [error, tour, id, setIsSaving]);
-
-  const isPendingSync =
-    tour[id as keyof typeof tour] !== currentValue && !error;
-
-  useSyncPoll({
-    pending: isPendingSync,
-    revalidate: revalidator.revalidate,
-    onTimeout: () => {
-      if (setError)
-        setError(`Could not confirm ${label} was saved. Please refresh.`);
-    },
-  });
-
-  useEffect(() => {
-    setIsSaving(isPendingSync);
-  }, [isPendingSync, setIsSaving]);
+    update();
+  }, [
+    currentValue,
+    model,
+    id,
+    itemId,
+    tenant,
+    setFeedback,
+    label,
+    applySavedField,
+    beginSave,
+    endSave,
+  ]);
 
   const handleSelect = () => {
     if (!inputRef.current) return;
@@ -131,7 +133,7 @@ const SelectInput = ({
       <>
         <Checkbox
           className="group block cursor-pointer"
-          id={`${id}-${recordId}`}
+          id={`${id}-${itemId}`}
           checked={currentValue as boolean}
           onChange={() => setCurrentValue(!currentValue)}
         >

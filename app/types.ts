@@ -70,6 +70,7 @@ export type TModel =
   | "tour_set"
   | "map_overlay"
   | "map_icon"
+  | "tour_stop"
   | "voice_over";
 
 export type TRelateModel =
@@ -137,6 +138,8 @@ export type TStop = TPositionedRecord & {
   lat: number;
   lng: number;
   map_icon?: string;
+  // True when this tour stop has its own icon rather than the tour's.
+  map_icon_custom?: boolean;
   media: TMedium[];
   meta_description: string;
   orphaned: boolean;
@@ -158,7 +161,8 @@ export type TTour = {
   flat_pages: TFlatPage[];
   icon_color: string;
   id: number;
-  map_overlay: TMapOverlay;
+  map_icon?: string;
+  map_overlay?: TMapOverlay;
   map_type: TMapType;
   media: TMedium[];
   mode: TTravelMode;
@@ -282,4 +286,12 @@ export type TServerError = {
   source: {
     pointer: string;
   };
+};
+
+// Which join record links an uploaded medium/file to its owner.
+export type TJoin = {
+  relatedModel: TRelateModel;
+  relatedType: "one" | "many";
+  recordModel: TModel;
+  recordId: number;
 };

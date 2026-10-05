@@ -1,3 +1,5 @@
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
@@ -14,6 +16,7 @@ const RetryingImage = ({ src, alt, className, maxRetries = 5 }: Props) => {
   const [attempt, setAttempt] = useState<number>(0);
   const [failed, setFailed] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<boolean>(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
@@ -57,10 +60,16 @@ const RetryingImage = ({ src, alt, className, maxRetries = 5 }: Props) => {
         onError={handleError}
         onLoad={() => setLoaded(true)}
       />
-      <div className="text-white absolute z-10 bg-black h-full w-full flex justify-center items-center">
-        <p>loading</p>
-      </div>
-      {!loaded && <span>loading</span>}
+      {!loaded && (
+        <div
+          ref={progressBarRef}
+          className="text-white absolute z-10 bg-black h-full w-full flex flex-col justify-center items-center"
+        >
+          <p>
+            <FontAwesomeIcon icon={faSpinner} spin /> loading
+          </p>
+        </div>
+      )}
     </>
   );
 };

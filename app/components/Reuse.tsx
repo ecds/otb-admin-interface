@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useTenant } from "~/store/tourStore";
-import { request } from "~/utils/requests";
+import { request, sendDelete } from "~/utils/requests";
 import { Description, Dialog, DialogPanel } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,6 +14,8 @@ import type { Dispatch, SetStateAction } from "react";
 import type { TFlatPage, TServerResponse, TStop } from "~/types";
 import ToolTip from "./inputs/ToolTip";
 import DeleteButton from "./buttons/DeleteButton";
+import { FeedbackContext } from "~/contexts";
+import { getErrorMessage } from "~/utils/errors";
 
 interface Props<T extends TFlatPage | TStop> {
   itemIds: number[];
@@ -37,6 +39,7 @@ const Reuse = <T extends TFlatPage | TStop>({
   const tenant = useTenant();
   const [paginationLinks, setPaginationLinks] =
     useState<PaginationLinks | null>(null);
+  const { setFeedback } = useContext(FeedbackContext);
 
   useEffect(() => {
     const loadItems = async () => {
@@ -52,6 +55,29 @@ const Reuse = <T extends TFlatPage | TStop>({
 
     if (isOpen) loadItems();
   }, [tenant, itemIds, model, isOpen, page]);
+
+  const handleDelete = async (id: number) => {
+    if (!tenant) return;
+    const { response, data } = await sendDelete({
+      tenant,
+      record: id,
+      body: {
+        model,
+        // reindex: {
+        //   model: recordModel,
+        //   id: recordId,
+        // },
+      },
+    });
+    if (response.ok && items) {
+      setItems(items.filter((item) => item.id !== id));
+    } else {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not remove media."),
+      });
+    }
+  };
 
   return (
     <>
@@ -151,9 +177,10 @@ const Reuse = <T extends TFlatPage | TStop>({
                           </td>
                           <td className="px-6 py-4">
                             <DeleteButton
-                              disabled={item.orphaned}
-                              removing={model}
                               className={`${item.orphaned ? "bg-black/50" : "bg-red-500"} px-2 py-1 text-white rounded-md shadow-md`}
+                              disabled={!item.orphaned}
+                              removing={model}
+                              onDelete={() => handleDelete(item.id)}
                             >
                               Delete
                             </DeleteButton>

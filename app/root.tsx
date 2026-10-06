@@ -13,6 +13,7 @@ import {
 import "./app.css";
 import { fetchCurrentUser, verifyToken } from "./utils/requests";
 import type React from "react";
+import type { ShouldRevalidateFunction } from "react-router";
 import { useEffect, useState } from "react";
 import { AuthContext, FeedbackContext } from "./contexts";
 import Feedback from "./components/Feedback";
@@ -29,6 +30,19 @@ export const clientLoader = async () => {
 };
 
 clientLoader.hydrate = true as const;
+
+// The session only matters on first load (sign-in/out update AuthContext
+// directly), so query-string changes like sorting or filtering don't refetch it.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}) => {
+  const onlySearchChanged =
+    currentUrl.pathname === nextUrl.pathname &&
+    currentUrl.search !== nextUrl.search;
+  return onlySearchChanged ? false : defaultShouldRevalidate;
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

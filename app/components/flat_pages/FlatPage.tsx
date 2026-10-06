@@ -58,7 +58,7 @@ const FlatPage = ({
               id="title"
               label="Title"
               type="text"
-              model="stop"
+              model="flat_page"
             />
             <TextInput
               itemId={flatPage.id}

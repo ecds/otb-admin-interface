@@ -1,7 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext, useEffect, useRef, useState } from "react";
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { useLoaderData, useRevalidator, useSearchParams } from "react-router";
-import { AuthContext, FeedbackContext } from "~/contexts";
+import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import Navbar from "~/components/Navbar";
 import {
@@ -11,7 +17,9 @@ import {
   faArrowUpAZ,
   faBan,
   faCheckCircle,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
+import type { ShouldRevalidateFunction } from "react-router";
 import type { TTourSet, TUser } from "~/types";
 import {
   Button,
@@ -24,7 +32,10 @@ import {
 import UserTourSet from "~/components/UserTourSet";
 
 type SortField = "email" | "display_name" | "date_joined" | "last_sign_in";
-type SortDirection = "asc" | "decs";
+type SortDirection = "asc" | "desc";
+
+const SORT_PARAMS = ["sort_field", "sort_dir", "filter"];
+const DATE_FIELDS: SortField[] = ["date_joined", "last_sign_in"];
 
 export const clientLoader = async () => {
   const { data: users } = await request({
@@ -40,6 +51,53 @@ export const clientLoader = async () => {
 
 clientLoader.hydrate = true as const;
 
+// Sorting is client-side, so changing only the sort params shouldn't refetch.
+// revalidator.revalidate() keeps the URL the same, so it still reloads.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}) => {
+  const onlySortChanged =
+    currentUrl.pathname === nextUrl.pathname &&
+    currentUrl.search !== nextUrl.search &&
+    [...currentUrl.searchParams.keys(), ...nextUrl.searchParams.keys()].every(
+      (key) => SORT_PARAMS.includes(key),
+    );
+  return onlySortChanged ? false : defaultShouldRevalidate;
+};
+
+const sortUsers = (
+  users: TUser[],
+  field: SortField = "email",
+  direction: SortDirection,
+  filter: string,
+) => {
+  const value = (user: TUser) =>
+    DATE_FIELDS.includes(field)
+      ? Date.parse(user[field]) || 0
+      : user[field]?.toLowerCase() || "zz";
+  const sign = direction === "desc" ? -1 : 1;
+
+  return [...users]
+    .filter((user) => {
+      if (filter && filter.length > 0) {
+        return (
+          user.email.includes(filter) || user.display_name?.includes(filter)
+        );
+      } else {
+        return user;
+      }
+    })
+    .sort((a, b) => {
+      const av = value(a);
+      const bv = value(b);
+      if (av < bv) return -sign;
+      if (av > bv) return sign;
+      return 0;
+    });
+};
+
 const SortIcon = ({ type, name }: { type: string; name: string }) => {
   const [searchParams, _] = useSearchParams();
 
@@ -48,7 +106,9 @@ const SortIcon = ({ type, name }: { type: string; name: string }) => {
       return (
         <FontAwesomeIcon
           icon={
-            searchParams.get("sort_dir") === "asc" ? faArrowDownAZ : faArrowUpAZ
+            searchParams.get("sort_dir") === "desc"
+              ? faArrowUpAZ
+              : faArrowDownAZ
           }
         />
       );
@@ -56,7 +116,9 @@ const SortIcon = ({ type, name }: { type: string; name: string }) => {
       return (
         <FontAwesomeIcon
           icon={
-            searchParams.get("sort_dir") === "asc" ? faArrowDown19 : faArrowUp19
+            searchParams.get("sort_dir") === "desc"
+              ? faArrowUp19
+              : faArrowDown19
           }
         />
       );
@@ -77,60 +139,52 @@ const UsersRoute = () => {
     tour_sets: TTourSet[];
   }>();
   const { currentUser } = useContext(AuthContext);
-  const [sortedUsers, setSortedUsers] = useState<TUser[]>(users);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [activeUser, setActiveUser] = useState<TUser | undefined>(undefined);
+  const [filter, setFilter] = useState<string>("");
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
-  const sortFieldRef = useRef<SortField>("email");
-  const { setFeedback } = useContext(FeedbackContext);
 
-  useEffect(() => {
-    const sortField = searchParams.get("sort_field") as SortField;
-    const sortDirection =
-      sortFieldRef.current === sortField
-        ? (searchParams.get("sort_dir") as SortDirection)
-        : "asc";
-    if (!sortField) return;
-    setSortedUsers(
-      [...users].sort((a, b) => {
-        const av =
-          sortField === "date_joined" || sortField == "last_sign_in"
-            ? Date.parse(a[sortField]) || 0
-            : a[sortField]?.toLowerCase() || "zz";
-        const bv =
-          sortField === "date_joined" || sortField == "last_sign_in"
-            ? Date.parse(b[sortField]) || 0
-            : b[sortField]?.toLowerCase() || "zz";
-        if (av < bv) return sortDirection === "asc" ? -1 : 1;
-        if (av > bv) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-      }),
-    );
-    setFeedback(undefined);
-    sortFieldRef.current = sortField;
-  }, [searchParams, users, setFeedback]);
+  const sortField = searchParams.get("sort_field") as SortField | null;
+  const sortDirection: SortDirection =
+    searchParams.get("sort_dir") === "desc" ? "desc" : "asc";
+
+  const sortedUsers = useMemo(
+    () =>
+      sortField || filter
+        ? sortUsers(users, sortField ?? "email", sortDirection, filter)
+        : users,
+    [users, sortField, sortDirection, filter],
+  );
 
   useEffect(() => {
     setModalOpen(Boolean(activeUser));
   }, [activeUser]);
 
-  const updateSort = (sortFieldParam: SortField) => {
-    setFeedback({ type: "success", message: "Updating Sort Order" });
+  // Same column flips the direction; a new column starts ascending.
+  const updateSort = (field: SortField) => {
+    const direction: SortDirection =
+      field === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      sort_field: field,
+      sort_dir: direction,
+    });
+  };
 
-    const sortDirectionParam = searchParams.get("sort_dir");
+  const updateFilter = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    setFilter(target.value);
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      filter: target.value,
+    });
+  };
 
-    const sortDirection = sortDirectionParam
-      ? sortDirectionParam === "acs"
-        ? "decs"
-        : "acs"
-      : sortFieldParam === sortFieldRef.current
-        ? "decs"
-        : "asc";
-
-    setSearchParams({ sort_field: sortFieldParam, sort_dir: sortDirection });
-
-    sortFieldRef.current = sortFieldParam;
+  const clearFilter = () => {
+    setFilter("");
+    const remaining = Object.fromEntries(searchParams);
+    delete remaining.filter;
+    setSearchParams(remaining);
   };
 
   if (!currentUser || !currentUser.super) return <></>;
@@ -138,32 +192,53 @@ const UsersRoute = () => {
   return (
     <>
       <Navbar />
-      <div className="mt-24">
-        <table className="w-11/12 lg:w-3/4 max-w-7xl p-8 m-auto table-fixed mb-24">
-          <thead className="">
+      <div className="mt-24 h-screen overflow-y auto">
+        <table className="w-11/12 lg:w-3/4 max-w-7xl p-8 m-auto table-fixed mb-24 bg-white">
+          <thead className="sticky top-12 mb-8 bg-white w-full z-10">
+            <tr className="w-full">
+              <th className="relative w-auto pt-4" colSpan={2}>
+                <input
+                  type="text"
+                  placeholder="filter"
+                  value={filter}
+                  onChange={updateFilter}
+                  className="peer w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  id="clear-btn"
+                  className={`absolute inset-y-0 right-0 ${filter ? "flex" : "hidden"} items-center pt-3 pr-3 text-slate-400 hover:text-slate-600`}
+                  aria-label="Clear input"
+                  onClick={clearFilter}
+                >
+                  <FontAwesomeIcon icon={faX} />
+                </button>
+              </th>
+              <th className="pt-4" colSpan={4}></th>
+            </tr>
             <tr className="text-left">
-              <th className="ps-2 w-64">
+              <th className="ps-2 w-64 py-3">
                 <button onClick={() => updateSort("email")}>
                   Email <SortIcon type="string" name="email" />
                 </button>
               </th>
-              <th className="ps-2 max-w-64 hidden md:table-cell">
+              <th className="ps-2 max-w-64 hidden md:table-cell py-3">
                 <button onClick={() => updateSort("display_name")}>
                   Name <SortIcon type="string" name="display_name" />
                 </button>
               </th>
-              <th className="ps-2 hidden md:table-cell">Sites</th>
+              <th className="ps-2 hidden md:table-cell py-3">Sites</th>
               <th className="ps-2 w-32 hidden md:table-cell">
                 <button onClick={() => updateSort("date_joined")}>
                   Joined <SortIcon type="number" name="date_joined" />
                 </button>
               </th>
-              <th className="ps-2 w-32 hidden md:table-cell">
+              <th className="ps-2 w-32 hidden md:table-cell py-3">
                 <button onClick={() => updateSort("last_sign_in")}>
                   Last Sign In <SortIcon type="number" name="last_sign_in" />
                 </button>
               </th>
-              <th className="text-center w-24 hidden md:table-cell">
+              <th className="text-center w-24 hidden md:table-cell py-3">
                 Terms Accepted
               </th>
             </tr>

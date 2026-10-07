@@ -28,7 +28,7 @@ const renderSelect = (overrides = {}) =>
         itemId={1}
         id="default_lng"
         label="Language"
-        model="tour"
+        model="tour_set"
         value="en-US"
         options={options}
         {...overrides}
@@ -36,7 +36,8 @@ const renderSelect = (overrides = {}) =>
     </FeedbackContext.Provider>,
   );
 
-describe("SelectInput — dropdown variant", () => {
+// Records outside the loaded tour (e.g. tour-set settings) save directly.
+describe("SelectInput — dropdown variant, outside the tour", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useTourStore.getState().setTour(mockTour);
@@ -59,7 +60,9 @@ describe("SelectInput — dropdown variant", () => {
     await waitFor(() => {
       expect(sendUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: expect.objectContaining({ tour: { default_lng: "fr-FR" } }),
+          body: expect.objectContaining({
+            tour_set: { default_lng: "fr-FR" },
+          }),
         }),
       );
     });
@@ -135,11 +138,7 @@ describe("SelectInput — checkbox variant", () => {
     expect(screen.getByText("Published")).toBeInTheDocument();
   });
 
-  it("calls sendUpdate when the checkbox is toggled", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: true } as Response,
-      data: {},
-    } as any);
+  it("writes the toggled value to the tour without a request", () => {
     render(
       <FeedbackContext.Provider value={feedbackCtx}>
         <SelectInput
@@ -152,13 +151,8 @@ describe("SelectInput — checkbox variant", () => {
       </FeedbackContext.Provider>,
     );
     fireEvent.click(screen.getByRole("checkbox"));
-    await waitFor(() => {
-      expect(sendUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: expect.objectContaining({ tour: { published: true } }),
-        }),
-      );
-    });
+    expect(useTourStore.getState().tour!.published).toBe(true);
+    expect(sendUpdate).not.toHaveBeenCalled();
   });
 });
 
@@ -172,34 +166,12 @@ describe("SelectInput — store sync", () => {
     } as unknown as TTour);
   });
 
-  it("writes the saved selection into the store", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: true } as Response,
-      data: {},
-    } as any);
-    renderSelect();
+  it("writes the selection into the store for autosave", () => {
+    renderSelect({ model: "tour" });
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "fr-FR" },
     });
-    await waitFor(() =>
-      expect(useTourStore.getState().tour!.default_lng).toBe("fr-FR"),
-    );
-  });
-
-  it("leaves the store alone when the save fails", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: false } as Response,
-      data: {},
-    } as any);
-    renderSelect();
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "fr-FR" },
-    });
-    await waitFor(() =>
-      expect(setFeedback).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "error" }),
-      ),
-    );
-    expect(useTourStore.getState().tour!.default_lng).toBe("en-US");
+    expect(useTourStore.getState().tour!.default_lng).toBe("fr-FR");
+    expect(sendUpdate).not.toHaveBeenCalled();
   });
 });

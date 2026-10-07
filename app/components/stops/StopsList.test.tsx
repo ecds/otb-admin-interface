@@ -11,12 +11,10 @@ import { useTourStore } from "~/store/tourStore";
 import type { TStop, TTour } from "~/types";
 import StopsList from "./StopsList";
 
-vi.mock("~/utils/requests", () => ({
-  sendCreate: vi.fn(),
-  sendDelete: vi.fn(),
-  sendUpdate: vi.fn(),
+vi.mock("~/utils/requests", () => ({ sendCreate: vi.fn() }));
+vi.mock("~/utils/autosave", () => ({
+  flushTour: vi.fn(() => Promise.resolve(true)),
 }));
-vi.mock("~/utils/image_upload", () => ({ joinImage: vi.fn() }));
 
 let onDragEnd: (e: unknown) => void;
 vi.mock("@dnd-kit/core", async (orig) => ({
@@ -55,8 +53,8 @@ vi.mock("../Reuse", () => ({
   },
 }));
 
-import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
-import { joinImage } from "~/utils/image_upload";
+import { sendCreate } from "~/utils/requests";
+import { flushTour } from "~/utils/autosave";
 
 const mk = (id: number, position: number) =>
   ({
@@ -71,7 +69,6 @@ const mk = (id: number, position: number) =>
 const setFeedback = vi.fn();
 const ok = (data: unknown = {}) =>
   ({ response: { ok: true } as Response, data }) as any;
-const fail = () => ({ response: { ok: false } as Response, data: {} }) as any;
 
 const renderList = () =>
   render(
@@ -98,8 +95,7 @@ describe("StopsList", () => {
     expect(screen.getByText("Stop 3")).toBeInTheDocument();
   });
 
-  it("reorders stops in the store and saves only the moved positions", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue(ok());
+  it("reorders stops in the store", () => {
     renderList();
     act(() => onDragEnd({ active: { id: 1 }, over: { id: 2 } }));
     expect(storeStops().map((s) => [s.id, s.position])).toEqual([
@@ -107,84 +103,43 @@ describe("StopsList", () => {
       [1, 2],
       [3, 3],
     ]);
-    await waitFor(() => expect(sendUpdate).toHaveBeenCalledTimes(2));
-    expect(sendUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        record: 20,
-        body: expect.objectContaining({ tour_stop: { position: 1 } }),
-      }),
-    );
-    expect(sendUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        record: 10,
-        body: expect.objectContaining({ tour_stop: { position: 2 } }),
-      }),
-    );
   });
 
   it("does nothing when a stop is dropped on itself", () => {
+    const before = useTourStore.getState().tour;
     renderList();
     act(() => onDragEnd({ active: { id: 1 }, over: { id: 1 } }));
-    expect(sendUpdate).not.toHaveBeenCalled();
+    expect(useTourStore.getState().tour).toBe(before);
   });
 
-  it("adds a newly created stop to the store", async () => {
-    vi.mocked(sendCreate)
-      .mockResolvedValueOnce(ok({ id: 4, slug: "s4" }))
-      .mockResolvedValueOnce(ok(mk(4, 4)));
+  it("adds a newly created stop and saves the link right away", async () => {
+    vi.mocked(sendCreate).mockResolvedValueOnce(ok(mk(4, 0)));
     renderList();
     fireEvent.click(screen.getByText(/create new/i));
     await waitFor(() => expect(storeStops()).toHaveLength(4));
+    expect(storeStops()[3]).toMatchObject({ id: 4, position: 4 });
     expect(screen.getByText("Stop 4")).toBeInTheDocument();
-    expect(sendCreate).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        body: expect.objectContaining({
-          tour_stop: { tour_id: 1, stop_id: 4, position: 4 },
-        }),
-      }),
-    );
+    expect(sendCreate).toHaveBeenCalledTimes(1);
+    expect(flushTour).toHaveBeenCalled();
   });
 
-  it("removes a deleted stop from the store", async () => {
-    vi.mocked(sendDelete).mockResolvedValue(ok());
+  it("removes a deleted stop from the store", () => {
     renderList();
     fireEvent.click(screen.getByText("Delete Stop 2"));
-    await waitFor(() => expect(storeStops().map((s) => s.id)).toEqual([1, 3]));
-    expect(sendDelete).toHaveBeenCalledWith(
-      expect.objectContaining({ record: 20 }),
-    );
+    expect(storeStops().map((s) => s.id)).toEqual([1, 3]);
     expect(screen.queryByText("Stop 2")).not.toBeInTheDocument();
   });
 
-  it("keeps the stop and reports an error when the delete fails", async () => {
-    vi.mocked(sendDelete).mockResolvedValue(fail());
-    renderList();
-    fireEvent.click(screen.getByText("Delete Stop 2"));
-    await waitFor(() =>
-      expect(setFeedback).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "error" }),
-      ),
-    );
-    expect(storeStops()).toHaveLength(3);
-  });
-
-  it("puts only the successfully copied media on a copied stop", async () => {
+  it("gives a copied stop the original's media to link", async () => {
     const media = [
-      { id: 7, title: "Good" },
-      { id: 8, title: "Bad" },
+      { id: 7, title: "One" },
+      { id: 8, title: "Two" },
     ];
-    vi.mocked(sendCreate)
-      .mockResolvedValueOnce(ok({ id: 4, slug: "s4" }))
-      .mockResolvedValueOnce(ok(mk(4, 4)));
-    vi.mocked(joinImage)
-      .mockResolvedValueOnce(ok())
-      .mockResolvedValueOnce(fail());
+    vi.mocked(sendCreate).mockResolvedValueOnce(ok({ ...mk(4, 0), media: [] }));
     renderList();
     await act(() => reuseCopy({ ...mk(9, 1), media } as unknown as TStop));
     const copied = storeStops().find((s) => s.id === 4)!;
-    expect(copied.media.map((m) => m.id)).toEqual([7]);
-    expect(setFeedback).toHaveBeenLastCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(copied.media.map((m) => m.id)).toEqual([7, 8]);
+    expect(flushTour).toHaveBeenCalled();
   });
 });

@@ -1,17 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, act } from "@testing-library/react";
-import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
 import type { TStop, TTour } from "~/types";
 import Location from "./Location";
 
-vi.mock("~/utils/requests", () => ({ sendUpdate: vi.fn() }));
 vi.mock("@vis.gl/react-google-maps", () => ({
   useMap: () => null,
   useMapsLibrary: () => null,
 }));
-
-import { sendUpdate } from "~/utils/requests";
 
 const stop = {
   id: 3,
@@ -23,7 +19,6 @@ const stop = {
   parking_address: "Lot A",
 } as TStop;
 
-const setFeedback = vi.fn();
 const noop = vi.fn();
 
 const renderLocation = (
@@ -31,16 +26,14 @@ const renderLocation = (
   prefix?: "parking",
 ) =>
   render(
-    <FeedbackContext.Provider value={{ feedback: undefined, setFeedback }}>
-      <Location
-        stopId={stop.id}
-        {...props}
-        prefix={prefix}
-        setLat={noop}
-        setLng={noop}
-        setAddress={noop}
-      />
-    </FeedbackContext.Provider>,
+    <Location
+      stopId={stop.id}
+      {...props}
+      prefix={prefix}
+      setLat={noop}
+      setLng={noop}
+      setAddress={noop}
+    />,
   );
 
 const flush = async () => {
@@ -63,61 +56,28 @@ describe("Location", () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it("does not save when the location matches the stored stop", async () => {
+  it("leaves the store alone when the location matches the stored stop", async () => {
+    const before = useTourStore.getState().tour;
     renderLocation({ lat: 33.7, lng: -84.3, address: "Old St" });
     await flush();
-    expect(sendUpdate).not.toHaveBeenCalled();
+    expect(useTourStore.getState().tour).toBe(before);
   });
 
-  it("saves a changed location and writes it to the store", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: true } as Response,
-      data: {},
-    } as any);
+  it("writes a changed location to the store for autosave", async () => {
     renderLocation({ lat: 34, lng: -85, address: "New St" });
     await flush();
-    expect(sendUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        record: 3,
-        body: { model: "stop", stop: { address: "New St", lat: 34, lng: -85 } },
-      }),
-    );
     expect(storeStop()).toMatchObject({ lat: 34, lng: -85, address: "New St" });
   });
 
-  it("sends parking latitude and longitude under the correct keys", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: true } as Response,
-      data: {},
-    } as any);
+  it("writes parking latitude and longitude under the correct keys", async () => {
     renderLocation({ lat: 10, lng: 20, address: "Lot B" }, "parking");
     await flush();
-    expect(sendUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        body: {
-          model: "stop",
-          stop: { parking_address: "Lot B", parking_lat: 10, parking_lng: 20 },
-        },
-      }),
-    );
     expect(storeStop()).toMatchObject({
+      parking_address: "Lot B",
       parking_lat: 10,
       parking_lng: 20,
       lat: 33.7,
       lng: -84.3,
     });
-  });
-
-  it("leaves the store unchanged and reports an error when the save fails", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue({
-      response: { ok: false } as Response,
-      data: {},
-    } as any);
-    renderLocation({ lat: 34, lng: -85, address: "New St" });
-    await flush();
-    expect(setFeedback).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
-    expect(storeStop()).toMatchObject({ lat: 33.7, lng: -84.3 });
   });
 });

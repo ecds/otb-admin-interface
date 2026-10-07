@@ -16,7 +16,8 @@ import {
 } from "@dnd-kit/sortable";
 import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
-import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
+import { sendCreate } from "~/utils/requests";
+import { flushTour } from "~/utils/autosave";
 import FlatPage from "./FlatPage";
 import ToolTip from "../inputs/ToolTip";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -58,42 +59,13 @@ const FlatPageList = () => {
 
   if (!tour) return null;
 
-  const savePosition = async (flatPage: TFlatPage) => {
-    const { response, data } = await sendUpdate({
-      tenant: tour.tenant,
-      record: flatPage.relation_id,
-      body: {
-        tour_flat_page: { position: flatPage.position },
-        model: "tour_flat_page",
-        reindex: {
-          model: "tour",
-          id: tour.id,
-        },
-      },
-    });
-
-    if (!response.ok) {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not save the new page order."),
-      });
-    }
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     event.activatorEvent.preventDefault();
     if (over && active.id !== over.id) {
       const oldIndex = flatPages.findIndex((page) => page.id == active.id);
       const newIndex = flatPages.findIndex((page) => page.id == over.id);
-      const before = new Map(flatPages.map((page) => [page.id, page.position]));
       reorderFlatPages(oldIndex, newIndex);
-      useTourStore
-        .getState()
-        .tour!.flat_pages.filter(
-          (page) => before.get(page.id) !== page.position,
-        )
-        .forEach(savePosition);
     }
 
     document
@@ -114,34 +86,12 @@ const FlatPageList = () => {
     }
   };
 
+  // Linking goes out right away so the new page comes back with everything
+  // the server fills in.
   const createJoin = async (data: TServerResponse) => {
     setFeedback({ type: "success", message: "Adding Page to Tour." });
-
-    const { response: joinResponse, data: joinData } = await sendCreate({
-      tenant: tour.tenant,
-      body: {
-        model: "tour_flat_page",
-        tour_flat_page: {
-          tour_id: tour.id,
-          flat_page_id: data.id,
-          position: flatPages.length + 1,
-        },
-        reindex: {
-          model: "tour",
-          id: tour.id,
-        },
-      },
-    });
-
-    if (joinResponse.ok) {
-      addFlatPage(joinData as TFlatPage);
-      setPendingOpenSlug((data as TFlatPage).slug);
-    } else {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(joinData, "Could not add page to tour."),
-      });
-    }
+    addFlatPage(data as TFlatPage);
+    if (await flushTour()) setPendingOpenSlug((data as TFlatPage).slug);
   };
 
   const createFlatPage = async (
@@ -165,32 +115,6 @@ const FlatPageList = () => {
       setFeedback({
         type: "error",
         message: getErrorMessage(data, "Could not create page."),
-      });
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    setFeedback({ message: "Removing Page...", type: "success" });
-    const { response, data, status } = await sendDelete({
-      tenant: tour.tenant,
-      record: id,
-      body: {
-        model: "tour_flat_page",
-        reindex: {
-          id: tour.id,
-          model: "tour",
-        },
-      },
-    });
-
-    if (response.ok || status === 404) {
-      const removed = flatPages.find((page) => page.relation_id === id);
-      if (removed) removeFlatPage(removed.id);
-      setFeedback(undefined);
-    } else {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not remove page."),
       });
     }
   };
@@ -238,7 +162,7 @@ const FlatPageList = () => {
               <FlatPage
                 key={flatPage.id}
                 flatPage={flatPage}
-                onDelete={() => handleDelete(flatPage.relation_id)}
+                onDelete={() => removeFlatPage(flatPage.id)}
               />
             ))}
           </div>

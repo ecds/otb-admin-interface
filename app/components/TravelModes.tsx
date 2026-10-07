@@ -1,8 +1,5 @@
 import { Checkbox, Fieldset, Legend } from "@headlessui/react";
-import { useContext, useState } from "react";
-import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
-import { getErrorMessage } from "~/utils/errors";
 import {
   faBicycle,
   faCar,
@@ -13,9 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { TTourTravelMode, TTravelMode, TTravelModeTitle } from "~/types";
-import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
 import { faCircle, faSquare } from "@fortawesome/free-regular-svg-icons";
-import { Saving } from "./Saving";
 
 const ICON = (mode: TTravelModeTitle) => {
   switch (mode) {
@@ -37,8 +32,6 @@ type Props = {
 const TravelModes = ({ modes }: Props) => {
   const tour = useTourStore((s) => s.tour);
   const updateTourField = useTourStore((s) => s.updateTourField);
-  const { setFeedback } = useContext(FeedbackContext);
-  const [saving, setSaving] = useState<number | undefined>(undefined);
 
   if (!tour) return null;
 
@@ -49,72 +42,19 @@ const TravelModes = ({ modes }: Props) => {
       : tour.modes.map((m) => m.id);
   const defaultMode = tour.mode ?? modes[0];
 
-  const handleToggle = async (mode: TTravelMode) => {
-    setSaving(mode.id);
+  // Autosave links or unlinks the mode.
+  const handleToggle = (mode: TTravelMode) => {
     const existing = tour.modes.find((m) => m.id === mode.id);
-    if (existing) {
-      const { response, data } = await sendDelete({
-        tenant: tour.tenant,
-        record: existing.relation_id,
-        body: { model: "tour_mode" },
-      });
-      if (response.ok) {
-        updateTourField(
-          "modes",
-          useTourStore.getState().tour!.modes.filter((m) => m.id !== mode.id),
-        );
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not disable this travel mode."),
-        });
-      }
-    } else {
-      const { response, data } = await sendCreate({
-        tenant: tour.tenant,
-        body: {
-          model: "tour_mode",
-          tour_mode: { tour_id: tour.id, mode_id: mode.id },
-        },
-      });
-      if (response.ok) {
-        updateTourField("modes", [
-          ...useTourStore.getState().tour!.modes,
-          data as TTourTravelMode,
-        ]);
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not enable this travel mode."),
-        });
-      }
-    }
-    setSaving(undefined);
+    updateTourField(
+      "modes",
+      existing
+        ? tour.modes.filter((m) => m.id !== mode.id)
+        : [...tour.modes, mode as TTourTravelMode],
+    );
   };
 
-  const handleDefault = async (mode: TTravelMode) => {
-    const previous = tour.mode;
+  const handleDefault = (mode: TTravelMode) => {
     updateTourField("mode", mode);
-    setSaving(mode.id);
-    const { response, data } = await sendUpdate({
-      tenant: tour.tenant,
-      record: tour.id,
-      body: {
-        model: "tour",
-        tour: { mode_id: mode.id },
-      },
-    });
-    if (!response.ok) {
-      updateTourField("mode", previous);
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(
-          data,
-          "Could not set the default travel mode.",
-        ),
-      });
-    }
-    setSaving(undefined);
   };
 
   return (
@@ -138,11 +78,7 @@ const TravelModes = ({ modes }: Props) => {
           {modes.map((mode) => {
             return (
               <tr key={mode.id} className="">
-                {saving === mode.id ? (
-                  <th scope="row" colSpan={3}>
-                    <Saving />
-                  </th>
-                ) : (
+                {
                   <>
                     <th
                       scope="row"
@@ -195,7 +131,7 @@ const TravelModes = ({ modes }: Props) => {
                       />
                     </th>
                   </>
-                )}
+                }
               </tr>
             );
           })}

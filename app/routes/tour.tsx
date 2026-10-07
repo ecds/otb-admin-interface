@@ -1,5 +1,6 @@
 import { useParams } from "react-router";
 import { useTourQuery } from "~/hooks/useTourQuery";
+import { useAutosave } from "~/hooks/useAutosave";
 import { useTourStore } from "~/store/tourStore";
 import TextInput from "~/components/inputs/TextInput";
 import SelectInput from "~/components/inputs/SelectInput";
@@ -26,6 +27,9 @@ const TourRoute = () => {
     tour_id: string;
   }>();
 
+  // Before useTourQuery: its cleanup clears the store, and the autosave
+  // cleanup needs to send the last edits first.
+  useAutosave();
   const { data, status } = useTourQuery(tourSet!, tour_id!);
   const tour = useTourStore((s) => s.tour);
 
@@ -143,33 +147,6 @@ const TourRoute = () => {
           />
         </Fieldset>
         <ThemeSelector />
-        <Fieldset>
-          <Legend className="text-2xl flex space-x-3 my-8">Map Options</Legend>
-          <SelectInput
-            itemId={tour.id}
-            label="Enable Map"
-            value={tour.is_geo}
-            id="is_geo"
-            model="tour"
-            helpText="Show stops on a map."
-          />
-          <SelectInput
-            itemId={tour.id}
-            label="Provide Google Directions"
-            value={tour.use_directions}
-            id="use_directions"
-            model="tour"
-            helpText="Display directions between stops. Directions are provided by Google. You will be able to provide directions for walking, driving, biking, and transit."
-          />
-          <SelectInput
-            itemId={tour.id}
-            label="Restrict Map Bounds"
-            value={tour.restrict_bounds}
-            id="restrict_bounds"
-            model="tour"
-            helpText="Select to prevent people from zooming out far from your tour or scrolling far away. This restricts the desktop/laptop map to the area around the tour stops."
-          />
-        </Fieldset>
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <MapControls />
         </APIProvider>

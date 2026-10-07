@@ -63,7 +63,7 @@ const TextInput = ({
   const tourId = useTourStore((s) => s.tour?.id);
   const beginSave = useTourStore((s) => s.beginSave);
   const endSave = useTourStore((s) => s.endSave);
-  const applySavedField = useTourStore((s) => s.applySavedField);
+  const editRecord = useTourStore((s) => s.editRecord);
 
   const config = useMemo(
     () => ({
@@ -125,6 +125,18 @@ const TextInput = ({
       type === "rich-text" ? richTextRef.current : currentValue;
     if (!itemId) return;
     const record = itemId;
+    const storedValue =
+      valueType === "number" ? Number(valueToSave) : valueToSave;
+
+    // Records in the open tour are saved by autosave.
+    if (editRecord(model, record, id, storedValue)) {
+      setServerError(undefined);
+      valueRef.current = valueToSave;
+      setCurrentValue(valueToSave);
+      if (updateCallback) updateCallback({} as TServerResponse);
+      return;
+    }
+
     beginSave();
     const { response, data } = await sendUpdate({
       tenant,
@@ -141,12 +153,6 @@ const TextInput = ({
       setServerError(undefined);
       valueRef.current = valueToSave;
       setCurrentValue(valueToSave);
-      applySavedField(
-        model,
-        record,
-        id,
-        valueType === "number" ? Number(valueToSave) : valueToSave,
-      );
       if (updateCallback) updateCallback(data as TServerResponse);
     } else {
       const detail = data?.errors?.[0]?.detail;
@@ -166,11 +172,26 @@ const TextInput = ({
     updateCallback,
     beginSave,
     endSave,
-    applySavedField,
+    editRecord,
     valueType,
   ]);
 
+  // Last value written to the store while typing. When it comes back as the
+  // `value` prop it's skipped, so the field (and Jodit's cursor) isn't reset.
+  const typedRef = useRef<unknown>(undefined);
+
+  // Records in the open tour go to the store on every change, so autosave
+  // can send them while the field still has focus.
+  const editWhileTyping = (raw: string) => {
+    if (onChange || !itemId) return;
+    const stored = valueType === "number" ? Number(raw) : raw;
+    if (valueType === "number" && (raw === "" || Number.isNaN(stored))) return;
+    typedRef.current = stored;
+    if (!editRecord(model, itemId, id, stored)) typedRef.current = undefined;
+  };
+
   useEffect(() => {
+    if (typedRef.current !== undefined && value === typedRef.current) return;
     setCurrentValue(value);
     if (type === "rich-text" && typeof value === "string") {
       richTextRef.current = value;
@@ -180,6 +201,7 @@ const TextInput = ({
   const handleChange = () => {
     if (!inputRef.current) return;
     setCurrentValue(inputRef.current.value);
+    editWhileTyping(inputRef.current.value);
     if (onChange)
       onChange(
         type === "rich-text" ? richTextRef.current : inputRef.current.value,
@@ -189,9 +211,13 @@ const TextInput = ({
   // Buffer into a ref instead of setState: feeding the sanitized value back
   // into Jodit's controlled `value` prop on every keystroke made the cursor
   // jump to the start and dropped keystrokes. The buffered value is only
-  // committed to state (and sent to the server) on blur, in `update()`.
+  // committed to state on blur, in `update()`. Tour records also go to the
+  // store as you type (editWhileTyping), which doesn't touch `value` here.
+  const editWhileTypingRef = useRef(editWhileTyping);
+  editWhileTypingRef.current = editWhileTyping;
   const handleRichTextChange = useCallback((newValue: string) => {
     richTextRef.current = enforceA11yOnLinks(newValue);
+    editWhileTypingRef.current(richTextRef.current);
   }, []);
 
   const handleBlur = async () => {
@@ -208,7 +234,7 @@ const TextInput = ({
     <InputWrapper className="flex flex-wrap space-x-3">
       <label
         htmlFor={`${model}-${id}`}
-        className="block mb-2.5 font-medium text-black/75"
+        className={`block mb-2.5 font-medium text-black/75 ${size === "small" ? "text-xs" : "text-base"}`}
       >
         {label}
       </label>
@@ -223,7 +249,7 @@ const TextInput = ({
             ref={inputRef}
             type={valueType}
             id={`${model}-${id}`}
-            className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding(size)} shadow-xs placeholder:text-body`}
+            className={`w-full border border-default-medium border-gray-300 text-heading ${size === "small" ? "text-xs" : "text-base"} rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding(size)} shadow-xs placeholder:text-body`}
             value={currentValue ?? ""}
             onInput={handleChange}
             onBlur={handleBlur}
@@ -268,7 +294,7 @@ const TextInput = ({
               type="range"
               min={range.min}
               max={range.max}
-              value={currentValue}
+              value={currentValue ?? range.min}
               onInput={handleChange}
               onBlur={handleBlur}
               onMouseUp={handleBlur}

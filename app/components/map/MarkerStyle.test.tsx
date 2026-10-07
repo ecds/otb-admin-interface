@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { useTourStore } from "~/store/tourStore";
 import type { TStop, TTour } from "~/types";
 import MarkerStyle from "./MarkerStyle";
@@ -13,14 +13,7 @@ vi.mock("./MapIconControls", () => ({
 }));
 vi.mock("../inputs/TextInput", () => ({
   default: function MockInput(props: Record<string, any>) {
-    return (
-      <button
-        data-item={props.itemId}
-        onClick={() => props.updateCallback({ icon_color: "#00FF00" })}
-      >
-        {props.model}
-      </button>
-    );
+    return <button data-item={props.itemId}>{props.model}</button>;
   },
 }));
 
@@ -42,12 +35,11 @@ describe("MarkerStyle", () => {
     } as unknown as TTour),
   );
 
-  it("saves icon color against the tour stop's relation_id", () => {
+  // The colour is sent with the stop's entry in the tour save, which
+  // applies it to the tour stop.
+  it("edits icon color on the stop", () => {
     render(<MarkerStyle stopId={3} />);
-    const input = screen.getByText("tour_stop");
-    expect(input.getAttribute("data-item")).toBe("30");
-    fireEvent.click(input);
-    expect(useTourStore.getState().tour!.stops[0].icon_color).toBe("#00FF00");
+    expect(screen.getByText("stop").getAttribute("data-item")).toBe("3");
   });
 
   it("targets the tour stop for icon changes", () => {

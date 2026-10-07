@@ -11,10 +11,9 @@ import { useTourStore } from "~/store/tourStore";
 import type { TFlatPage, TTour } from "~/types";
 import FlatPageList from "./FlatPageList";
 
-vi.mock("~/utils/requests", () => ({
-  sendCreate: vi.fn(),
-  sendDelete: vi.fn(),
-  sendUpdate: vi.fn(),
+vi.mock("~/utils/requests", () => ({ sendCreate: vi.fn() }));
+vi.mock("~/utils/autosave", () => ({
+  flushTour: vi.fn(() => Promise.resolve(true)),
 }));
 
 let onDragEnd: (e: unknown) => void;
@@ -47,7 +46,8 @@ vi.mock("./FlatPage", () => ({
 }));
 vi.mock("../Reuse", () => ({ default: () => null }));
 
-import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
+import { sendCreate } from "~/utils/requests";
+import { flushTour } from "~/utils/autosave";
 
 const mk = (id: number, position: number) =>
   ({
@@ -61,7 +61,6 @@ const mk = (id: number, position: number) =>
 const setFeedback = vi.fn();
 const ok = (data: unknown = {}) =>
   ({ response: { ok: true } as Response, data }) as any;
-const fail = () => ({ response: { ok: false } as Response, data: {} }) as any;
 const dragEvent = (active: number, over: number) => ({
   active: { id: active },
   over: { id: over },
@@ -87,33 +86,19 @@ describe("FlatPageList", () => {
     } as unknown as TTour);
   });
 
-  it("removes only the deleted page and keeps the others", async () => {
-    vi.mocked(sendDelete).mockResolvedValue(ok());
+  it("removes only the deleted page and renumbers the rest", () => {
     renderList();
     fireEvent.click(screen.getByText("Delete Page 2"));
-    await waitFor(() => expect(storePages().map((p) => p.id)).toEqual([1, 3]));
-    expect(sendDelete).toHaveBeenCalledWith(
-      expect.objectContaining({ record: 20 }),
-    );
+    expect(storePages().map((p) => [p.id, p.position])).toEqual([
+      [1, 1],
+      [3, 2],
+    ]);
     expect(screen.getByText("Page 1")).toBeInTheDocument();
     expect(screen.getByText("Page 3")).toBeInTheDocument();
     expect(screen.queryByText("Page 2")).not.toBeInTheDocument();
   });
 
-  it("keeps the page and reports an error when the delete fails", async () => {
-    vi.mocked(sendDelete).mockResolvedValue(fail());
-    renderList();
-    fireEvent.click(screen.getByText("Delete Page 2"));
-    await waitFor(() =>
-      expect(setFeedback).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "error" }),
-      ),
-    );
-    expect(storePages()).toHaveLength(3);
-  });
-
-  it("reorders pages in the store and saves only the moved positions", async () => {
-    vi.mocked(sendUpdate).mockResolvedValue(ok());
+  it("reorders pages in the store", () => {
     renderList();
     act(() => onDragEnd(dragEvent(3, 1)));
     expect(storePages().map((p) => [p.id, p.position])).toEqual([
@@ -121,29 +106,16 @@ describe("FlatPageList", () => {
       [1, 2],
       [2, 3],
     ]);
-    await waitFor(() => expect(sendUpdate).toHaveBeenCalledTimes(3));
-    expect(sendUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        record: 30,
-        body: expect.objectContaining({ tour_flat_page: { position: 1 } }),
-      }),
-    );
   });
 
-  it("adds a newly created page to the store", async () => {
-    vi.mocked(sendCreate)
-      .mockResolvedValueOnce(ok({ id: 4, slug: "p4" }))
-      .mockResolvedValueOnce(ok(mk(4, 4)));
+  it("adds a newly created page and saves the link right away", async () => {
+    vi.mocked(sendCreate).mockResolvedValueOnce(ok(mk(4, 0)));
     renderList();
     fireEvent.click(screen.getByText(/create new/i));
     await waitFor(() => expect(storePages()).toHaveLength(4));
+    expect(storePages()[3]).toMatchObject({ id: 4, position: 4 });
     expect(screen.getByText("Page 4")).toBeInTheDocument();
-    expect(sendCreate).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        body: expect.objectContaining({
-          tour_flat_page: { tour_id: 1, flat_page_id: 4, position: 4 },
-        }),
-      }),
-    );
+    expect(sendCreate).toHaveBeenCalledTimes(1);
+    expect(flushTour).toHaveBeenCalled();
   });
 });

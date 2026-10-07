@@ -22,13 +22,14 @@ const renderInput = (props = {}) =>
       itemId={1}
       id="title"
       label="Tour Title"
-      model="tour"
+      model="tour_set"
       value="Original"
       type="text"
       {...props}
     />,
   );
 
+// Records outside the loaded tour (e.g. tour-set settings) save directly.
 describe("TextInput", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,7 +55,7 @@ describe("TextInput", () => {
     await waitFor(() => {
       expect(sendUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: expect.objectContaining({ tour: { title: "Updated" } }),
+          body: expect.objectContaining({ tour_set: { title: "Updated" } }),
         }),
       );
     });
@@ -110,43 +111,29 @@ describe("TextInput", () => {
     });
   });
 
-  describe("store sync", () => {
-    it("writes the saved value into the store", async () => {
-      vi.mocked(sendUpdate).mockResolvedValue({
-        response: { ok: true } as Response,
-        data: {},
-      } as any);
-      renderInput();
+  describe("records in the loaded tour", () => {
+    it("writes the value into the store without a request", () => {
+      renderInput({ model: "tour" });
       const input = screen.getByRole("textbox");
       fireEvent.input(input, { target: { value: "Updated" } });
       fireEvent.blur(input);
-      await waitFor(() =>
-        expect(useTourStore.getState().tour!.title).toBe("Updated"),
-      );
+      expect(useTourStore.getState().tour!.title).toBe("Updated");
+      expect(sendUpdate).not.toHaveBeenCalled();
     });
 
-    it("leaves the store alone when the save fails", async () => {
-      vi.mocked(sendUpdate).mockResolvedValue({
-        response: { ok: false } as Response,
-        data: {},
-      } as any);
-      renderInput();
-      const input = screen.getByRole("textbox");
-      fireEvent.input(input, { target: { value: "Bad" } });
-      fireEvent.blur(input);
-      await waitFor(() => expect(input).toHaveValue("Original"));
-      expect(useTourStore.getState().tour!.title).toBe("Original");
+    it("writes to the store while typing, before blur", () => {
+      renderInput({ model: "tour" });
+      fireEvent.input(screen.getByRole("textbox"), {
+        target: { value: "Typing" },
+      });
+      expect(useTourStore.getState().tour!.title).toBe("Typing");
     });
 
-    it("stores number fields as numbers", async () => {
+    it("stores number fields as numbers", () => {
       useTourStore.getState().setTour({
         ...mockTour,
         map_overlay: { id: 3, north: 1 },
       } as unknown as TTour);
-      vi.mocked(sendUpdate).mockResolvedValue({
-        response: { ok: true } as Response,
-        data: {},
-      } as any);
       renderInput({
         model: "map_overlay",
         id: "north",
@@ -157,9 +144,7 @@ describe("TextInput", () => {
       const input = screen.getByRole("spinbutton");
       fireEvent.input(input, { target: { value: "2.5" } });
       fireEvent.blur(input);
-      await waitFor(() =>
-        expect(useTourStore.getState().tour!.map_overlay!.north).toBe(2.5),
-      );
+      expect(useTourStore.getState().tour!.map_overlay!.north).toBe(2.5);
     });
   });
 });

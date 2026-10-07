@@ -12,9 +12,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useContext, useState } from "react";
-import { sendDelete, sendUpdate } from "~/utils/requests";
-import { FeedbackContext } from "~/contexts";
+import { useState } from "react";
 import { useTourStore } from "~/store/tourStore";
 import SortableMedium from "./SortableMedium";
 import FileDrop from "./FileDrop";
@@ -22,7 +20,6 @@ import Embed from "./Embed";
 import FileUpload from "../inputs/FileUpload";
 import ToolTip from "../inputs/ToolTip";
 import ReuseMedia from "../ReuseMedia";
-import { getErrorMessage } from "~/utils/errors";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { TMedium } from "~/types";
 
@@ -43,8 +40,6 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
     recordModel,
     recordId,
   } as const;
-  const { setFeedback } = useContext(FeedbackContext);
-  const tenant = useTourStore((s) => s.tour?.tenant);
   const items = useTourStore((s) =>
     recordModel === "stop"
       ? (s.tour?.stops.find((stop) => stop.id === recordId)?.media ?? EMPTY)
@@ -52,6 +47,7 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
   );
   const updateTourField = useTourStore((s) => s.updateTourField);
   const updateStopField = useTourStore((s) => s.updateStopField);
+  const applyServerChange = useTourStore((s) => s.applyServerChange);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -71,69 +67,38 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
     else updateTourField("media", media);
   };
 
-  const savePosition = async (item: TMedium) => {
-    if (!tenant) return;
-    const { response, data } = await sendUpdate({
-      tenant,
-      record: item.relation_id,
-      body: {
-        model: relatedModel,
-        [relatedModel]: { position: item.position },
-        reindex: {
-          model: recordModel,
-          id: recordId,
-        },
-      },
-    });
-    if (!response.ok) {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not save the new media order."),
-      });
-    }
-  };
-
+  // Reorders and removals are saved by autosave.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
     const oldIndex = items.findIndex((medium) => medium.id == active.id);
     const newIndex = items.findIndex((medium) => medium.id == over.id);
-    const before = new Map(items.map((medium) => [medium.id, medium.position]));
-    const reordered = arrayMove(items, oldIndex, newIndex).map(
-      (medium, index) => ({ ...medium, position: index + 1 }),
+    setMedia(
+      arrayMove(items, oldIndex, newIndex).map((medium, index) => ({
+        ...medium,
+        position: index + 1,
+      })),
     );
-    setMedia(reordered);
-    reordered
-      .filter((medium) => before.get(medium.id) !== medium.position)
-      .forEach(savePosition);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!tenant) return;
-    const { response, data } = await sendDelete({
-      tenant,
-      record: id,
-      body: {
-        model: relatedModel,
-        reindex: {
-          model: recordModel,
-          id: recordId,
-        },
-      },
-    });
-    if (response.ok) {
-      setMedia(currentMedia().filter((item) => item.relation_id !== id));
-    } else {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not remove media."),
-      });
-    }
+  const handleDelete = (id: number) => {
+    setMedia(
+      currentMedia()
+        .filter((item) => item.id !== id)
+        .map((medium, index) => ({ ...medium, position: index + 1 })),
+    );
   };
 
+  // Uploads, embeds and reused media are linked by their own requests.
   const itemAdded = (newItem: unknown) => {
-    setMedia([...currentMedia(), newItem as TMedium]);
+    applyServerChange((tour) => {
+      const media =
+        recordModel === "stop"
+          ? tour.stops.find((stop) => stop.id === recordId)?.media
+          : tour.media;
+      media?.push(newItem as TMedium);
+    });
   };
 
   return (
@@ -174,7 +139,7 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
               <SortableMedium
                 key={medium.id}
                 medium={medium}
-                onDelete={() => handleDelete(medium.relation_id)}
+                onDelete={() => handleDelete(medium.id)}
               />
             ))}
           </div>

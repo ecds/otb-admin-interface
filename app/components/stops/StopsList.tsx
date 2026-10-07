@@ -17,13 +17,13 @@ import {
 import Stop from "./Stop";
 import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
-import { sendCreate, sendDelete, sendUpdate } from "~/utils/requests";
+import { sendCreate } from "~/utils/requests";
+import { flushTour } from "~/utils/autosave";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ToolTip from "../inputs/ToolTip";
 import Reuse from "../Reuse";
 import type { TServerResponse, TStop } from "~/types";
-import { joinImage } from "~/utils/image_upload";
 import { getErrorMessage } from "~/utils/errors";
 
 const EMPTY: TStop[] = [];
@@ -33,7 +33,6 @@ const StopsList = () => {
   const addStop = useTourStore((s) => s.addStop);
   const removeStop = useTourStore((s) => s.removeStop);
   const reorderStops = useTourStore((s) => s.reorderStops);
-  const updateStopField = useTourStore((s) => s.updateStopField);
   const { setFeedback } = useContext(FeedbackContext);
   const [openOtherStops, setOpenReuseStops] = useState<boolean>(false);
   const [pendingOpenSlug, setPendingOpenSlug] = useState<string | undefined>(
@@ -60,39 +59,12 @@ const StopsList = () => {
 
   if (!tour) return null;
 
-  const savePosition = async (stop: TStop) => {
-    const { response, data } = await sendUpdate({
-      tenant: tour.tenant,
-      record: stop.relation_id,
-      body: {
-        tour_stop: { position: stop.position },
-        model: "tour_stop",
-        reindex: {
-          model: "tour",
-          id: tour.id,
-        },
-      },
-    });
-
-    if (!response.ok) {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not save the new stop order."),
-      });
-    }
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = stops.findIndex((stop) => stop.id == active.id);
       const newIndex = stops.findIndex((stop) => stop.id == over.id);
-      const before = new Map(stops.map((stop) => [stop.id, stop.position]));
       reorderStops(oldIndex, newIndex);
-      useTourStore
-        .getState()
-        .tour!.stops.filter((stop) => before.get(stop.id) !== stop.position)
-        .forEach(savePosition);
     }
 
     document
@@ -113,36 +85,24 @@ const StopsList = () => {
     }
   };
 
-  const createJoin = async (data: TServerResponse) => {
+  // Linking goes out right away so the new stop comes back with everything
+  // the server fills in.
+  const linkStop = async (stop: TStop) => {
     setFeedback({ type: "success", message: "Adding Stop to Tour." });
-
-    const { response: joinResponse, data: joinData } = await sendCreate({
-      tenant: tour.tenant,
-      body: {
-        model: "tour_stop",
-        tour_stop: {
-          tour_id: tour.id,
-          stop_id: data.id,
-          position: stops.length + 1,
-        },
-        reindex: {
-          model: "tour",
-          id: tour.id,
-        },
-      },
+    addStop({
+      ...stop,
+      media: stop.media ?? [],
+      voice_overs: stop.voice_overs ?? [],
     });
-
-    if (joinResponse.ok) {
-      addStop(joinData as TStop);
-      setPendingOpenSlug((data as TStop).slug);
+    if (await flushTour()) {
+      setPendingOpenSlug(stop.slug);
       return true;
     }
-    setFeedback({
-      type: "error",
-      message: getErrorMessage(joinData, "Could not add stop to tour."),
-    });
     return false;
   };
+
+  const createJoin = (data: TServerResponse) =>
+    linkStop({ ...(data as TStop), media: [] });
 
   const createStop = async (stopToCopy: TStop | undefined = undefined) => {
     setFeedback({ type: "success", message: "Creating Stop" });
@@ -158,65 +118,12 @@ const StopsList = () => {
     });
 
     if (response.ok) {
-      const joined = await createJoin(data);
-      if (joined && stopToCopy) {
-        const failedMedia: string[] = [];
-        const copiedMedia: TStop["media"] = [];
-        for (const medium of (stopToCopy as TStop).media) {
-          setFeedback({ type: "success", message: "Copying media." });
-          const { response: joinResponse, data: joinData } = await joinImage({
-            relatedType: "many",
-            recordModel: "stop",
-            relatedModel: "stop_medium",
-            recordId: data.id,
-            imageId: medium.id,
-            tenant: tour.tenant,
-          });
-          if (joinResponse.ok) {
-            copiedMedia.push(medium);
-          } else {
-            failedMedia.push(
-              getErrorMessage(joinData, `Could not copy "${medium.title}".`),
-            );
-          }
-        }
-        updateStopField(data.id, "media", copiedMedia);
-        setFeedback(
-          failedMedia.length > 0
-            ? { type: "error", message: failedMedia.join(" ") }
-            : undefined,
-        );
-      }
+      // A copy is linked to the same media as the original.
+      await linkStop({ ...(data as TStop), media: stopToCopy?.media ?? [] });
     } else {
       setFeedback({
         type: "error",
         message: getErrorMessage(data, "Could not create stop."),
-      });
-    }
-  };
-
-  const deleteStop = async (id: number) => {
-    setFeedback({ message: "Removing Stop from Tour...", type: "success" });
-    const { response, data, status } = await sendDelete({
-      tenant: tour.tenant,
-      record: id,
-      body: {
-        model: "tour_stop",
-        reindex: {
-          id: tour.id,
-          model: "tour",
-        },
-      },
-    });
-
-    if (response.ok || status === 404) {
-      const removed = stops.find((stop) => stop.relation_id === id);
-      if (removed) removeStop(removed.id);
-      setFeedback(undefined);
-    } else {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(data, "Could not remove stop."),
       });
     }
   };
@@ -260,7 +167,7 @@ const StopsList = () => {
               <Stop
                 key={stop.id}
                 stop={stop}
-                onDelete={() => deleteStop(stop.relation_id)}
+                onDelete={() => removeStop(stop.id)}
               />
             ))}
           </div>

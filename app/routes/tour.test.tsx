@@ -81,6 +81,7 @@ vi.mock("@vis.gl/react-google-maps", () => ({
 // ── data / store mocks ───────────────────────────────────────────────────────
 
 vi.mock("~/hooks/useTourQuery");
+vi.mock("~/hooks/useAutosave", () => ({ useAutosave: () => {} }));
 vi.mock("~/store/tourStore");
 
 vi.mock("react-router", async (importOriginal) => {

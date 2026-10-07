@@ -1,34 +1,28 @@
 import { useTourStore } from "~/store/tourStore";
 import TextInput from "../inputs/TextInput";
 import MapIconControls from "./MapIconControls";
-import type { TServerResponse, TStop } from "~/types";
 
 const MarkerStyle = ({ stopId }: { stopId: number }) => {
   const stop = useTourStore((s) =>
     s.tour?.stops.find((st) => st.id === stopId),
   );
-  const updateStopField = useTourStore((s) => s.updateStopField);
   const setStopMapIcon = useTourStore((s) => s.setStopMapIcon);
 
   if (!stop) return null;
 
-  // Icon colour and icon live on the tour stop (per tour), so both save
-  // against the join record's relation_id.
-  const updateIconColor = (data: TServerResponse) => {
-    updateStopField(stopId, "icon_color", (data as TStop).icon_color);
-  };
-
+  // Icon colour and icon live on the tour stop (per tour). The colour goes
+  // out with the stop's entry in the tour save; the icon saves against the
+  // join record's relation_id.
   return (
     <div className="flex flex-col gap-4">
       <TextInput
-        itemId={stop.relation_id}
+        itemId={stop.id}
         label="Icon Color"
         type="color"
         value={stop.icon_color ?? "#D32F2F"}
-        model="tour_stop"
+        model="stop"
         id="icon_color"
         helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
-        updateCallback={updateIconColor}
       />
       <div className="-mt-6">
         <MapIconControls

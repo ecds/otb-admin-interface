@@ -1,19 +1,10 @@
-import {
-  useContext,
-  useEffect,
-  useRef,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
 import { Fieldset, Input, Label } from "@headlessui/react";
 import InputWrapper from "../inputs/InputWrapper";
-import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
-import { sendUpdate } from "~/utils/requests";
-import { getErrorMessage } from "~/utils/errors";
 
 interface Props {
   stopId: number;
@@ -39,7 +30,6 @@ const Location = ({
   const addressInputRef = useRef<HTMLInputElement>(null);
   const latInputRef = useRef<HTMLInputElement>(null);
   const lngInputRef = useRef<HTMLInputElement>(null);
-  const { setFeedback } = useContext(FeedbackContext);
   const tenant = useTourStore((s) => s.tour?.tenant);
   const stop = useTourStore((s) =>
     s.tour?.stops.find((st) => st.id === stopId),
@@ -67,26 +57,11 @@ const Location = ({
     )
       return;
 
-    const timeoutId = setTimeout(async () => {
-      const { response, data } = await sendUpdate({
-        record: stopId,
-        tenant,
-        body: {
-          model: "stop",
-          stop: { [addressKey]: address, [latKey]: lat, [lngKey]: lng },
-        },
-      });
-
-      if (response.ok) {
-        updateStopField(stopId, latKey, lat);
-        updateStopField(stopId, lngKey, lng);
-        updateStopField(stopId, addressKey, address);
-      } else {
-        setFeedback({
-          type: "error",
-          message: getErrorMessage(data, "Could not save the location."),
-        });
-      }
+    // Autosave sends it with the rest of the tour.
+    const timeoutId = setTimeout(() => {
+      updateStopField(stopId, latKey, lat);
+      updateStopField(stopId, lngKey, lng);
+      updateStopField(stopId, addressKey, address);
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -101,7 +76,6 @@ const Location = ({
     stopId,
     tenant,
     updateStopField,
-    setFeedback,
   ]);
 
   const handleInput = () => {
@@ -145,7 +119,7 @@ const Location = ({
           ref={addressInputRef}
           type="text"
           className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md shadow-xs placeholder:text-body px-4 py-3.5`}
-          value={address}
+          value={address ?? ""}
           onInput={handleInput}
           onBlur={handleInput}
           onChange={handleInput}
@@ -167,7 +141,7 @@ const Location = ({
           ref={latInputRef}
           type="number"
           className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md shadow-xs placeholder:text-body px-4 py-3.5`}
-          value={lat}
+          value={lat ?? ""}
           onInput={handleInput}
           onBlur={handleInput}
           onChange={handleInput}
@@ -182,7 +156,7 @@ const Location = ({
           ref={lngInputRef}
           type="number"
           className={`w-full border border-default-medium border-gray-300 text-heading text-base rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md shadow-xs placeholder:text-body px-4 py-3.5`}
-          value={lng}
+          value={lng ?? ""}
           onInput={handleInput}
           onBlur={handleInput}
           onChange={handleInput}

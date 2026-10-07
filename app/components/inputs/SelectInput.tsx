@@ -39,11 +39,17 @@ const SelectInput = ({
   const beginSave = useTourStore((s) => s.beginSave);
   const endSave = useTourStore((s) => s.endSave);
   const { setFeedback } = useContext(FeedbackContext);
-  const applySavedField = useTourStore((s) => s.applySavedField);
+  const editRecord = useTourStore((s) => s.editRecord);
   const inputId = safeId();
 
   useEffect(() => {
     if (valueRef.current === currentValue) return;
+
+    // Records in the open tour are saved by autosave.
+    if (editRecord(model, itemId, id, currentValue)) {
+      valueRef.current = currentValue;
+      return;
+    }
 
     const update = async () => {
       setIsSaving(true);
@@ -57,7 +63,6 @@ const SelectInput = ({
       endSave(response.ok);
       if (response.ok) {
         valueRef.current = currentValue;
-        applySavedField(model, itemId, id, currentValue);
       } else {
         setCurrentValue(valueRef.current);
         setFeedback({
@@ -76,7 +81,7 @@ const SelectInput = ({
     tenant,
     setFeedback,
     label,
-    applySavedField,
+    editRecord,
     beginSave,
     endSave,
   ]);

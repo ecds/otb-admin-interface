@@ -1,51 +1,33 @@
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useQueryClient } from "@tanstack/react-query";
-import { useContext } from "react";
-import { useParams } from "react-router";
+import { useContext, useEffect } from "react";
 import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
-import { saveTour } from "~/utils/requests";
-import type { TTour } from "~/types";
+import { buildTourPatch } from "~/store/tourPatch";
+import { flushTour } from "~/utils/autosave";
 
-type TSaveError = { path: string; detail: string };
-
+// Edits save on their own; this sends anything still waiting right away.
 const SaveButton = () => {
-  const { tourSet, tour_id } = useParams<{
-    tourSet: string;
-    tour_id: string;
-  }>();
   const isSaving = useTourStore((s) => s.pendingSaves > 0);
   const lastSaved = useTourStore((s) => s.lastSaved);
+  const saveError = useTourStore((s) => s.saveError);
+  // Enabled only when there's something to send, or a failed save to retry.
+  const hasChanges = useTourStore(
+    (s) =>
+      !!s.saveError ||
+      (!!s.tour &&
+        !!s.saved &&
+        s.tour !== s.saved &&
+        buildTourPatch(s.saved, s.tour) !== null),
+  );
   const { setFeedback } = useContext(FeedbackContext);
-  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (saveError) setFeedback({ type: "error", message: saveError });
+  }, [saveError, setFeedback]);
 
   const handleSave = async () => {
-    const { tour, beginSave, endSave, setTour } = useTourStore.getState();
-    if (!tour) return;
-
-    beginSave();
-    const { response, data } = await saveTour(tour.tenant, tour);
-    endSave(response.ok);
-
-    if (response.ok) {
-      const saved = data as TTour;
-      setTour(saved);
-      queryClient.setQueryData<{ tour: TTour }>(
-        ["tour", tourSet, tour_id],
-        (cached) => (cached ? { ...cached, tour: saved } : cached),
-      );
-      setFeedback(undefined);
-    } else {
-      const errors: TSaveError[] = data?.errors ?? [];
-      setFeedback({
-        type: "error",
-        message:
-          errors.length > 0
-            ? errors.map((e) => `${e.path}: ${e.detail}`).join(" ")
-            : "Could not save the tour. Please try again.",
-      });
-    }
+    if (await flushTour()) setFeedback(undefined);
   };
 
   return (
@@ -53,10 +35,11 @@ const SaveButton = () => {
       <button
         type="button"
         onClick={handleSave}
-        disabled={isSaving}
-        className="text-white hover:text-black h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg capitalize disabled:opacity-50 disabled:cursor-wait"
+        disabled={isSaving || !hasChanges}
+        title={hasChanges ? undefined : "All changes saved"}
+        className="text-white hover:text-black h-8 px-2 py-1 rounded-sm file:bg-blue-50 bg-blue-500 hover:bg-blue-300 hover:cursor-pointer drop-shadow-lg capitalize disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-500 disabled:hover:text-white"
       >
-        Save
+        {hasChanges || isSaving ? "Save" : "Saved"}
       </button>
       <div className="my-auto">
         {isSaving ? (

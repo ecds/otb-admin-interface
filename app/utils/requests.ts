@@ -1,4 +1,4 @@
-import type { TTour } from "~/types";
+import type { TourPatch } from "~/store/tourPatch";
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type Reindex = {
@@ -105,7 +105,9 @@ type FetchOptions = {
   method?: Method;
   requestHeaders?: HeadersInit;
   credentials?: "include" | "omit" | "same-origin";
-  body?: UpdateBody | CreateBody | FormData | { tour: TTour };
+  body?: UpdateBody | CreateBody | FormData | { tour: TourPatch };
+  // Lets the request outlive the page (used for the save on pagehide).
+  keepalive?: boolean;
 };
 export const request = async ({
   path,
@@ -113,6 +115,7 @@ export const request = async ({
   requestHeaders = {},
   credentials = "include",
   body,
+  keepalive,
 }: FetchOptions) => {
   try {
     const response: Response = await fetch(
@@ -123,6 +126,7 @@ export const request = async ({
         method: method ?? "GET",
         mode: "cors",
         credentials,
+        keepalive,
         headers: {
           "Content-Type": "application/json",
           ...requestHeaders,
@@ -271,10 +275,16 @@ export const sendDelete = async ({
 };
 
 // Whole-document save; the response is the tour rebuilt from the database.
-export const saveTour = async (tenant: string, tour: TTour) => {
+export const saveTour = async (
+  tenant: string,
+  tourId: number,
+  patch: TourPatch,
+  keepalive = false,
+) => {
   return await request({
-    path: `${tenant}/v4/admin/tours/${tour.id}`,
+    path: `${tenant}/v4/admin/tours/${tourId}`,
     method: "PATCH",
-    body: { tour },
+    body: { tour: patch },
+    keepalive,
   });
 };

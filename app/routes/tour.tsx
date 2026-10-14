@@ -9,8 +9,7 @@ import { Fieldset, Legend } from "@headlessui/react";
 import ToolTip from "~/components/inputs/ToolTip";
 import ThemeSelector from "~/components/ThemeSelector";
 import MediaGrid from "~/components/media_grid/MediaGrid";
-import MapControls from "~/components/MapControls";
-import { APIProvider } from "@vis.gl/react-google-maps";
+import MapControls from "~/components/map/MapControls";
 import StopsList from "~/components/stops/StopsList";
 import FlatPageList from "~/components/flat_pages/FlatPageList";
 import Preview from "~/components/Preview";
@@ -147,9 +146,7 @@ const TourRoute = () => {
           />
         </Fieldset>
         <ThemeSelector />
-        <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-          <MapControls />
-        </APIProvider>
+        <MapControls />
         <TravelModes modes={modes} />
         <div>
           <MediaGrid recordModel="tour" recordId={tour.id} />

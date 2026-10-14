@@ -48,7 +48,7 @@ vi.mock("~/components/flat_pages/FlatPageList", () => ({
   default: () => <div>FlatPageList</div>,
 }));
 
-vi.mock("~/components/MapControls", () => ({
+vi.mock("~/components/map/MapControls", () => ({
   default: () => <div>MapControls</div>,
 }));
 

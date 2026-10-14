@@ -1,65 +1,93 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import ClientOnly from "./ClientOnly";
-import SelectInput from "./inputs/SelectInput";
-import TourMap from "./map/TourMap.client";
+import * as maplibregl from "maplibre-gl";
+import { useContext, useEffect, useRef, useState } from "react";
+import SelectInput from "../inputs/SelectInput";
 import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
 import { mapTypes } from "~/choices";
-import TextInput from "./inputs/TextInput";
-import MapOverlay, { type OverlayBounds } from "./map/MapOverlay.client";
-import { useMap } from "@vis.gl/react-google-maps";
-import FileUpload from "./inputs/FileUpload";
+import TextInput from "../inputs/TextInput";
+import MapOverlay from "./MapOverlay";
+import FileUpload from "../inputs/FileUpload";
 import { sendDelete, sendUpdate } from "~/utils/requests";
-import { Deleting } from "./Saving";
-import DeleteButton from "./buttons/DeleteButton";
-import MapOverlayRectangle from "./map/MapOverlayRectangle";
-import MapIconControls from "./map/MapIconControls";
+import { Deleting } from "../Saving";
+import DeleteButton from "../buttons/DeleteButton";
+import MapOverlayRectangle from "./MapOverlayRectangle";
+import MapIconControls from "./MapIconControls";
 import { Fieldset, Legend, Switch } from "@headlessui/react";
-import ToolTip from "./inputs/ToolTip";
+import ToolTip from "../inputs/ToolTip";
 import { getErrorMessage } from "~/utils/errors";
-import type { TTour } from "~/types";
+import { fitOverlayAspect, hasOverlayAspect } from "~/utils/overlayAspect";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faDownLeftAndUpRightToCenter,
-  faExpand,
   faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
+import MapMarker from "./MapMarker";
+import { baseStyle, blank, hybrid, satellite } from "~/map_styles";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { TTour } from "~/types";
 
 const MapControls = () => {
   const tour = useTourStore((s) => s.tour);
   const applyServerChange = useTourStore((s) => s.applyServerChange);
+  const updateTourField = useTourStore((s) => s.updateTourField);
   const setTourMapIcon = useTourStore((s) => s.setTourMapIcon);
   const { setFeedback } = useContext(FeedbackContext);
-  const [south, setSouth] = useState<number | undefined>(undefined);
-  const [north, setNorth] = useState<number | undefined>(undefined);
-  const [east, setEast] = useState<number | undefined>(undefined);
-  const [west, setWest] = useState<number | undefined>(undefined);
-  const [overlayDraggable, setOverlayDraggable] = useState<boolean>(false);
+  const [lockAspect, setLockAspect] = useState<boolean>(true);
+  const [dragOverlay, setDragOverlay] = useState<boolean>(false);
   const [uploading, setUploading] = useState<string | undefined>(undefined);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [columns, setColumns] = useState<boolean>(Boolean(tour?.map_overlay));
-  const map = useMap();
+  const [map, setMap] = useState<maplibregl.Map | undefined>(undefined);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  const overlay = tour?.map_overlay;
+  const tourId = tour?.id;
+  const blankMap = tour?.blank_map;
+  const mapType = tour?.map_type;
 
+  // Rebuilt only when the base map changes. Depending on the whole tour
+  // recreated the map (and flashed it) on every edit and save.
   useEffect(() => {
-    if (!overlay) return;
-    setSouth(overlay.south);
-    setNorth(overlay.north);
-    setEast(overlay.east);
-    setWest(overlay.west);
-  }, [overlay]);
+    const tour = useTourStore.getState().tour;
+    if (!tour || !mapContainerRef.current) return;
 
-  const setBounds = useCallback((next: OverlayBounds) => {
-    setSouth(next.south);
-    setNorth(next.north);
-    setEast(next.east);
-    setWest(next.west);
-  }, []);
+    const bounds = new maplibregl.LngLatBounds(
+      new maplibregl.LngLat(tour.bounds.west, tour.bounds.south),
+      new maplibregl.LngLat(tour.bounds.east, tour.bounds.north),
+    );
+
+    let style = baseStyle;
+
+    if (blankMap) {
+      style = blank;
+    } else {
+      switch (mapType) {
+        case "satellite":
+          style = satellite;
+          break;
+        case "hybrid":
+          style = hybrid;
+          break;
+        default:
+          style = baseStyle;
+          break;
+      }
+    }
+
+    const tourMap = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style,
+      bounds,
+    });
+
+    setMap(tourMap);
+
+    return () => {
+      tourMap.remove();
+      setMap(undefined);
+    };
+  }, [tourId, blankMap, mapType]);
 
   if (!tour) return null;
-
-  const bounds = { south, north, east, west };
 
   const overlayAdded = (updatedTour: unknown) => {
     const added = (updatedTour as TTour).map_overlay;
@@ -67,6 +95,15 @@ const MapControls = () => {
       applyServerChange((t) => {
         t.map_overlay = added;
       });
+  };
+
+  // Restores the image's own shape; autosave sends the new bounds and the
+  // rectangle and image follow the store.
+  const resetAspect = () => {
+    const current = tour.map_overlay;
+    const fitted = current && fitOverlayAspect(current);
+    if (fitted) updateTourField("map_overlay", { ...current, ...fitted });
+    setLockAspect(true);
   };
 
   const deleteOverlay = async (id: number) => {
@@ -189,66 +226,119 @@ const MapControls = () => {
           // Moves map to second column. Using flexbox breaks the map when toggled.
           style={{ order: columns ? 1 : 0 }}
         >
-          <ClientOnly>
-            <TourMap>
-              <MapOverlay bounds={bounds} />
-              <MapOverlayRectangle
-                bounds={bounds}
-                onBoundsChange={setBounds}
-                draggable={overlayDraggable}
-              />
-              {tour.map_overlay && (
-                <div className="flex flex-row space-x-2 justify-end my-4">
-                  <button
-                    onClick={() => setColumns(!columns)}
-                    className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
-                  >
-                    <FontAwesomeIcon
-                      icon={
-                        columns
-                          ? faUpRightAndDownLeftFromCenter
-                          : faDownLeftAndUpRightToCenter
-                      }
-                    />{" "}
-                    Show {columns ? "Wider" : "Smaller"} Map
-                  </button>
-                  {deleting ? (
-                    <Deleting />
-                  ) : (
-                    <DeleteButton
-                      removing="map overlay"
-                      onDelete={() => deleteOverlay(tour.map_overlay!.id)}
-                    >
-                      Remove Overlay{" "}
-                    </DeleteButton>
-                  )}
-                </div>
+          <div ref={mapContainerRef} className="h-full w-full">
+            {map && (
+              <>
+                {tour?.stops.map((stop) => {
+                  return (
+                    <MapMarker
+                      key={`full-tour-map-${stop.id}`}
+                      stop={stop}
+                      map={map}
+                    />
+                  );
+                })}
+                <MapOverlay map={map} />
+                <MapOverlayRectangle
+                  map={map}
+                  mode={lockAspect ? "opposite-fixed" : "opposite"}
+                  draggable={dragOverlay}
+                />
+              </>
+            )}
+          </div>
+          {tour.map_overlay && (
+            <div className="flex flex-row space-x-2 justify-end my-4">
+              <button
+                onClick={() => setColumns(!columns)}
+                className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+              >
+                <FontAwesomeIcon
+                  icon={
+                    columns
+                      ? faUpRightAndDownLeftFromCenter
+                      : faDownLeftAndUpRightToCenter
+                  }
+                />{" "}
+                Show {columns ? "Wider" : "Smaller"} Map
+              </button>
+              <button
+                type="button"
+                onClick={resetAspect}
+                disabled={hasOverlayAspect(tour.map_overlay)}
+                title={
+                  fitOverlayAspect(tour.map_overlay)
+                    ? undefined
+                    : "The image's size isn't known yet."
+                }
+                className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-300 disabled:hover:text-black/75"
+              >
+                Reset Aspect Ratio
+              </button>
+              {deleting ? (
+                <Deleting />
+              ) : (
+                <DeleteButton
+                  removing="map overlay"
+                  onDelete={() => deleteOverlay(tour.map_overlay!.id)}
+                >
+                  Remove Overlay{" "}
+                </DeleteButton>
               )}
-            </TourMap>
-          </ClientOnly>
+            </div>
+          )}
         </div>
         <div
-          className={`${tour.map_overlay ? "grid grid-cols-2" : "hidden"} ${columns ? "basis-1/2" : "basis-full"}`}
+          className={`${tour.map_overlay ? "grid grid-cols-2" : ""} ${columns ? "basis-1/2" : "basis-full"}`}
         >
-          {tour.map_overlay && map && (
+          {tour.map_overlay && (
             <>
-              <div className="mb-8 col-span-2 flex flex-row space-x-2">
-                Drag Overlay to Position{" "}
+              <div className="mb-8 flex flex-row space-x-2 col-span-2">
                 <Switch
-                  checked={overlayDraggable}
-                  onChange={setOverlayDraggable}
-                  className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-blue-500/10 p-1 ease-in-out focus:not-data-focus:outline-none data-checked:bg-blue-500/10 data-focus:outline data-focus:outline-blue-500"
+                  // Always locked while rotated: resizing the sides separately
+                  // would skew the overlay.
+                  aria-label="Lock Aspect Ratio"
+                  checked={lockAspect || Boolean(tour.map_overlay.rotation)}
+                  onChange={setLockAspect}
+                  disabled={Boolean(tour.map_overlay.rotation)}
+                  className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 data-checked:bg-blue-600 data-disabled:cursor-not-allowed data-disabled:opacity-50"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none inline-block size-5 translate-x-0 rounded-full bg-blue-500 shadow-lg ring-0 transition duration-200 ease-in-out group-data-checked:translate-x-7"
-                  />
+                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
                 </Switch>
+                <span className="mx-2">Lock Aspect Ratio</span>{" "}
                 <ToolTip>
-                  You can use the the white dots in the corners and along the
-                  sides to resize the overlay. Use this toggle if you want to
-                  drag the map into position without moving the underlying map.
+                  When on, dragging a corner resizes the overlay without
+                  changing the image&apos;s proportions. Always on while the
+                  overlay is rotated; to change the proportions, set the
+                  rotation to 0 first.
                 </ToolTip>
+              </div>
+              <div className="mb-8 flex flex-row space-x-2 col-span-2">
+                <Switch
+                  checked={dragOverlay}
+                  onChange={setDragOverlay}
+                  className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 data-checked:bg-blue-600 data-disabled:cursor-not-allowed data-disabled:opacity-50"
+                >
+                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
+                </Switch>
+                <span className="mx-2">Drag Overlay</span>{" "}
+                <ToolTip>
+                  If enabled, the overlay can be dragged to a new location.
+                </ToolTip>
+              </div>
+
+              <div className="col-span-2">
+                <TextInput
+                  label="Rotation (degrees)"
+                  type="range"
+                  valueType="number"
+                  range={{ min: -180, max: 180 }}
+                  value={tour.map_overlay.rotation ?? 0}
+                  model="map_overlay"
+                  id="rotation"
+                  itemId={tour.map_overlay.id}
+                  helpText="Turns the overlay clockwise around its center."
+                />
               </div>
 
               <div className="col-span-2">
@@ -259,7 +349,9 @@ const MapControls = () => {
               </div>
               <TextInput
                 label="North"
-                value={north ?? map.getBounds()?.getNorthEast().lat() ?? 0}
+                value={
+                  tour.map_overlay.north ?? map?.getBounds().getNorth() ?? 0
+                }
                 model="map_overlay"
                 id="north"
                 type="text"
@@ -269,7 +361,7 @@ const MapControls = () => {
               />
               <TextInput
                 label="East"
-                value={east ?? map.getBounds()?.getNorthEast().lng() ?? 0}
+                value={tour.map_overlay.east ?? map?.getBounds().getEast() ?? 0}
                 model="map_overlay"
                 id="east"
                 type="text"
@@ -285,7 +377,9 @@ const MapControls = () => {
               </div>
               <TextInput
                 label="South"
-                value={south ?? map.getBounds()?.getSouthWest().lat() ?? 0}
+                value={
+                  tour.map_overlay.south ?? map?.getBounds()?.getSouth() ?? 0
+                }
                 model="map_overlay"
                 id="south"
                 type="text"
@@ -295,7 +389,9 @@ const MapControls = () => {
               />
               <TextInput
                 label="West"
-                value={west ?? map.getBounds()?.getSouthWest().lng() ?? 0}
+                value={
+                  tour.map_overlay.west ?? map?.getBounds()?.getWest() ?? 0
+                }
                 model="map_overlay"
                 id="west"
                 type="text"

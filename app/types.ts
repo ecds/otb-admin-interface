@@ -60,6 +60,10 @@ export type TFlatPage = TPositionedRecord & {
 export type TMapOverlay = TBounds & {
   id: number;
   image_url: string;
+  rotation?: number;
+  // Image size in pixels; missing until the upload has been analyzed.
+  width?: number | null;
+  height?: number | null;
 };
 
 export type TModel =
@@ -144,8 +148,8 @@ export type TStop = TPositionedRecord & {
   meta_description: string;
   orphaned: boolean;
   parking_address?: string;
-  parking_lat?: number;
-  parking_lng?: number;
+  parking_lat?: number | null;
+  parking_lng?: number | null;
   slug: string;
   title: string;
   tour_count: number;

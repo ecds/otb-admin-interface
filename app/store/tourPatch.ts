@@ -37,7 +37,7 @@ const STOP_FIELDS = [
 
 const MEDIUM_FIELDS = ["title", "caption"] as const;
 const FLAT_PAGE_FIELDS = ["title", "body"] as const;
-const OVERLAY_FIELDS = ["north", "south", "east", "west"] as const;
+const OVERLAY_FIELDS = ["north", "south", "east", "west", "rotation"] as const;
 
 type Entry = Record<string, unknown>;
 export type TourPatch = Record<string, unknown>;

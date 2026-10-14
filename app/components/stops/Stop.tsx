@@ -4,7 +4,7 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TextInput from "../inputs/TextInput";
 import StopMap from "../map/StopMap";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import MediaGrid from "../media_grid/MediaGrid";
 import DeleteButton from "../buttons/DeleteButton";
 import VoiceOverUpload from "../voice_overs/VoiceOverUpload";
@@ -16,9 +16,13 @@ const Stop = ({ stop, onDelete }: { stop: TStop; onDelete: () => void }) => {
     useSortable({ id: stop.id });
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  // Each map holds a WebGL context and browsers only keep about 16, so a
+  // stop's map only exists while the stop is open.
+  const [open, setOpen] = useState(false);
 
   const scrollToStop = () => {
     if (!detailsRef.current) return;
+    setOpen(detailsRef.current.open);
     if (detailsRef.current.open) detailsRef.current.scrollIntoView();
   };
 
@@ -72,7 +76,7 @@ const Stop = ({ stop, onDelete }: { stop: TStop; onDelete: () => void }) => {
             <VoiceOverUpload stop_id={stop.id} />
             <VoiceOverList stopId={stop.id} />
 
-            <StopMap stop={stop} />
+            {open && <StopMap stop={stop} />}
             <TextInput
               itemId={stop.id}
               type="rich-text"

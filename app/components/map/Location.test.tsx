@@ -1,83 +1,89 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { FeedbackContext } from "~/contexts";
 import { useTourStore } from "~/store/tourStore";
 import type { TStop, TTour } from "~/types";
 import Location from "./Location";
 
-vi.mock("@vis.gl/react-google-maps", () => ({
-  useMap: () => null,
-  useMapsLibrary: () => null,
+vi.mock("~/utils/geocode", () => ({
+  geocode: vi.fn(),
+  rememberAddressedPosition: vi.fn(),
 }));
 
-const stop = {
-  id: 3,
-  lat: 33.7,
-  lng: -84.3,
-  address: "Old St",
-  parking_lat: 33.6,
-  parking_lng: -84.2,
-  parking_address: "Lot A",
-} as TStop;
+import { geocode, rememberAddressedPosition } from "~/utils/geocode";
 
-const noop = vi.fn();
+const setFeedback = vi.fn();
+const stop = () => useTourStore.getState().tour!.stops[0];
 
-const renderLocation = (
-  props: { lat: number; lng: number; address: string },
-  prefix?: "parking",
-) =>
+const renderLocation = (props: { parking?: boolean } = {}) =>
   render(
-    <Location
-      stopId={stop.id}
-      {...props}
-      prefix={prefix}
-      setLat={noop}
-      setLng={noop}
-      setAddress={noop}
-    />,
+    <FeedbackContext.Provider value={{ feedback: undefined, setFeedback }}>
+      <Location stopId={3} address="315 chester ave atl" {...props} />
+    </FeedbackContext.Provider>,
   );
 
-const flush = async () => {
-  await act(async () => {
-    vi.advanceTimersByTime(600);
-  });
+const found = {
+  ok: true as const,
+  result: {
+    lat: 33.74,
+    lng: -84.36,
+    address: "315 Chester Avenue Southeast, Atlanta, GA 30316",
+    name: null,
+  },
 };
-
-const storeStop = () => useTourStore.getState().tour!.stops[0];
 
 describe("Location", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
     vi.clearAllMocks();
     useTourStore.getState().setTour({
       id: 1,
       tenant: "ecds",
-      stops: [{ ...stop }],
+      stops: [{ id: 3, lat: 1, lng: 2, address: "315 chester ave atl" }],
     } as unknown as TTour);
   });
-  afterEach(() => vi.useRealTimers());
 
-  it("leaves the store alone when the location matches the stored stop", async () => {
-    const before = useTourStore.getState().tour;
-    renderLocation({ lat: 33.7, lng: -84.3, address: "Old St" });
-    await flush();
-    expect(useTourStore.getState().tour).toBe(before);
+  it("moves the stop to the address and tidies the address", async () => {
+    vi.mocked(geocode).mockResolvedValue(found);
+    renderLocation();
+    fireEvent.click(screen.getByRole("button", { name: /locate address/i }));
+    await waitFor(() => expect(stop().lat).toBe(33.74));
+    expect(geocode).toHaveBeenCalledWith("ecds", "315 chester ave atl");
+    // A later blur of the coordinate fields won't replace this address.
+    expect(rememberAddressedPosition).toHaveBeenCalledWith(
+      3,
+      33.74,
+      -84.36,
+      false,
+    );
+    expect(stop()).toMatchObject({
+      lng: -84.36,
+      address: "315 Chester Avenue Southeast, Atlanta, GA 30316",
+    } as Partial<TStop>);
   });
 
-  it("writes a changed location to the store for autosave", async () => {
-    renderLocation({ lat: 34, lng: -85, address: "New St" });
-    await flush();
-    expect(storeStop()).toMatchObject({ lat: 34, lng: -85, address: "New St" });
+  it("sets the parking location for the parking address", async () => {
+    vi.mocked(geocode).mockResolvedValue(found);
+    renderLocation({ parking: true });
+    fireEvent.click(
+      screen.getByRole("button", { name: /locate parking address/i }),
+    );
+    await waitFor(() => expect(stop().parking_lat).toBe(33.74));
+    expect(stop()).toMatchObject({ lat: 1, lng: 2, parking_lng: -84.36 });
   });
 
-  it("writes parking latitude and longitude under the correct keys", async () => {
-    renderLocation({ lat: 10, lng: 20, address: "Lot B" }, "parking");
-    await flush();
-    expect(storeStop()).toMatchObject({
-      parking_address: "Lot B",
-      parking_lat: 10,
-      parking_lng: 20,
-      lat: 33.7,
-      lng: -84.3,
+  it("reports when nothing is found and leaves the stop alone", async () => {
+    vi.mocked(geocode).mockResolvedValue({
+      ok: false,
+      error: "No location found.",
     });
+    renderLocation();
+    fireEvent.click(screen.getByRole("button", { name: /locate address/i }));
+    await waitFor(() =>
+      expect(setFeedback).toHaveBeenCalledWith({
+        type: "error",
+        message: "No location found.",
+      }),
+    );
+    expect(stop()).toMatchObject({ lat: 1, lng: 2 });
   });
 });

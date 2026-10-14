@@ -9,46 +9,38 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from "@headlessui/react";
-import type { ParkingProps } from "../map/ParkingMarker";
 import type { ReactNode } from "react";
-import { useMap } from "@vis.gl/react-google-maps";
+import { useTourStore } from "~/store/tourStore";
+import { updateAddressFromPosition } from "~/utils/geocode";
+import type { TStop } from "~/types";
+import type { Map, MapMouseEvent } from "maplibre-gl";
 
-type Props = ParkingProps & {
+type Props = {
   children: ReactNode;
+  stop: TStop;
+  map: Map | undefined;
 };
 
-const ParkingDisclosure = ({
-  children,
-  parkingLat,
-  parkingLng,
-  setParkingLat,
-  setParkingLng,
-  setParkingAddress,
-}: Props) => {
-  const [isOpen, setIsOpen] = useState<boolean | undefined>(undefined);
-  const map = useMap();
+const ParkingDisclosure = ({ children, stop, map }: Props) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const updateStopField = useTourStore((s) => s.updateStopField);
 
   useEffect(() => {
-    if (!isOpen || !map) return;
-    if (parkingLat && parkingLng) return;
+    if (!map || !isOpen || stop.parking_lat) return;
 
-    const onClick = (event: google.maps.MapMouseEvent) => {
-      setParkingLat(event.latLng?.lat());
-      setParkingLng(event.latLng?.lng());
+    const addParking = ({ lngLat }: MapMouseEvent) => {
+      updateStopField(stop.id, "parking_lat", lngLat.lat);
+      updateStopField(stop.id, "parking_lng", lngLat.lng);
+      void updateAddressFromPosition(stop.id, lngLat.lat, lngLat.lng, true);
     };
+    map.once("click", addParking);
 
-    const clickListener = map.addListener("click", onClick);
-
+    // Closing the panel (or a parking spot being set some other way) stops
+    // waiting for the click.
     return () => {
-      google.maps.event.removeListener(clickListener);
+      map.off("click", addParking);
     };
-  }, [isOpen, parkingLat, parkingLng, setParkingLat, setParkingLng, map]);
-
-  const handelRemove = () => {
-    setParkingLat(undefined);
-    setParkingLng(undefined);
-    setParkingAddress(undefined);
-  };
+  }, [map, isOpen, stop.id, stop.parking_lat, updateStopField]);
 
   return (
     <Disclosure>
@@ -58,7 +50,7 @@ const ParkingDisclosure = ({
             className="group flex w-full mt-8 bg-gray-200 justify-center py-2 rounded-sm cursor-pointer"
             onClick={() => setIsOpen(!open)}
           >
-            <span className="me-2">Add Parking Location</span>
+            <span className="me-2">{`${stop.parking_lat && stop.parking_lng ? "Edit" : "Add"} Parking Location`}</span>
             <FontAwesomeIcon
               icon={faChevronDown}
               className={`transition-all ${open ? "fa-rotate-180" : ""} mt-1`}
@@ -70,11 +62,14 @@ const ParkingDisclosure = ({
             }
             transition
           >
-            {parkingLat && parkingLng ? (
+            {stop.parking_lat != null && stop.parking_lng != null ? (
               <>
                 {children}
                 <button
-                  onClick={handelRemove}
+                  onClick={() => {
+                    updateStopField(stop.id, "parking_lat", null);
+                    updateStopField(stop.id, "parking_lng", null);
+                  }}
                   className="text-red-500 hover:underline cursor-pointer"
                 >
                   Remove Parking

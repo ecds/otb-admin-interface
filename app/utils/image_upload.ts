@@ -24,7 +24,19 @@ interface ImageJoinProps {
   tenant: string;
 }
 
-const imageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const imageTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  // iPhone photos; the API converts them to JPEG.
+  "image/heic",
+  "image/heif",
+];
+
+// Browsers often report no type for .heic files, so the extension counts too.
+export const isImageFile = (file: File) =>
+  imageTypes.includes(file.type) || /\.(heic|heif)$/i.test(file.name);
 
 export const imageUpload = async ({
   file,
@@ -33,7 +45,7 @@ export const imageUpload = async ({
   recordId,
   attribute = "file",
 }: ImageUploadProps) => {
-  if (!imageTypes.includes(file.type))
+  if (!isImageFile(file))
     return {
       response: { ok: false },
       data: { error: `${file.name} is not an image.` },

@@ -125,7 +125,8 @@ const FileUpload = ({
         onChange={handleFileSelected}
         multiple={multiple}
         className="hidden"
-        accept={accept ?? "image/*"}
+        // Some browsers don't count HEIC (iPhone photos) as image/*.
+        accept={accept ?? "image/*,.heic,.heif"}
         disabled={disabled}
       />
     </label>

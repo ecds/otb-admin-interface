@@ -4,15 +4,17 @@ import {
   Dialog,
   DialogPanel,
   DialogTitle,
+  Select,
 } from "@headlessui/react";
 import {
   useContext,
   useEffect,
+  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { FeedbackContext } from "~/contexts";
+import { FeedbackContext, TourSetContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import { parseLinkHeader } from "~/utils/linkHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,13 +38,18 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
   const [page, setPage] = useState<number>(1);
   const [paginationLinks, setPaginationLinks] =
     useState<PaginationLinks | null>(null);
+  const [tourFilter, setTourFilter] = useState<string>("0");
+  const selectRef = useRef<HTMLSelectElement>(null);
   const tenant = useTenant();
   const { setFeedback } = useContext(FeedbackContext);
+  const { tourSet } = useContext(TourSetContext);
 
   useEffect(() => {
     const loadMedia = async () => {
+      let query = `page=${page}&per=20&exclude=${itemIds}`;
+      if (tourFilter !== "0") query = `${query}&tour_id=${tourFilter}`;
       const { response, data } = await request({
-        path: `${tenant}/v4/admin/media?page=${page}&per=20&exclude=${itemIds}`,
+        path: `${tenant}/v4/admin/media?${query}`,
       });
       if (response.ok) {
         setMedia(data);
@@ -57,7 +64,7 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
     };
 
     if (isOpen) loadMedia();
-  }, [isOpen, tenant, page, itemIds, setFeedback]);
+  }, [isOpen, tenant, page, itemIds, setFeedback, tourFilter]);
 
   const addMedium = async (medium: TMedium) => {
     setIsOpen(false);
@@ -76,6 +83,11 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
         message: getErrorMessage(data, `Could not add ${medium.filename}.`),
       });
     }
+  };
+
+  const handleFilterSelect = () => {
+    if (!selectRef.current) return;
+    setTourFilter(selectRef.current.value);
   };
 
   return (
@@ -100,6 +112,24 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
               </button>
               <Description>
                 Click to Add Media to Current Tour or Stop
+                <Select
+                  ref={selectRef}
+                  name="by-tour"
+                  aria-label="Filter by Tour"
+                  onChange={handleFilterSelect}
+                  className="border data-focus:bg-blue-100 data-hover:shadow"
+                >
+                  <option value={"0"} selected={tourFilter === "0"}>
+                    All Tours
+                  </option>
+                  {tourSet.tours.map((tour) => {
+                    return (
+                      <option key={`filter-${tour.id}`} value={tour.id}>
+                        {tour.title}
+                      </option>
+                    );
+                  })}
+                </Select>
               </Description>
             </div>
             <div className="overflow-scroll h-full pb-44 p-8 ">

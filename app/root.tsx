@@ -74,6 +74,7 @@ export default function App() {
     { type: "success" | "error"; message: string } | undefined
   >(undefined);
   const [currentTenantAdmin, setCurrentTenantAdmin] = useState<boolean>(false);
+  const [showTerms, setShowTerms] = useState<boolean>(false);
 
   useEffect(() => {
     if (!session) navigate("/signin");
@@ -113,6 +114,8 @@ export default function App() {
           setCurrentUser,
           currentTenantAdmin,
           setCurrentTenantAdmin,
+          showTerms,
+          setShowTerms,
         }}
       >
         <Terms />

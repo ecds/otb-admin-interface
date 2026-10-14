@@ -1,4 +1,5 @@
 import {
+  CloseButton,
   Dialog,
   DialogBackdrop,
   DialogPanel,
@@ -8,9 +9,12 @@ import { useContext } from "react";
 import { AuthContext, FeedbackContext } from "~/contexts";
 import { sendUpdate } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 const Terms = () => {
-  const { currentUser, setCurrentUser } = useContext(AuthContext);
+  const { currentUser, setCurrentUser, showTerms, setShowTerms } =
+    useContext(AuthContext);
   const { setFeedback } = useContext(FeedbackContext);
 
   const agree = async () => {
@@ -39,17 +43,31 @@ const Terms = () => {
 
   return (
     <Dialog
-      open={Boolean(currentUser) && !currentUser?.terms_accepted}
-      onClose={() => {}}
+      open={Boolean(currentUser) && (!currentUser?.terms_accepted || showTerms)}
+      onClose={() => {
+        setShowTerms(false);
+      }}
       className="z-10"
     >
       <DialogBackdrop className="fixed inset-0 bg-black/80" />
       <div className="fixed inset-0 w-screen overflow-y-auto p-4 z-100">
         <div className="flex min-h-full items-center justify-center">
           <DialogPanel className="max-w-2xl space-y-4 border bg-white p-12">
-            <DialogTitle className="font-bold text-xl">
-              OpenTour Builder Terms of Service
-            </DialogTitle>
+            <div className="flex items-start justify-between px-4 py-2">
+              <DialogTitle
+                as="h3"
+                className="text-black/85 text-sm md:text-lg text-left grow"
+              >
+                OpenTour Builder Terms of Service
+              </DialogTitle>
+              {currentUser?.terms_accepted ? (
+                <CloseButton className="text-black/75 hover:text-black shrink-0 ms-4">
+                  <FontAwesomeIcon icon={faCircleXmark} />
+                </CloseButton>
+              ) : (
+                <div></div>
+              )}
+            </div>
             <p>Last modified April 26, 2022</p>
             <p>
               Please contact ECDS at ecds@emory.edu with any questions about
@@ -326,12 +344,21 @@ const Terms = () => {
               contact page.
             </p>
             <div className="flex gap-4 justify-end">
-              <button
-                onClick={agree}
-                className="bg-blue-500 px-4 py-2 rounded-md drop-shadow-md hover:bg-blue-700 text-white"
-              >
-                Agree
-              </button>
+              {currentUser?.terms_accepted ? (
+                <button
+                  onClick={() => setShowTerms(false)}
+                  className="bg-black/65 px-4 py-2 rounded-md drop-shadow-md hover:bg-black/75 text-white"
+                >
+                  Close
+                </button>
+              ) : (
+                <button
+                  onClick={agree}
+                  className="bg-blue-500 px-4 py-2 rounded-md drop-shadow-md hover:bg-blue-700 text-white"
+                >
+                  Agree
+                </button>
+              )}
             </div>
           </DialogPanel>
         </div>

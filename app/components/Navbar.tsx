@@ -8,7 +8,7 @@ import { faBell, faExternalLink } from "@fortawesome/free-solid-svg-icons";
 const Navbar = () => {
   const { tourSet, accessRequests, setAccessRequestModalOpen } =
     useContext(TourSetContext);
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, setShowTerms } = useContext(AuthContext);
   return (
     <nav className="bg-gray-200 fixed top-0 w-screen px-6 h-12 flex justify-between items-center z-50 drop-shadow-md">
       <div className="flex flex-row space-x-6 items-center ml-6 text-black/80">
@@ -55,6 +55,9 @@ const Navbar = () => {
                 icon={faExternalLink}
               />
             </a>
+          </li>
+          <li>
+            <button onClick={() => setShowTerms(true)}>Terms</button>
           </li>
         </ul>
       </div>

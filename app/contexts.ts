@@ -8,6 +8,8 @@ type ISignedIn = {
   setCurrentUser: Dispatch<SetStateAction<TUser | undefined>>;
   currentTenantAdmin: boolean;
   setCurrentTenantAdmin: Dispatch<SetStateAction<boolean>>;
+  showTerms: boolean;
+  setShowTerms: Dispatch<SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<ISignedIn>({
@@ -20,6 +22,8 @@ export const AuthContext = createContext<ISignedIn>({
   },
   currentTenantAdmin: false,
   setCurrentTenantAdmin: (_: SetStateAction<boolean>) => {},
+  showTerms: false,
+  setShowTerms: (_: SetStateAction<boolean>) => {},
 });
 
 type TFeedbackMessage = {

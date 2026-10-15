@@ -47,7 +47,9 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
   useEffect(() => {
     const loadMedia = async () => {
       let query = `page=${page}&per=20&exclude=${itemIds}`;
+
       if (tourFilter !== "0") query = `${query}&tour_id=${tourFilter}`;
+
       const { response, data } = await request({
         path: `${tenant}/v4/admin/media?${query}`,
       });
@@ -87,6 +89,7 @@ const ReuseMedia = ({ join, isOpen, setIsOpen, onSuccess, itemIds }: Props) => {
 
   const handleFilterSelect = () => {
     if (!selectRef.current) return;
+    setPage(1);
     setTourFilter(selectRef.current.value);
   };
 

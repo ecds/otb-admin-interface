@@ -35,6 +35,7 @@ type TextInputProps = {
   valueType?: "text" | "number" | "url" | "button" | "file";
   placeholder?: string;
   range?: RangeProps;
+  fullWidth?: boolean;
 };
 
 const TextInput = ({
@@ -51,6 +52,7 @@ const TextInput = ({
   valueType = "text",
   placeholder,
   range,
+  fullWidth = true,
 }: InputProps & TextInputProps) => {
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const [serverError, setServerError] = useState<string | undefined>(undefined);
@@ -249,7 +251,7 @@ const TextInput = ({
             ref={inputRef}
             type={valueType}
             id={`${model}-${id}`}
-            className={`w-full border border-default-medium border-gray-300 text-heading ${size === "small" ? "text-xs" : "text-base"} rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding(size)} shadow-xs placeholder:text-body`}
+            className={`${fullWidth ? "w-full" : "w-auto"} border border-default-medium border-gray-300 text-heading ${size === "small" ? "text-xs" : "text-base"} rounded-base focus:ring-blue-100 focus:border-blue-100 block rounded-md ${padding(size)} shadow-xs placeholder:text-body`}
             value={currentValue ?? ""}
             onInput={handleChange}
             onBlur={handleBlur}
@@ -259,7 +261,7 @@ const TextInput = ({
         )}
         {type === "text-area" && (
           <Textarea
-            className="w-full border border-gray-300 data-focus:bg-blue-100 data-hover:shadow p-4 rounded-md"
+            className={`${fullWidth ? "w-full" : "w-auto"} border border-gray-300 data-focus:bg-blue-100 data-hover:shadow p-4 rounded-md`}
             ref={inputRef}
             onInput={handleChange}
             value={currentValue ?? ""}
@@ -299,7 +301,7 @@ const TextInput = ({
               onBlur={handleBlur}
               onMouseUp={handleBlur}
               onChange={handleChange}
-              className="w-full"
+              className={fullWidth ? "w-full" : "w-auto"}
             />
             <div className="flex flex-row justify-between">
               <div>{range.min}</div>

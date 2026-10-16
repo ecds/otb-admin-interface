@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { FeedbackContext } from "~/contexts";
-import type { TTourSet } from "~/types";
 import { getErrorMessage } from "~/utils/errors";
 import { sendUpdate } from "~/utils/requests";
 import TextInput from "./inputs/TextInput";
+import type { TTourSet } from "~/types";
 
 interface Props {
   tourSet: TTourSet;
 }
 
-const TourSetDescription = ({ tourSet }: Props) => {
+const TourSetSettings = ({ tourSet }: Props) => {
   const { setFeedback } = useContext(FeedbackContext);
 
   const handleDescriptionUpdate = async (content: string | number) => {
@@ -34,17 +34,30 @@ const TourSetDescription = ({ tourSet }: Props) => {
   };
 
   return (
-    <TextInput
-      type="rich-text"
-      label="Description"
-      value={tourSet.description}
-      id="description"
-      model="tour_set"
-      helpText="This is an optional description for your site. It will appear above the list of tours."
-      itemId={tourSet.id}
-      onChange={handleDescriptionUpdate}
-    />
+    <>
+      <TextInput
+        type="text"
+        valueType="number"
+        label="Matomo ID"
+        id="matomo_id"
+        model="tour_set"
+        itemId={tourSet.id}
+        value={tourSet.matomo_id}
+        fullWidth={false}
+        helpText="Matomo for unique tracking. General tracking uses an id of 4. Contact ECDS for more information on unique tracking."
+      />
+      <TextInput
+        type="rich-text"
+        label="Description"
+        value={tourSet.description}
+        id="description"
+        model="tour_set"
+        helpText="This is an optional description for your site. It will appear above the list of tours."
+        itemId={tourSet.id}
+        onChange={handleDescriptionUpdate}
+      />
+    </>
   );
 };
 
-export default TourSetDescription;
+export default TourSetSettings;

@@ -11,7 +11,7 @@ import SiteLogo from "~/components/SiteLogo";
 import PendingApproval from "~/components/PendingApproval";
 import { Button } from "@headlessui/react";
 import ManageSiteAccess from "~/components/ManageSiteAccess";
-import TourSetDescription from "~/components/TourSetDescription";
+import TourSetSettings from "~/components/TourSetSettings";
 import type { TTour } from "~/types";
 
 const TourSetRoute = () => {
@@ -88,7 +88,7 @@ const TourSetRoute = () => {
                 <PendingApproval />
                 <ManageSiteAccess />
               </div>
-              <TourSetDescription tourSet={tourSet} />
+              <TourSetSettings tourSet={tourSet} />
             </>
           )}
         </TourList>

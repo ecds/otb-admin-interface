@@ -198,17 +198,18 @@ export type TTour = {
 };
 
 export type TTourSet = {
-  id: number;
+  admins: { id: number; display_name: string }[];
   description: string;
   external_url: string;
   footer_logo: string;
-  name: string;
+  id: number;
   logo_url: string;
+  matomo_id: number;
+  name: string;
   notes: string;
   subdir: string;
-  tours: TTour[];
-  admins: { id: number; display_name: string }[];
   tour_authors: { id: number; user: string; tour: string }[];
+  tours: TTour[];
 };
 
 export type InputProps = {
@@ -264,6 +265,7 @@ export type TValue =
   | "link_text"
   | "lng"
   | "meta_description"
+  | "matomo_id"
   | "north"
   | "parking_address"
   | "parking_lat"

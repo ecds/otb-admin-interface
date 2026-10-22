@@ -1,15 +1,17 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { createRoutesStub, Outlet } from "react-router";
+import { createRoutesStub, Outlet, useSearchParams } from "react-router";
 import { describe, it, expect, vi } from "vitest";
 import { AuthContext } from "~/contexts";
 import UsersRoute, {
   shouldRevalidate as usersShouldRevalidate,
 } from "~/routes/users";
 import type { TUser } from "~/types";
-import { shouldRevalidate } from "./root";
+import App, { shouldRevalidate } from "./root";
 
 vi.mock("~/components/Navbar", () => ({ default: () => null }));
 vi.mock("~/components/UserTourSet", () => ({ default: () => null }));
+vi.mock("~/components/Terms", () => ({ default: () => null }));
+vi.mock("~/components/Feedback", () => ({ default: () => null }));
 
 const args = (from: string, to: string) =>
   ({
@@ -84,5 +86,43 @@ describe("root shouldRevalidate", () => {
     );
     expect(rootLoader).toHaveBeenCalledTimes(1);
     expect(usersLoader).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("root sign-in redirect", () => {
+  // The app with no session, opened at `url`; the sign-in page shows where
+  // it was asked to send the person afterwards.
+  const openSignedOut = (url: string) => {
+    const Stub = createRoutesStub([
+      {
+        path: "/",
+        Component: App,
+        loader: () => ({ session: undefined }),
+        HydrateFallback: () => null,
+        children: [
+          {
+            path: "signin",
+            Component: function SignInPage() {
+              const [params] = useSearchParams();
+              return <p>Sign in{params.get("return_to") ?? ""}</p>;
+            },
+          },
+          { path: ":tourSet/tours/:id", Component: () => <p>Tour page</p> },
+          { index: true, Component: () => <p>Home</p> },
+        ],
+      },
+    ]);
+    return render(<Stub initialEntries={[url]} />);
+  };
+
+  it("sends a signed-out visitor to sign in, remembering the page", async () => {
+    openSignedOut("/ecds/tours/12?tab=map");
+    const signIn = await screen.findByText(/^Sign in/);
+    expect(signIn.textContent).toBe("Sign in/ecds/tours/12?tab=map");
+  });
+
+  it("leaves the sign-in popup's token page alone", async () => {
+    openSignedOut("/?access_token=abc");
+    expect(await screen.findByText("Home")).toBeInTheDocument();
   });
 });

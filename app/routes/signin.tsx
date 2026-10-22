@@ -1,18 +1,20 @@
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import SignIn from "~/components/SignIn.client";
 import { AuthContext } from "~/contexts";
+import { returnToFrom } from "~/utils/returnTo";
 
 const SignInRoute = () => {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
+  // Back to wherever the person was headed before being asked to sign in.
   useEffect(() => {
-    if (currentUser) navigate("/");
-  }, [currentUser, navigate]);
+    if (currentUser) navigate(returnToFrom(searchParams), { replace: true });
+  }, [currentUser, navigate, searchParams]);
 
   if (currentUser) return <></>;
 

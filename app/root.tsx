@@ -6,12 +6,14 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useNavigate,
   useSearchParams,
 } from "react-router";
 
 import "./app.css";
 import { fetchCurrentUser, verifyToken } from "./utils/requests";
+import { signInPath } from "./utils/returnTo";
 import type React from "react";
 import type { ShouldRevalidateFunction } from "react-router";
 import { useEffect, useState } from "react";
@@ -67,6 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { session } = useLoaderData();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState<TUser | undefined>(undefined);
   const [signedIn, setSignedIn] = useState<boolean>(false);
@@ -77,12 +80,16 @@ export default function App() {
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!session) navigate("/signin");
+    // The sign-in popup lands here with ?access_token=; it's handled below
+    // and must not be redirected (or end up in a return_to).
+    if (!session && !searchParams.has("access_token")) {
+      if (location.pathname !== "/signin") navigate(signInPath(location));
+    }
 
     if (session?.id) {
       setCurrentUser(session);
     }
-  }, [session, navigate]);
+  }, [session, navigate, location, searchParams]);
 
   useEffect(() => {
     if (!currentUser) return;

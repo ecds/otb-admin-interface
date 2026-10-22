@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
@@ -35,9 +35,10 @@ const HomeRoute = () => {
   const [myTourSets, setMyTourSets] = useState<TTourSet[] | undefined>(
     undefined,
   );
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (currentUser?.super) return;
+    if (currentUser?.super || searchParams.has("access_token")) return;
     setFilteredTourSets(
       tourSets.filter(
         (ts) =>
@@ -51,9 +52,11 @@ const HomeRoute = () => {
           .includes(ts.subdir);
       }),
     );
-  }, [currentUser, tourSets]);
+  }, [currentUser, tourSets, searchParams]);
 
   if (!signedIn || !currentUser) return <></>;
+
+  if (searchParams.has("access_token")) return <p>success!</p>;
 
   if (
     currentUser &&

@@ -1,7 +1,8 @@
 import { useContext, useRef } from "react";
 import { AuthContext } from "~/contexts";
-import type { ReactNode } from "react";
 import { useNavigate } from "react-router";
+import { returnToFrom } from "~/utils/returnTo";
+import type { ReactNode } from "react";
 
 const SignIn = ({
   children,
@@ -14,13 +15,11 @@ const SignIn = ({
   const { setCurrentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const redirect = import.meta.env.PROD
-    ? import.meta.env.VITE_SIGN_IN_REDIRECT
-    : "lvh.me:4200";
-
   const signInCallback = (user: MessageEvent) => {
     setCurrentUser(user.data);
-    if (user.data.id) navigate("/");
+    // The sign-in page's return_to, if this was opened from there.
+    if (user.data.id)
+      navigate(returnToFrom(window.location.search), { replace: true });
     window.removeEventListener("message", signInCallback);
   };
 

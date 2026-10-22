@@ -32,7 +32,7 @@ const SignIn = ({
       const left = screen.width / 2 - width / 2;
       const top = screen.height / 2 - height / 2;
       signInWindowRef.current = window.open(
-        `https://auth.ecds.io/login?origin=https://${redirect}`,
+        `https://auth.ecds.io/login?origin=https://${import.meta.env.VITE_SIGN_IN_REDIRECT ?? "lvh.me:4200"}`,
         "signInWindow",
         `width=${width}, height=${height}, left=${left},top=${top}`,
       );

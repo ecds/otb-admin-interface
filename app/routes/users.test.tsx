@@ -46,6 +46,8 @@ const renderUsers = () => {
         setCurrentUser: vi.fn(),
         currentTenantAdmin: true,
         setCurrentTenantAdmin: vi.fn(),
+        showTerms: false,
+        setShowTerms: vi.fn(),
       }}
     >
       <Stub initialEntries={["/users"]} />
@@ -53,10 +55,11 @@ const renderUsers = () => {
   );
 };
 
+// Rows in the table body only, however many header rows there are.
 const emails = () =>
   screen
     .getAllByRole("row")
-    .slice(1)
+    .filter((row) => row.closest("tbody"))
     .map((row) => row.querySelector("td button")?.textContent);
 
 describe("users route", () => {

@@ -40,6 +40,10 @@ vi.mock("~/components/media_grid/MediaGrid", () => ({
   default: () => <div>MediaGrid</div>,
 }));
 
+vi.mock("~/components/stops/OpenGeographies", () => ({
+  default: () => <div>OpenGeographies</div>,
+}));
+
 vi.mock("~/components/stops/StopsList", () => ({
   default: () => <div>StopsList</div>,
 }));
@@ -171,6 +175,8 @@ const authCtx = (user: TUser | undefined, tenantAdmin = false) => ({
   setCurrentUser: vi.fn(),
   currentTenantAdmin: tenantAdmin,
   setCurrentTenantAdmin: vi.fn(),
+  showTerms: false,
+  setShowTerms: vi.fn(),
 });
 
 const renderTour = (user: TUser = tourAuthorUser) =>

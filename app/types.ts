@@ -172,6 +172,7 @@ export type TTour = {
   mode: TTravelMode;
   modes: TTourTravelMode[];
   meta_description: string;
+  open_geographies_endpoint: string;
   is_geo: boolean;
   link_address: string;
   link_text: string;
@@ -267,6 +268,7 @@ export type TValue =
   | "meta_description"
   | "matomo_id"
   | "north"
+  | "open_geographies_endpoint"
   | "parking_address"
   | "parking_lat"
   | "parking_lng"
@@ -300,4 +302,36 @@ export type TJoin = {
   relatedType: "one" | "many";
   recordModel: TModel;
   recordId: number;
+};
+
+/** A stop as an Open Geographies tour provides it (read-only). */
+export type TOpenGeographiesStop = {
+  id: string;
+  slug: string;
+  title: string;
+  position: number;
+  address?: string;
+  lat: number;
+  lng: number;
+  meta_description?: string;
+  // The stop's description as HTML, cleaned by the API so it's safe to show.
+  description_html?: string;
+  media: {
+    title?: string;
+    provider?: string | null;
+    embed?: string;
+    files: { original?: string; mobile?: string; tablet?: string };
+  }[];
+};
+
+/** The admin's preview of an Open Geographies tour. */
+export type TOpenGeographiesPreview = {
+  context: string;
+  version: string;
+  stops: TOpenGeographiesStop[];
+  bounds: TBounds | null;
+  stop_count: number;
+  // Things a curator should check in Open Geographies.
+  problems: string[];
+  fetched_at: string;
 };

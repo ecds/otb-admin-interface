@@ -128,6 +128,8 @@ const StopsList = () => {
     }
   };
 
+  if (tour.open_geographies_endpoint) return <></>;
+
   return (
     <>
       <DndContext

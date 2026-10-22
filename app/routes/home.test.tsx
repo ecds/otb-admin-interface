@@ -101,6 +101,8 @@ const authContextValue = (user: TUser | undefined, signedIn = true) => ({
   setCurrentUser: vi.fn(),
   currentTenantAdmin: false,
   setCurrentTenantAdmin: vi.fn(),
+  showTerms: false,
+  setShowTerms: vi.fn(),
 });
 
 const renderHome = (

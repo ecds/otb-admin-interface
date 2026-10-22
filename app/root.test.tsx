@@ -65,6 +65,8 @@ describe("root shouldRevalidate", () => {
           setCurrentUser: vi.fn(),
           currentTenantAdmin: true,
           setCurrentTenantAdmin: vi.fn(),
+          showTerms: false,
+          setShowTerms: vi.fn(),
         }}
       >
         <Stub initialEntries={["/users"]} />
@@ -74,7 +76,11 @@ describe("root shouldRevalidate", () => {
     fireEvent.click(screen.getByRole("button", { name: /email/i }));
     fireEvent.click(screen.getByRole("button", { name: /email/i }));
     await waitFor(() =>
-      expect(screen.getAllByRole("row")[1].textContent).toContain("b@x.org"),
+      // The first row of the table body, after the header rows.
+      expect(
+        screen.getAllByRole("row").find((row) => row.closest("tbody"))
+          ?.textContent,
+      ).toContain("b@x.org"),
     );
     expect(rootLoader).toHaveBeenCalledTimes(1);
     expect(usersLoader).toHaveBeenCalledTimes(1);

@@ -17,9 +17,11 @@ interface Props {
   stop: TStop;
   map: Map | undefined;
   parking?: boolean;
+  // Off for stops that can't be edited here (e.g. from Open Geographies).
+  draggable?: boolean;
 }
 
-const MapMarker = ({ map, stop, parking = false }: Props) => {
+const MapMarker = ({ map, stop, parking = false, draggable = true }: Props) => {
   const updateStopField = useTourStore((s) => s.updateStopField);
   const lng = parking ? stop.parking_lng : stop.lng;
   const lat = parking ? stop.parking_lat : stop.lat;
@@ -41,9 +43,10 @@ const MapMarker = ({ map, stop, parking = false }: Props) => {
     const created = new maplibregl.Marker({
       element,
       anchor: "bottom",
-      draggable: true,
+      draggable,
     });
     created.on("dragend", () => {
+      if (!draggable) return;
       const position = created.getLngLat();
       updateStopField(stop.id, parking ? "parking_lat" : "lat", position.lat);
       updateStopField(stop.id, parking ? "parking_lng" : "lng", position.lng);
@@ -61,7 +64,7 @@ const MapMarker = ({ map, stop, parking = false }: Props) => {
       setMarker(undefined);
     };
     // Position is applied by the effect below, so it isn't a dependency.
-  }, [map, element, stop.id, parking, hasPosition, updateStopField]);
+  }, [map, element, stop.id, parking, hasPosition, draggable, updateStopField]);
 
   useEffect(() => {
     if (!marker || !map || lat == null || lng == null) return;

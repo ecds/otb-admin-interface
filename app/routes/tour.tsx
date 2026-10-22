@@ -19,6 +19,7 @@ import VoiceOverUpload from "~/components/voice_overs/VoiceOverUpload";
 import VoiceOverList from "~/components/voice_overs/VoiceOverList";
 import TourAuthors from "~/components/TourAuthors";
 import type { TTravelMode } from "~/types";
+import OpenGeographies from "~/components/stops/OpenGeographies";
 
 const TourRoute = () => {
   const { tourSet, tour_id } = useParams<{
@@ -148,11 +149,9 @@ const TourRoute = () => {
         <ThemeSelector />
         <MapControls />
         <TravelModes modes={modes} />
-        <div>
-          <MediaGrid recordModel="tour" recordId={tour.id} />
-
-          <StopsList />
-        </div>
+        <MediaGrid recordModel="tour" recordId={tour.id} />
+        <OpenGeographies />
+        <StopsList />
         <div>
           <FlatPageList />
         </div>

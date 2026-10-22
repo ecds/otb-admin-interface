@@ -18,19 +18,30 @@ vi.mock("~/utils/requests", () => ({
 
 // jsdom has no WebGL, so MapLibre is replaced by a stub that records each
 // map it creates.
-const maps: { options: { style: unknown }; remove: () => void }[] = [];
+const maps: {
+  options: { style: unknown };
+  remove: () => void;
+  fitBounds: ReturnType<typeof vi.fn>;
+}[] = [];
 vi.mock("maplibre-gl", () => ({
   Map: class {
     options: { style: unknown };
     remove = vi.fn();
     getBounds = () => undefined;
+    fitBounds = vi.fn();
     constructor(options: { style: unknown }) {
       this.options = options;
       maps.push(this);
     }
   },
   LngLat: class {},
-  LngLatBounds: class {},
+  LngLatBounds: class {
+    points: number[][] = [];
+    extend(point: number[]) {
+      this.points.push(point);
+      return this;
+    }
+  },
 }));
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
 vi.mock("~/map_styles", () => ({
@@ -40,6 +51,19 @@ vi.mock("~/map_styles", () => ({
   satellite: "satellite",
 }));
 vi.mock("./MapMarker", () => ({ default: () => null }));
+let ogStops: { id: string }[] | undefined;
+vi.mock("~/hooks/useOpenGeographiesPreview", () => ({
+  useOpenGeographiesPreview: () => ({
+    preview: ogStops ? { stops: ogStops } : undefined,
+  }),
+}));
+let ogMarkerStops: unknown[] | undefined;
+vi.mock("./OpenGeographiesMarkers", () => ({
+  default: ({ stops }: { stops: unknown[] }) => {
+    ogMarkerStops = stops;
+    return null;
+  },
+}));
 vi.mock("./MapOverlay", () => ({ default: () => null }));
 vi.mock("./MapIconControls", () => ({ default: () => null }));
 let rectangleMode: string | undefined;
@@ -97,7 +121,8 @@ const loadTour = (overrides: Partial<TTour> = {}) =>
     blank_map: true,
     map_type: "roadmap",
     bounds: { north: 1, south: 0, east: 1, west: 0 },
-    stops: [],
+    // The map is only built for a tour with stops (or an OG source).
+    stops: [{ id: 1, lat: 0.5, lng: 0.5, position: 1 }],
     ...overrides,
   } as unknown as TTour);
 
@@ -169,6 +194,8 @@ describe("MapControls map", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     maps.length = 0;
+    ogStops = undefined;
+    ogMarkerStops = undefined;
     rectangleMode = undefined;
   });
 
@@ -192,6 +219,53 @@ describe("MapControls map", () => {
     act(() => useTourStore.getState().updateTourField("map_overlay", overlay));
     expect(maps).toHaveLength(1);
     expect(maps[0].remove).not.toHaveBeenCalled();
+  });
+
+  it("has no map for a tour without stops", () => {
+    loadTour({ stops: [] } as Partial<TTour>);
+    renderControls();
+    expect(maps).toHaveLength(0);
+  });
+
+  it("builds a zoomed-out map for an Open Geographies tour with no stops or bounds", () => {
+    loadTour({
+      stops: [],
+      bounds: null,
+      open_geographies_endpoint: "https://og.example.org/tours/jackson",
+    } as unknown as Partial<TTour>);
+    renderControls();
+    expect(maps).toHaveLength(1);
+    expect(maps[0].options).toMatchObject({ center: [0, 0], zoom: 1 });
+  });
+
+  it("shows an Open Geographies tour's stops and zooms to them", () => {
+    ogStops = [
+      { id: "a", lat: 34.1, lng: -83.6 },
+      { id: "b", lat: 34.2, lng: -83.5 },
+    ] as never;
+    loadTour({
+      stops: [],
+      bounds: null,
+      open_geographies_endpoint: "https://og.example.org/tours/jackson",
+    } as unknown as Partial<TTour>);
+    renderControls();
+    expect(ogMarkerStops).toEqual(ogStops);
+    const [bounds] = maps[0].fitBounds.mock.lastCall!;
+    expect((bounds as { points: number[][] }).points).toEqual([
+      [-83.6, 34.1],
+      [-83.5, 34.2],
+    ]);
+    ogStops = undefined;
+  });
+
+  it("keeps the tour's own view when it has bounds", () => {
+    ogStops = [{ id: "a", lat: 34.1, lng: -83.6 }] as never;
+    loadTour({
+      open_geographies_endpoint: "https://og.example.org/tours/jackson",
+    } as unknown as Partial<TTour>);
+    renderControls();
+    expect(maps[0].fitBounds).not.toHaveBeenCalled();
+    ogStops = undefined;
   });
 
   it("rebuilds the map when the map type changes", () => {

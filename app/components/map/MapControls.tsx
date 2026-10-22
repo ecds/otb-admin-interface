@@ -22,6 +22,8 @@ import {
   faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
 import MapMarker from "./MapMarker";
+import OpenGeographiesMarkers from "./OpenGeographiesMarkers";
+import { useOpenGeographiesPreview } from "~/hooks/useOpenGeographiesPreview";
 import { baseStyle, blank, hybrid, satellite } from "~/map_styles";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { TTour } from "~/types";
@@ -43,17 +45,44 @@ const MapControls = () => {
   const tourId = tour?.id;
   const blankMap = tour?.blank_map;
   const mapType = tour?.map_type;
+  // The saved source, so typing a URL doesn't rebuild the map each keystroke.
+  const hasOpenGeographiesSource = useTourStore((s) =>
+    Boolean(s.saved?.open_geographies_endpoint),
+  );
+  const { preview: ogPreview } = useOpenGeographiesPreview();
+
+  // A tour with no bounds of its own (no stops or overlay) starts zoomed
+  // out; once its Open Geographies stops arrive, show them.
+  useEffect(() => {
+    if (!map || !ogPreview?.stops.length) return;
+    if (useTourStore.getState().tour?.bounds) return;
+    const bounds = new maplibregl.LngLatBounds();
+    ogPreview.stops.forEach((stop) => bounds.extend([stop.lng, stop.lat]));
+    map.fitBounds(bounds, { padding: 60, maxZoom: 16, duration: 0 });
+  }, [map, ogPreview]);
 
   // Rebuilt only when the base map changes. Depending on the whole tour
   // recreated the map (and flashed it) on every edit and save.
   useEffect(() => {
     const tour = useTourStore.getState().tour;
-    if (!tour || !mapContainerRef.current) return;
+    // Open Geographies stops aren't stored with the tour, so an OG tour has
+    // none here but still gets a map.
+    if (
+      !tour ||
+      !mapContainerRef.current ||
+      (tour.stops.length === 0 && !hasOpenGeographiesSource)
+    )
+      return;
 
-    const bounds = new maplibregl.LngLatBounds(
-      new maplibregl.LngLat(tour.bounds.west, tour.bounds.south),
-      new maplibregl.LngLat(tour.bounds.east, tour.bounds.north),
-    );
+    // Without stops or an overlay the tour has no bounds; start zoomed out.
+    const view = tour.bounds
+      ? {
+          bounds: new maplibregl.LngLatBounds(
+            new maplibregl.LngLat(tour.bounds.west, tour.bounds.south),
+            new maplibregl.LngLat(tour.bounds.east, tour.bounds.north),
+          ),
+        }
+      : { center: [0, 0] as [number, number], zoom: 1 };
 
     let style = baseStyle;
 
@@ -76,7 +105,7 @@ const MapControls = () => {
     const tourMap = new maplibregl.Map({
       container: mapContainerRef.current,
       style,
-      bounds,
+      ...view,
     });
 
     setMap(tourMap);
@@ -85,7 +114,7 @@ const MapControls = () => {
       tourMap.remove();
       setMap(undefined);
     };
-  }, [tourId, blankMap, mapType]);
+  }, [tourId, blankMap, mapType, hasOpenGeographiesSource]);
 
   if (!tour) return null;
 
@@ -221,73 +250,82 @@ const MapControls = () => {
       </div>
 
       <div className={`grid ${columns ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
-        <div
-          className={`h-144 mb-8`}
-          // Moves map to second column. Using flexbox breaks the map when toggled.
-          style={{ order: columns ? 1 : 0 }}
-        >
-          <div ref={mapContainerRef} className="h-full w-full">
-            {map && (
-              <>
-                {tour?.stops.map((stop) => {
-                  return (
-                    <MapMarker
-                      key={`full-tour-map-${stop.id}`}
-                      stop={stop}
-                      map={map}
-                    />
-                  );
-                })}
-                <MapOverlay map={map} />
-                <MapOverlayRectangle
-                  map={map}
-                  mode={lockAspect ? "opposite-fixed" : "opposite"}
-                  draggable={dragOverlay}
-                />
-              </>
-            )}
-          </div>
-          {tour.map_overlay && (
-            <div className="flex flex-row space-x-2 justify-end my-4">
-              <button
-                onClick={() => setColumns(!columns)}
-                className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
-              >
-                <FontAwesomeIcon
-                  icon={
-                    columns
-                      ? faUpRightAndDownLeftFromCenter
-                      : faDownLeftAndUpRightToCenter
-                  }
-                />{" "}
-                Show {columns ? "Wider" : "Smaller"} Map
-              </button>
-              <button
-                type="button"
-                onClick={resetAspect}
-                disabled={hasOverlayAspect(tour.map_overlay)}
-                title={
-                  fitOverlayAspect(tour.map_overlay)
-                    ? undefined
-                    : "The image's size isn't known yet."
-                }
-                className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-300 disabled:hover:text-black/75"
-              >
-                Reset Aspect Ratio
-              </button>
-              {deleting ? (
-                <Deleting />
-              ) : (
-                <DeleteButton
-                  removing="map overlay"
-                  onDelete={() => deleteOverlay(tour.map_overlay!.id)}
-                >
-                  Remove Overlay{" "}
-                </DeleteButton>
+        {tour.stops.length > 0 || hasOpenGeographiesSource ? (
+          <div
+            className={`h-144 mb-8`}
+            // Moves map to second column. Using flexbox breaks the map when toggled.
+            style={{ order: columns ? 1 : 0 }}
+          >
+            <div ref={mapContainerRef} className="h-full w-full">
+              {map && (
+                <>
+                  {tour?.stops.map((stop) => {
+                    return (
+                      <MapMarker
+                        key={`full-tour-map-${stop.id}`}
+                        stop={stop}
+                        map={map}
+                      />
+                    );
+                  })}
+                  {ogPreview && hasOpenGeographiesSource && (
+                    <OpenGeographiesMarkers map={map} stops={ogPreview.stops} />
+                  )}
+                  <MapOverlay map={map} />
+                  <MapOverlayRectangle
+                    map={map}
+                    mode={lockAspect ? "opposite-fixed" : "opposite"}
+                    draggable={dragOverlay}
+                  />
+                </>
               )}
             </div>
-          )}
-        </div>
+            {tour.map_overlay && (
+              <div className="flex flex-row space-x-2 justify-end my-4">
+                <button
+                  onClick={() => setColumns(!columns)}
+                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+                >
+                  <FontAwesomeIcon
+                    icon={
+                      columns
+                        ? faUpRightAndDownLeftFromCenter
+                        : faDownLeftAndUpRightToCenter
+                    }
+                  />{" "}
+                  Show {columns ? "Wider" : "Smaller"} Map
+                </button>
+                <button
+                  type="button"
+                  onClick={resetAspect}
+                  disabled={hasOverlayAspect(tour.map_overlay)}
+                  title={
+                    fitOverlayAspect(tour.map_overlay)
+                      ? undefined
+                      : "The image's size isn't known yet."
+                  }
+                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-300 disabled:hover:text-black/75"
+                >
+                  Reset Aspect Ratio
+                </button>
+                {deleting ? (
+                  <Deleting />
+                ) : (
+                  <DeleteButton
+                    removing="map overlay"
+                    onDelete={() => deleteOverlay(tour.map_overlay!.id)}
+                  >
+                    Remove Overlay{" "}
+                  </DeleteButton>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-center text-2xl">
+            Map will appear once stops have been added.
+          </div>
+        )}
         <div
           className={`${tour.map_overlay ? "grid grid-cols-2" : ""} ${columns ? "basis-1/2" : "basis-full"}`}
         >
@@ -423,7 +461,7 @@ const MapControls = () => {
           )}
         </div>
       </div>
-      {!tour.map_overlay && (
+      {!tour.map_overlay && map && (
         <FileUpload
           join={{
             relatedModel: "map_overlay",

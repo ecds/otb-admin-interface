@@ -70,7 +70,7 @@ jobs:
       - name: Force ECS redeployment
         run: |
           aws ecs update-service \
-            --cluster otb-admin \
+            --cluster OpenTourBuilder \
             --service "${{ steps.env.outputs.service }}" \
             --force-new-deployment \
             --region us-east-1

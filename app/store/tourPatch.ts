@@ -3,36 +3,37 @@ import type { TFlatPage, TMedium, TStop, TTour } from "~/types";
 // Fields the tour PATCH endpoint accepts. Anything else in the tour document
 // is server-derived and never sent.
 const TOUR_FIELDS = [
-  "title",
-  "published",
+  "blank_map",
   "default_lng",
-  "map_type",
   "description",
-  "meta_description",
+  "icon_color",
+  "is_geo",
   "link_address",
   "link_text",
-  "is_geo",
-  "restrict_bounds",
+  "map_type",
+  "meta_description",
+  "open_geographies_endpoint",
+  "published",
   "restrict_bounds_to_overlay",
+  "restrict_bounds",
+  "title",
   "use_directions",
-  "blank_map",
-  "icon_color",
 ] as const;
 
 const STOP_FIELDS = [
-  "title",
+  "address",
+  "article_link",
   "description",
-  "meta_description",
   "direction_intro",
   "direction_notes",
-  "article_link",
-  "address",
+  "icon_color",
   "lat",
   "lng",
+  "meta_description",
   "parking_address",
   "parking_lat",
   "parking_lng",
-  "icon_color",
+  "title",
 ] as const;
 
 const MEDIUM_FIELDS = ["title", "caption"] as const;

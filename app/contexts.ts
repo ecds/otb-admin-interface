@@ -52,6 +52,7 @@ export const TourSetContext = createContext<TTourSetContext>({
     footer_logo: "",
     name: "",
     logo_url: "",
+    matomo_id: 4,
     notes: "",
     subdir: "",
     tours: [],

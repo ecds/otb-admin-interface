@@ -17,11 +17,18 @@ vi.mock("../inputs/TextInput", () => ({
   },
 }));
 
-const stop = {
+const stopWithIcon = {
   id: 3,
   relation_id: 30,
   icon_color: "#D32F2F",
   map_icon: "/tour.png",
+  map_icon_custom: false,
+} as TStop;
+
+const stopNoIcon = {
+  id: 4,
+  relation_id: 30,
+  icon_color: "#D32F2F",
   map_icon_custom: false,
 } as TStop;
 
@@ -31,15 +38,15 @@ describe("MarkerStyle", () => {
       id: 1,
       tenant: "ecds",
       map_icon: "/tour.png",
-      stops: [{ ...stop }],
+      stops: [stopWithIcon, stopNoIcon],
     } as unknown as TTour),
   );
 
   // The color is sent with the stop's entry in the tour save, which
   // applies it to the tour stop.
   it("edits icon color on the stop", () => {
-    render(<MarkerStyle stopId={3} />);
-    expect(screen.getByText("stop").getAttribute("data-item")).toBe("3");
+    render(<MarkerStyle stopId={4} />);
+    expect(screen.getByText("stop").getAttribute("data-item")).toBe("4");
   });
 
   it("targets the tour stop for icon changes", () => {

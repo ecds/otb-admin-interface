@@ -90,6 +90,12 @@ export type TRelateModel =
 export type TMapType = "hybrid" | "roadmap" | "satellite" | "terrain";
 
 export type TMedium = TPositionedRecord & {
+  // Describes the image for screen reader users.
+  alt_text?: string | null;
+  // Adds nothing a screen reader user needs; published with an empty alt.
+  decorative?: boolean;
+  // From the API: no alt text and not decorative.
+  missing_alt_text?: boolean;
   caption: string;
   desktop_width: number;
   embed?: string;
@@ -240,6 +246,7 @@ export type TServerResponse = TTour | TStop | TMedium | TFlatPage | TTourSet;
 
 export type TSelectableProps =
   | "blank_map"
+  | "decorative"
   | "default_lng"
   | "is_geo"
   | "language"
@@ -252,6 +259,7 @@ export type TSelectableProps =
 export type TValue =
   | TSelectableProps
   | "address"
+  | "alt_text"
   | "body"
   | "caption"
   | "description"
@@ -318,6 +326,9 @@ export type TOpenGeographiesStop = {
   description_html?: string;
   media: {
     title?: string;
+    alt_text?: string | null;
+    // No alt text in Open Geographies; shown as decorative until it's added.
+    missing_alt_text?: boolean;
     provider?: string | null;
     embed?: string;
     files: { original?: string; mobile?: string; tablet?: string };

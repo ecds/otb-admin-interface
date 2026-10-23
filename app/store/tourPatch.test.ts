@@ -188,6 +188,22 @@ describe("buildTourPatch", () => {
     });
   });
 
+  it("sends a medium's alt text and decorative setting", () => {
+    const patch = buildTourPatch(
+      saved,
+      edit((t) => {
+        t.media[0].alt_text = "The church from the road";
+        t.media[1].decorative = true;
+      }),
+    );
+    expect(patch).toEqual({
+      media: [
+        { relation_id: 70, alt_text: "The church from the road" },
+        { relation_id: 80, decorative: true },
+      ],
+    });
+  });
+
   it("sends flat page edits", () => {
     const patch = buildTourPatch(
       saved,

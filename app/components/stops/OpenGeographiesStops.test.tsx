@@ -34,7 +34,18 @@ const preview: TOpenGeographiesPreview = {
       lat: 34.13,
       lng: -83.63,
       description_html: "<p>Organized in <a href='/x'>1810</a>.</p>",
-      media: [{ title: "Exterior", files: { mobile: "/thumb.jpg" } }],
+      media: [
+        {
+          title: "Exterior",
+          alt_text: "Academy Baptist from the road",
+          files: { mobile: "/thumb.jpg" },
+        },
+        {
+          title: "Pews",
+          missing_alt_text: true,
+          files: { mobile: "/pews.jpg" },
+        },
+      ],
     },
     {
       id: "b",
@@ -85,10 +96,11 @@ describe("OpenGeographiesStops", () => {
     expect(
       screen.getByText("Dry Pond Methodist lists a medium more than once."),
     ).toBeInTheDocument();
-    expect(screen.getByAltText("Exterior")).toHaveAttribute(
-      "src",
-      "/thumb.jpg",
-    );
+    expect(
+      screen.getByAltText("Academy Baptist from the road"),
+    ).toHaveAttribute("src", "/thumb.jpg");
+    // Only the image without alt text is badged.
+    expect(screen.getAllByText(/No alt text/)).toHaveLength(1);
     expect(screen.getByText("1810")).toHaveAttribute("href", "/x");
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(fetchOpenGeographiesPreview).toHaveBeenCalledWith("ecds", 7, false);

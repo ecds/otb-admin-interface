@@ -15,6 +15,7 @@ import FlatPageList from "~/components/flat_pages/FlatPageList";
 import Preview from "~/components/Preview";
 import TravelModes from "~/components/TravelModes";
 import SaveButton from "~/components/buttons/SaveButton";
+import PublishToggle from "~/components/PublishToggle";
 import VoiceOverUpload from "~/components/voice_overs/VoiceOverUpload";
 import VoiceOverList from "~/components/voice_overs/VoiceOverList";
 import TourAuthors from "~/components/TourAuthors";
@@ -75,14 +76,7 @@ const TourRoute = () => {
           model="tour"
         />
         <div className="flex flex-row">
-          <SelectInput
-            itemId={tour.id}
-            label="Published"
-            value={tour.published}
-            id="published"
-            model="tour"
-            helpText="Toggle to make tour publicly available."
-          />
+          <PublishToggle />
           {tour.published_on && (
             <p>
               <span className="">Published On:</span> {tour.published_on}

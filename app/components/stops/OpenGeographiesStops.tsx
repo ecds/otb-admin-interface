@@ -4,6 +4,7 @@ import {
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { useOpenGeographiesPreview } from "~/hooks/useOpenGeographiesPreview";
+import MissingAltTextBadge from "../media_grid/MissingAltTextBadge";
 
 // Read-only view of the stops a tour gets from Open Geographies, so a
 // curator can check them. The stops themselves are edited in Open
@@ -120,12 +121,14 @@ const OpenGeographiesStops = () => {
                     {stop.media.map((medium, index) => (
                       <li
                         key={`${medium.files.mobile}-${index}`}
-                        className="list-none"
+                        className="relative list-none"
                       >
+                        {/* Shown as decorative until alt text is added in OG. */}
+                        {medium.missing_alt_text && <MissingAltTextBadge />}
                         {medium.files.mobile ? (
                           <img
                             src={medium.files.mobile}
-                            alt={medium.title ?? ""}
+                            alt={medium.alt_text ?? ""}
                             loading="lazy"
                             className="h-32 w-32 rounded-md object-cover"
                           />

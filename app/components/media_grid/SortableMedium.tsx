@@ -11,6 +11,9 @@ import ToolTip from "../inputs/ToolTip";
 import FileUpload from "../inputs/FileUpload";
 import ScrollableModal from "../ScrollableModal";
 import RetryingImage from "./RetryingImage";
+import SelectInput from "../inputs/SelectInput";
+import MissingAltTextBadge from "./MissingAltTextBadge";
+import { needsAltText } from "~/utils/altText";
 import type { TMedium } from "~/types";
 
 interface Props {
@@ -23,6 +26,7 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
     useSortable({ id: medium.id });
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const applySavedField = useTourStore((s) => s.applySavedField);
+  const missingAlt = needsAltText(medium);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -57,6 +61,7 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
             alt=""
             className="absolute inset-0 h-full w-full object-contain object-top"
           />
+          {missingAlt && <MissingAltTextBadge />}
           {medium.embed_id && (
             <FontAwesomeIcon
               icon={faPlayCircle}
@@ -122,6 +127,31 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
             model="medium"
             value={medium.caption}
             itemId={medium.id}
+          />
+          {missingAlt && (
+            <p
+              role="status"
+              className="mb-2 rounded-md bg-amber-50 p-3 text-amber-900"
+            >
+              This image needs alt text, or to be marked decorative.
+            </p>
+          )}
+          <TextInput
+            type="text-area"
+            id="alt_text"
+            label="Alt Text"
+            model="medium"
+            value={medium.alt_text ?? ""}
+            itemId={medium.id}
+            helpText="Describe what the image shows for people using screen readers, in a sentence or two. Don't repeat the caption or start with 'Image of'."
+          />
+          <SelectInput
+            itemId={medium.id}
+            id="decorative"
+            label="Image is decorative"
+            model="medium"
+            value={Boolean(medium.decorative)}
+            helpText="Only for images that add nothing a screen reader user needs, such as a texture or a repeated photo. Decorative images are published without a description."
           />
         </div>
         <button

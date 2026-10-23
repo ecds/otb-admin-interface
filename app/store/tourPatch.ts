@@ -36,7 +36,7 @@ const STOP_FIELDS = [
   "title",
 ] as const;
 
-const MEDIUM_FIELDS = ["title", "caption"] as const;
+const MEDIUM_FIELDS = ["title", "caption", "alt_text", "decorative"] as const;
 const FLAT_PAGE_FIELDS = ["title", "body"] as const;
 const OVERLAY_FIELDS = ["north", "south", "east", "west", "rotation"] as const;
 

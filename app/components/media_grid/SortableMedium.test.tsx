@@ -58,4 +58,45 @@ describe("SortableMedium", () => {
     expect(tour.media[0].files.tablet).toBe("/new-t.jpg");
     expect(tour.stops[0].media[0].files.tablet).toBe("/new-t.jpg");
   });
+
+  describe("alt text", () => {
+    const show = (fields: Partial<TMedium>) =>
+      render(
+        <DndContext>
+          <SortableContext items={[7]}>
+            <SortableMedium
+              medium={{ ...medium, ...fields }}
+              onDelete={() => {}}
+            />
+          </SortableContext>
+        </DndContext>,
+      );
+
+    it("badges a thumbnail that has no alt text", () => {
+      show({ alt_text: null });
+      expect(screen.getAllByText(/No alt text/).length).toBeGreaterThan(0);
+      expect(
+        screen.getByText(
+          "This image needs alt text, or to be marked decorative.",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("doesn't badge an image with alt text or marked decorative", () => {
+      const { unmount } = show({ alt_text: "The pulpit" });
+      expect(screen.queryByText(/No alt text/)).not.toBeInTheDocument();
+      unmount();
+      show({ alt_text: null, decorative: true });
+      expect(screen.queryByText(/No alt text/)).not.toBeInTheDocument();
+    });
+
+    it("marks the image decorative in the store", () => {
+      show({ alt_text: null });
+      fireEvent.click(screen.getByRole("checkbox"));
+      expect(useTourStore.getState().tour!.media[0].decorative).toBe(true);
+      expect(useTourStore.getState().tour!.stops[0].media[0].decorative).toBe(
+        true,
+      );
+    });
+  });
 });

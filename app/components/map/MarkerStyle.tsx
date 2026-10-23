@@ -1,6 +1,7 @@
 import { useTourStore } from "~/store/tourStore";
 import TextInput from "../inputs/TextInput";
 import MapIconControls from "./MapIconControls";
+import PreviouslyUsed from "./PreviouslyUsed";
 
 const MarkerStyle = ({ stopId }: { stopId: number }) => {
   const stop = useTourStore((s) =>
@@ -10,21 +11,26 @@ const MarkerStyle = ({ stopId }: { stopId: number }) => {
 
   if (!stop) return null;
 
-  // Icon colour and icon live on the tour stop (per tour). The colour goes
+  // Icon color and icon live on the tour stop (per tour). The color goes
   // out with the stop's entry in the tour save; the icon saves against the
   // join record's relation_id.
   return (
-    <div className="flex flex-col gap-4">
-      <TextInput
-        itemId={stop.id}
-        label="Icon Color"
-        type="color"
-        value={stop.icon_color ?? "#D32F2F"}
-        model="stop"
-        id="icon_color"
-        helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
-      />
-      <div className="-mt-6">
+    <div className="flex flex-col gap-4 my-4">
+      {!stop.map_icon && (
+        <div className="flex flex-col md:flex-row">
+          <TextInput
+            itemId={stop.id}
+            label="Icon Color"
+            type="color"
+            value={stop.icon_color ?? "#D32F2F"}
+            model="stop"
+            id="icon_color"
+            helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
+          />
+          <PreviouslyUsed stopId={stop.id} />
+        </div>
+      )}
+      <div className="">
         <MapIconControls
           target={{ model: "tour_stop", recordId: stop.relation_id }}
           hasIcon={Boolean(stop.map_icon_custom)}

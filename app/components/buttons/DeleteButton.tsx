@@ -48,7 +48,7 @@ const DeleteButton = ({
         aria-label={label ?? `Delete ${removing}`}
         className={
           className ??
-          "cursor-pointer bg-red-300 hover:bg-red-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+          "cursor-pointer bg-red-300 hover:bg-red-500 min-h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
         }
         onClick={() => setAskConfirm(true)}
         disabled={disabled}

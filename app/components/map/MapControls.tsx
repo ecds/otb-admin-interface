@@ -27,6 +27,7 @@ import { useOpenGeographiesPreview } from "~/hooks/useOpenGeographiesPreview";
 import { baseStyle, blank, hybrid, satellite } from "~/map_styles";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { TTour } from "~/types";
+import PreviouslyUsed from "./PreviouslyUsed";
 
 const MapControls = () => {
   const tour = useTourStore((s) => s.tour);
@@ -188,8 +189,8 @@ const MapControls = () => {
   return (
     <Fieldset className={``}>
       <Legend className="text-2xl flex space-x-3 my-8">Map Options</Legend>
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        <div>
+      <div className="flex flex-col md:flex-row">
+        <div className="basis-1/2">
           <SelectInput
             itemId={tour.id}
             label="Enable Map"
@@ -215,7 +216,7 @@ const MapControls = () => {
             helpText="Select to prevent people from zooming out far from your tour or scrolling far away. This restricts the desktop/laptop map to the area around the tour stops."
           />
         </div>
-        <div>
+        <div className="grid grid-cols-1 md:grid-cols-2">
           <TextInput
             itemId={tour.id}
             label="Icon Color"
@@ -226,7 +227,8 @@ const MapControls = () => {
             helpText="Select a color for the map maker. Be sure to pick a color that is easily seen on the map and the stop number is readable."
             updateCallback={() => {}}
           />
-          <div className="-mt-6 mb-8">
+          <PreviouslyUsed />
+          <div className="col-span-2">
             <MapIconControls
               target={{ model: "tour", recordId: tour.id }}
               hasIcon={Boolean(tour.map_icon)}
@@ -237,16 +239,16 @@ const MapControls = () => {
             />
           </div>
         </div>
-        <div className="col-span-2">
-          <SelectInput
-            itemId={tour.id}
-            id="map_type"
-            label="Map Type"
-            model="tour"
-            value={tour?.map_type}
-            options={mapTypes}
-          />
-        </div>
+      </div>
+      <div className="">
+        <SelectInput
+          itemId={tour.id}
+          id="map_type"
+          label="Map Type"
+          model="tour"
+          value={tour?.map_type}
+          options={mapTypes}
+        />
       </div>
 
       <div className={`grid ${columns ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
@@ -284,7 +286,7 @@ const MapControls = () => {
               <div className="flex flex-row space-x-2 justify-end my-4">
                 <button
                   onClick={() => setColumns(!columns)}
-                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
+                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 min-h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg"
                 >
                   <FontAwesomeIcon
                     icon={
@@ -304,7 +306,7 @@ const MapControls = () => {
                       ? undefined
                       : "The image's size isn't known yet."
                   }
-                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-300 disabled:hover:text-black/75"
+                  className="cursor-pointer bg-blue-300 hover:bg-blue-500 min-h-8 text-black/75 hover:text-white/75 px-2 rounded-sm drop-shadow-lg disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-300 disabled:hover:text-black/75"
                 >
                   Reset Aspect Ratio
                 </button>

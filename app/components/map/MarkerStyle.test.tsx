@@ -35,7 +35,7 @@ describe("MarkerStyle", () => {
     } as unknown as TTour),
   );
 
-  // The colour is sent with the stop's entry in the tour save, which
+  // The color is sent with the stop's entry in the tour save, which
   // applies it to the tour stop.
   it("edits icon color on the stop", () => {
     render(<MarkerStyle stopId={3} />);

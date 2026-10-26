@@ -26,7 +26,7 @@ describe("PublishToggle", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("asks first, listing the images that need alt text", async () => {
+  it("lists the images that need alt text", async () => {
     loadTour([
       { id: 1, title: "Front" },
       { id: 2, title: "Texture", decorative: true },
@@ -40,22 +40,18 @@ describe("PublishToggle", () => {
     expect(published()).toBe(false);
   });
 
-  it("stays unpublished when cancelled", async () => {
+  it("won't publish, and offers no way around it", async () => {
     loadTour([{ id: 1, title: "Front" }]);
     render(<PublishToggle />);
     fireEvent.click(checkbox());
-    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("can't be published yet");
+    expect(
+      screen.queryByRole("button", { name: /publish/i }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "OK" }));
     expect(published()).toBe(false);
-  });
-
-  it("publishes when the curator chooses to anyway", async () => {
-    loadTour([{ id: 1, title: "Front" }]);
-    render(<PublishToggle />);
-    fireEvent.click(checkbox());
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Publish anyway" }),
-    );
-    expect(published()).toBe(true);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("unpublishes without asking", () => {

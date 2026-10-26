@@ -23,7 +23,12 @@ vi.mock("./Embed", () => ({
   ),
 }));
 vi.mock("./FileDrop", () => ({
-  default: ({ children }: { children: unknown }) => <>{children}</>,
+  default: ({ onSuccess }: { onSuccess: (m: unknown) => void }) => (
+    <>
+      <button onClick={() => onSuccess(mk(97, 3))}>Upload First</button>
+      <button onClick={() => onSuccess(mk(98, 4))}>Upload Second</button>
+    </>
+  ),
 }));
 vi.mock("../inputs/FileUpload", () => ({ default: () => null }));
 vi.mock("../ReuseMedia", () => ({ default: () => null }));
@@ -31,14 +36,21 @@ vi.mock("./SortableMedium", () => ({
   default: function MockMedium({
     medium,
     onDelete,
+    openEditor,
+    onEditorClosed,
   }: {
     medium: TMedium;
     onDelete: () => void;
+    openEditor?: boolean;
+    onEditorClosed?: () => void;
   }) {
     return (
       <div>
         <span>{medium.title}</span>
         <button onClick={onDelete}>Delete {medium.title}</button>
+        {openEditor && (
+          <button onClick={onEditorClosed}>Close {medium.title}</button>
+        )}
       </div>
     );
   },
@@ -94,6 +106,19 @@ describe("MediaGrid", () => {
       useTourStore.getState().saved!.stops[0].media.map((m) => m.id),
     ).toEqual([3, 4, 99]);
     expect(tour().media).toHaveLength(2);
+  });
+
+  it("opens each upload's editor in turn, but not an embed's", () => {
+    renderGrid("tour", 1);
+    fireEvent.click(screen.getByText("Add Embed"));
+    expect(screen.queryByText(/^Close/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Upload First"));
+    fireEvent.click(screen.getByText("Upload Second"));
+    expect(screen.getAllByText(/^Close/)).toHaveLength(1);
+    fireEvent.click(screen.getByText("Close M97"));
+    expect(screen.getByText("Close M98")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Close M98"));
+    expect(screen.queryByText(/^Close/)).not.toBeInTheDocument();
   });
 
   it("removes deleted media from the store and renumbers the rest", () => {

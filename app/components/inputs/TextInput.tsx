@@ -36,6 +36,9 @@ type TextInputProps = {
   placeholder?: string;
   range?: RangeProps;
   fullWidth?: boolean;
+  // The site to save to when the record isn't part of an open tour (e.g.
+  // the media page); defaults to the open tour's site.
+  tenant?: string;
 };
 
 const TextInput = ({
@@ -53,6 +56,7 @@ const TextInput = ({
   placeholder,
   range,
   fullWidth = true,
+  tenant: tenantProp,
 }: InputProps & TextInputProps) => {
   const [currentValue, setCurrentValue] = useState<string | number>(value);
   const [serverError, setServerError] = useState<string | undefined>(undefined);
@@ -61,7 +65,8 @@ const TextInput = ({
   // Jodit is only sanitized/committed on blur, not on every keystroke — see
   // handleRichTextChange for why.
   const richTextRef = useRef<string>(typeof value === "string" ? value : "");
-  const tenant = useTenant();
+  const tourTenant = useTenant();
+  const tenant = tenantProp ?? tourTenant;
   const tourId = useTourStore((s) => s.tour?.id);
   const beginSave = useTourStore((s) => s.beginSave);
   const endSave = useTourStore((s) => s.endSave);

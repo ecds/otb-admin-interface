@@ -28,14 +28,24 @@ const Navbar = () => {
         </NavLink>
         <ul className="flex space-x-8 flex-row">
           {tourSet?.name && (
-            <li>
-              <NavLink
-                to={`/${tourSet.subdir}`}
-                className={({ isActive }) => (isActive ? "underline" : "")}
-              >
-                {tourSet.name}
-              </NavLink>
-            </li>
+            <>
+              <li>
+                <NavLink
+                  to={`/${tourSet.subdir}`}
+                  className={({ isActive }) => (isActive ? "underline" : "")}
+                >
+                  {tourSet.name}
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={`/${tourSet.subdir}/media`}
+                  className={({ isActive }) => (isActive ? "underline" : "")}
+                >
+                  Media
+                </NavLink>
+              </li>
+            </>
           )}
           {currentUser?.super && (
             <li>

@@ -33,6 +33,9 @@ interface Props {
 const MediaGrid = ({ recordModel, recordId }: Props) => {
   const [fileSaving, setFileSaving] = useState<string | undefined>(undefined);
   const [openReuseMedia, setOpenReuseMedia] = useState<boolean>(false);
+  // New uploads waiting for their editor to open, one at a time, so alt
+  // text is added while the image is fresh in mind.
+  const [needsDetails, setNeedsDetails] = useState<number[]>([]);
   const relatedModel = recordModel === "stop" ? "stop_medium" : "tour_medium";
   const join = {
     relatedModel,
@@ -101,19 +104,24 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
     });
   };
 
+  const uploaded = (newItem: unknown) => {
+    itemAdded(newItem);
+    setNeedsDetails((ids) => [...ids, (newItem as TMedium).id]);
+  };
+
   return (
     <div>
       <div className="text-2xl flex space-x-3 my-8">Media</div>
       <Embed join={join} onSuccess={itemAdded} />
       <FileDrop
         join={join}
-        onSuccess={itemAdded}
+        onSuccess={uploaded}
         fileSaving={fileSaving}
         setFileSaving={setFileSaving}
       >
         <FileUpload
           join={join}
-          onSuccess={itemAdded}
+          onSuccess={uploaded}
           fileUploading={setFileSaving}
           btnText="Upload Images"
         />
@@ -140,6 +148,10 @@ const MediaGrid = ({ recordModel, recordId }: Props) => {
                 key={medium.id}
                 medium={medium}
                 onDelete={() => handleDelete(medium.id)}
+                openEditor={needsDetails[0] === medium.id}
+                onEditorClosed={() =>
+                  setNeedsDetails((ids) => ids.filter((id) => id !== medium.id))
+                }
               />
             ))}
           </div>

@@ -5,23 +5,21 @@ import {
   faForwardStep,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { Dispatch, SetStateAction } from "react";
 import type { PaginationLinks } from "~/utils/linkHeader";
 
 interface Props {
   links: PaginationLinks;
   current: number;
-  setCurrent: Dispatch<SetStateAction<number>>;
+  setCurrent: (page: number) => void;
+  // Shown as "3 of 12" when known.
+  totalPages?: number;
 }
 
-const Pagination = ({ links, current, setCurrent }: Props) => {
+const Pagination = ({ links, current, setCurrent, totalPages }: Props) => {
   const { first, prev, next, last } = links;
 
   return (
-    <nav
-      aria-label="Page navigation example"
-      className="flex gap-4 justify-center"
-    >
+    <nav aria-label="Pages" className="flex gap-4 justify-center">
       <button
         disabled={!first}
         onClick={() => setCurrent(parseInt(first?.page ?? ""))}
@@ -38,14 +36,17 @@ const Pagination = ({ links, current, setCurrent }: Props) => {
         <FontAwesomeIcon icon={faCaretLeft} />{" "}
         <span className="sr-only">Previous</span>
       </button>
-      <div>{current}</div>
+      <div aria-current="page">
+        {current}
+        {totalPages ? ` of ${totalPages}` : ""}
+      </div>
       <button
         disabled={!next}
         onClick={() => setCurrent(parseInt(next?.page ?? ""))}
         className="disabled:cursor-not-allowed disabled:opacity-50"
       >
         <FontAwesomeIcon icon={faCaretRight} />{" "}
-        <span className="sr-only">Previous</span>
+        <span className="sr-only">Next</span>
       </button>
       <button
         disabled={!last}

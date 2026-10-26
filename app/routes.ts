@@ -9,5 +9,6 @@ export default [
     index("./routes/tours.tsx"),
     route("edit/:tour_id", "./routes/tour.tsx"),
     route("approve", "./routes/approve.tsx"),
+    route("media", "./routes/media.tsx"),
   ]),
 ] satisfies RouteConfig;

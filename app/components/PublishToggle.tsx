@@ -15,8 +15,9 @@ import { useTourStore } from "~/store/tourStore";
 import { missingAltText } from "~/utils/altText";
 import ToolTip from "./inputs/ToolTip";
 
-// The tour's Published setting. Publishing a tour with images that have no
-// alt text (and aren't decorative) asks first, listing them.
+// The tour's Published setting. A tour can't be published while any image
+// has no alt text and isn't decorative (the API refuses too); this lists
+// them instead. Unpublishing, and already published tours, are unaffected.
 const PublishToggle = () => {
   const published = useTourStore((s) => Boolean(s.tour?.published));
   const updateTourField = useTourStore((s) => s.updateTourField);
@@ -28,11 +29,6 @@ const PublishToggle = () => {
     const needing = next ? missingAltText(tour) : [];
     if (needing.length > 0) setMissing(needing);
     else updateTourField("published", next);
-  };
-
-  const publishAnyway = () => {
-    setMissing([]);
-    updateTourField("published", true);
   };
 
   return (
@@ -69,9 +65,9 @@ const PublishToggle = () => {
               {missing.length === 1 ? "image needs" : "images need"} alt text
             </DialogTitle>
             <p>
-              Images without alt text can&apos;t be understood by people using
-              screen readers. Add alt text, or mark an image as decorative if it
-              adds nothing they need.
+              This tour can&apos;t be published yet. Images without alt text
+              can&apos;t be understood by people using screen readers. Add alt
+              text, or mark an image as decorative if it adds nothing they need.
             </p>
             <ul className="max-h-64 list-disc overflow-y-auto ps-6">
               {missing.map(({ medium, usedIn }) => (
@@ -88,14 +84,7 @@ const PublishToggle = () => {
                 onClick={() => setMissing([])}
                 className="cursor-pointer rounded-sm bg-blue-500 px-3 py-1 text-white hover:bg-blue-300 hover:text-black"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={publishAnyway}
-                className="cursor-pointer rounded-sm px-3 py-1 text-red-700 hover:underline"
-              >
-                Publish anyway
+                OK
               </button>
             </div>
           </DialogPanel>

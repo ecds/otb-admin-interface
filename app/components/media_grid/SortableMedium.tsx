@@ -4,7 +4,7 @@ import DeleteButton from "../buttons/DeleteButton";
 import EditButton from "../buttons/EditButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlayCircle } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useEffect, useState, type SetStateAction } from "react";
 import { useTourStore } from "~/store/tourStore";
 import TextInput from "../inputs/TextInput";
 import ToolTip from "../inputs/ToolTip";
@@ -19,14 +19,32 @@ import type { TMedium } from "~/types";
 interface Props {
   medium: TMedium;
   onDelete: () => void;
+  // Opens the editor, e.g. right after an upload, so alt text gets added.
+  openEditor?: boolean;
+  onEditorClosed?: () => void;
 }
 
-const SortableMedium = ({ medium, onDelete }: Props) => {
+const SortableMedium = ({
+  medium,
+  onDelete,
+  openEditor = false,
+  onEditorClosed,
+}: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: medium.id });
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const applySavedField = useTourStore((s) => s.applySavedField);
   const missingAlt = needsAltText(medium);
+
+  useEffect(() => {
+    if (openEditor) setModalOpen(true);
+  }, [openEditor]);
+
+  const setEditorOpen = (action: SetStateAction<boolean>) => {
+    const open = typeof action === "function" ? action(modalOpen) : action;
+    setModalOpen(open);
+    if (!open) onEditorClosed?.();
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -79,17 +97,22 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
       </div>
       <ScrollableModal
         isOpen={modalOpen}
-        setIsOpen={setModalOpen}
+        setIsOpen={setEditorOpen}
         title={"Medium"}
+        closable={!missingAlt}
       >
         <div>
           {medium.embed ? (
             <>
-              <RetryingImage
-                src={medium.files.tablet}
-                alt={medium.caption ?? ""}
-                className="mx-auto"
-              />
+              {/* Holds a small space for the image while it loads. */}
+              <div className="relative mx-auto min-h-32 max-w-md">
+                <RetryingImage
+                  src={medium.files.tablet}
+                  alt={medium.caption ?? ""}
+                  className="mx-auto"
+                  explain
+                />
+              </div>
               <div className="my-4">
                 <FileUpload
                   onSuccess={imageReplaced}
@@ -105,11 +128,14 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
               </div>
             </>
           ) : (
-            <RetryingImage
-              src={medium.files.tablet}
-              alt={medium.caption ?? ""}
-              className="mx-auto"
-            />
+            <div className="relative mx-auto min-h-32 max-w-md">
+              <RetryingImage
+                src={medium.files.tablet}
+                alt={medium.caption ?? ""}
+                className="mx-auto"
+                explain
+              />
+            </div>
           )}
           <TextInput
             type="text"
@@ -155,8 +181,9 @@ const SortableMedium = ({ medium, onDelete }: Props) => {
           />
         </div>
         <button
-          className="bg-blue-500 rounded-md p-2 text-white w-auto self-end me-3 cursor-pointer"
-          onClick={() => setModalOpen(false)}
+          className="bg-blue-500 disabled:bg-blue-500/50 rounded-md p-2 text-white w-auto self-end me-3 cursor-pointer"
+          onClick={() => setEditorOpen(false)}
+          disabled={missingAlt}
         >
           Done
         </button>

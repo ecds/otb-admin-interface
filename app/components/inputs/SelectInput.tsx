@@ -20,6 +20,8 @@ type SelectProps = {
   id: TSelectableProps;
   handleSave?: () => void;
   itemId: number;
+  // The site to save to when the record isn't part of an open tour.
+  tenant?: string;
 };
 
 const SelectInput = ({
@@ -30,12 +32,14 @@ const SelectInput = ({
   value,
   helpText,
   options,
+  tenant: tenantProp,
 }: InputProps & SelectProps) => {
   const [currentValue, setCurrentValue] = useState<string | boolean>(value);
   const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLSelectElement>(null);
   const valueRef = useRef<string | boolean>(value);
-  const tenant = useTenant();
+  const tourTenant = useTenant();
+  const tenant = tenantProp ?? tourTenant;
   const beginSave = useTourStore((s) => s.beginSave);
   const endSave = useTourStore((s) => s.endSave);
   const { setFeedback } = useContext(FeedbackContext);

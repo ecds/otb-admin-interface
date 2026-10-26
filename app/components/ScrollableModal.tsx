@@ -16,6 +16,7 @@ interface Props {
   children: ReactNode;
   title: string;
   description?: string;
+  closable?: boolean;
 }
 
 const ScrollableModal = ({
@@ -24,6 +25,7 @@ const ScrollableModal = ({
   title,
   description,
   children,
+  closable = true,
 }: Props) => {
   const openRef = useRef<boolean | undefined>(undefined);
   const revalidator = useRevalidator();
@@ -39,19 +41,21 @@ const ScrollableModal = ({
     }
   }, [isOpen, revalidator]);
 
+  const handleClose = () => {
+    if (!closable) return;
+    setIsOpen(false);
+  };
+
   return (
-    <Dialog
-      open={isOpen}
-      onClose={() => setIsOpen(false)}
-      className="relative z-50"
-    >
+    <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
         <DialogPanel className="w-[80vw] h-[80vh] space-y-4 border bg-white overflow-hidden">
           <div className="grid grid-cols-2 p-4">
             {title}
             <button
-              onClick={() => setIsOpen(false)}
-              className="flex flex-col items-center text-xs justify-self-end"
+              onClick={handleClose}
+              className="flex flex-col items-center text-xs justify-self-end disabled:opacity-50"
+              disabled={!closable}
             >
               <FontAwesomeIcon icon={faCircleXmark} className="text-base" />
               Close

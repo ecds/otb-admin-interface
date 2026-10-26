@@ -46,7 +46,28 @@ describe("RetryingImage", () => {
     await fail(2000);
     fireEvent.error(img());
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
-    expect(screen.getByText(/processing image/i)).toBeInTheDocument();
+    expect(screen.getByText(/isn't ready yet/i)).toBeInTheDocument();
+  });
+
+  it("starts a fresh round of retries when asked to try again", async () => {
+    render(<RetryingImage src="/m.jpg" alt="thumb" maxRetries={1} />);
+    await fail(1000);
+    fireEvent.error(img());
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(img().getAttribute("src")).toBe("/m.jpg?retry=2");
+    // The backoff starts from 1s again.
+    await fail(1000);
+    expect(img().getAttribute("src")).toBe("/m.jpg?retry=3");
+  });
+
+  it("explains the wait only where asked to", async () => {
+    const { rerender } = render(
+      <RetryingImage src="/m.jpg" alt="thumb" maxRetries={0} />,
+    );
+    fireEvent.error(img());
+    expect(screen.queryByText(/resized after they upload/i)).toBeNull();
+    rerender(<RetryingImage src="/m.jpg" alt="thumb" maxRetries={0} explain />);
+    expect(screen.getByText(/resized after they upload/i)).toBeInTheDocument();
   });
 
   it("starts over when the source changes", async () => {

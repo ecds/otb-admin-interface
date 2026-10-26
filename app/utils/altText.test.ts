@@ -9,8 +9,18 @@ describe("needsAltText", () => {
   it("is true without alt text, unless the image is decorative", () => {
     expect(needsAltText(medium(1))).toBe(true);
     expect(needsAltText(medium(1, { alt_text: "   " }))).toBe(true);
-    expect(needsAltText(medium(1, { alt_text: "The pulpit" }))).toBe(false);
+    expect(needsAltText(medium(1, { alt_text: "The church pulpit" }))).toBe(
+      false,
+    );
     expect(needsAltText(medium(1, { decorative: true }))).toBe(false);
+  });
+
+  it("needs at least three words", () => {
+    expect(needsAltText(medium(1, { alt_text: "x" }))).toBe(true);
+    expect(needsAltText(medium(1, { alt_text: " The  pulpit " }))).toBe(true);
+    expect(needsAltText(medium(1, { alt_text: "The\npulpit, carved" }))).toBe(
+      false,
+    );
   });
 });
 
@@ -18,7 +28,7 @@ describe("missingAltText", () => {
   it("lists each image once with everywhere it's used", () => {
     const shared = medium(1);
     const tour = {
-      media: [shared, medium(2, { alt_text: "Described" })],
+      media: [shared, medium(2, { alt_text: "The church front" })],
       stops: [
         { title: "Academy", media: [shared, medium(3, { decorative: true })] },
         { title: "Dry Pond", media: [medium(4)] },

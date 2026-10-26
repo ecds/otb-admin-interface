@@ -13,7 +13,13 @@ import ScrollableModal from "../ScrollableModal";
 import RetryingImage from "./RetryingImage";
 import SelectInput from "../inputs/SelectInput";
 import MissingAltTextBadge from "./MissingAltTextBadge";
-import { needsAltText } from "~/utils/altText";
+import DecorativeBadge from "./DecorativeBadge";
+import {
+  MIN_ALT_TEXT_WORDS,
+  altTextWords,
+  hasAltText,
+  needsAltText,
+} from "~/utils/altText";
 import type { TMedium } from "~/types";
 
 interface Props {
@@ -35,6 +41,8 @@ const SortableMedium = ({
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const applySavedField = useTourStore((s) => s.applySavedField);
   const missingAlt = needsAltText(medium);
+  const words = altTextWords(medium.alt_text);
+  const notClosableReason = `This image can't be closed until it has alt text of at least ${MIN_ALT_TEXT_WORDS} words, or is marked decorative. Screen reader users rely on it, and the tour can't be published without it.`;
 
   useEffect(() => {
     if (openEditor) setModalOpen(true);
@@ -80,6 +88,7 @@ const SortableMedium = ({
             className="absolute inset-0 h-full w-full object-contain object-top"
           />
           {missingAlt && <MissingAltTextBadge />}
+          {medium.decorative && <DecorativeBadge />}
           {medium.embed_id && (
             <FontAwesomeIcon
               icon={faPlayCircle}
@@ -100,6 +109,7 @@ const SortableMedium = ({
         setIsOpen={setEditorOpen}
         title={"Medium"}
         closable={!missingAlt}
+        notClosableReason={notClosableReason}
       >
         <div>
           {medium.embed ? (
@@ -154,14 +164,6 @@ const SortableMedium = ({
             value={medium.caption}
             itemId={medium.id}
           />
-          {missingAlt && (
-            <p
-              role="status"
-              className="mb-2 rounded-md bg-amber-50 p-3 text-amber-900"
-            >
-              This image needs alt text, or to be marked decorative.
-            </p>
-          )}
           <TextInput
             type="text-area"
             id="alt_text"
@@ -169,17 +171,30 @@ const SortableMedium = ({
             model="medium"
             value={medium.alt_text ?? ""}
             itemId={medium.id}
-            helpText="Describe what the image shows for people using screen readers, in a sentence or two. Don't repeat the caption or start with 'Image of'."
+            helpText={`Describe what the image shows for people using screen readers, in a sentence or two (at least ${MIN_ALT_TEXT_WORDS} words). Don't repeat the caption or start with 'Image of'.`}
           />
-          <SelectInput
-            itemId={medium.id}
-            id="decorative"
-            label="Image is decorative"
-            model="medium"
-            value={Boolean(medium.decorative)}
-            helpText="Only for images that add nothing a screen reader user needs, such as a texture or a repeated photo. Decorative images are published without a description."
-          />
+          {missingAlt && words > 0 && (
+            <p className="mb-2 text-sm text-amber-900">
+              {words} of {MIN_ALT_TEXT_WORDS} words
+            </p>
+          )}
+          {/* Only offered while it's the way to finish, or to undo it. */}
+          {(!hasAltText(medium) || medium.decorative) && (
+            <SelectInput
+              itemId={medium.id}
+              id="decorative"
+              label="Image is decorative"
+              model="medium"
+              value={Boolean(medium.decorative)}
+              helpText="Only for images that add nothing a screen reader user needs, such as a texture or a repeated photo. Decorative images are published without a description."
+            />
+          )}
         </div>
+        {missingAlt && (
+          <p className="me-3 self-end text-sm text-amber-900">
+            Add alt text or mark the image decorative to finish.
+          </p>
+        )}
         <button
           className="bg-blue-500 disabled:bg-blue-500/50 rounded-md p-2 text-white w-auto self-end me-3 cursor-pointer"
           onClick={() => setEditorOpen(false)}

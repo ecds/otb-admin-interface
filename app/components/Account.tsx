@@ -1,6 +1,6 @@
 import { Button } from "@headlessui/react";
 import { useContext } from "react";
-import { NavLink, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { AuthContext } from "~/contexts";
 import { signOut } from "~/utils/requests";
 import SignIn from "./SignIn.client";

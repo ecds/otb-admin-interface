@@ -14,6 +14,7 @@ import ScrollableModal from "~/components/ScrollableModal";
 import TextInput from "~/components/inputs/TextInput";
 import SelectInput from "~/components/inputs/SelectInput";
 import MissingAltTextBadge from "~/components/media_grid/MissingAltTextBadge";
+import DecorativeBadge from "~/components/media_grid/DecorativeBadge";
 import DeleteUnusedMedia from "~/components/media_grid/DeleteUnusedMedia";
 import DeleteMedium from "~/components/media_grid/DeleteMedium";
 import { needsAltText } from "~/utils/altText";
@@ -220,6 +221,7 @@ const MediaRoute = () => {
                 className="relative block w-full cursor-pointer rounded-md bg-gray-100 text-left hover:ring-2 hover:ring-blue-500"
               >
                 {needsAltText(medium) && <MissingAltTextBadge />}
+                {medium.decorative && <DecorativeBadge />}
                 <img
                   src={medium.files.mobile}
                   alt={medium.alt_text ?? ""}
@@ -265,7 +267,7 @@ const MediaRoute = () => {
             itemId={editing.id}
             tenant={tourSet.subdir}
             value={editing.alt_text ?? ""}
-            helpText="Describe what the image shows for people using screen readers, in a sentence or two. Don't repeat the caption or start with 'Image of'."
+            helpText="Describe what the image shows for people using screen readers, in a sentence or two (at least 3 words). Don't repeat the caption or start with 'Image of'."
           />
           <SelectInput
             id="decorative"

@@ -1,11 +1,20 @@
 import type { TMedium, TTour } from "~/types";
 
-// An image screen reader users can't make sense of: no alt text, and not
-// marked decorative. Worked out here so edits show at once, before the API
-// has recalculated missing_alt_text.
+// Alt text shorter than this doesn't describe anything. Matches the API.
+export const MIN_ALT_TEXT_WORDS = 3;
+
+export const altTextWords = (altText: string | null | undefined) =>
+  altText?.trim().split(/\s+/).filter(Boolean).length ?? 0;
+
+export const hasAltText = (medium: Pick<TMedium, "alt_text">) =>
+  altTextWords(medium.alt_text) >= MIN_ALT_TEXT_WORDS;
+
+// An image screen reader users can't make sense of: too little alt text, and
+// not marked decorative. Worked out here so edits show at once, before the
+// API has recalculated missing_alt_text.
 export const needsAltText = (
   medium: Pick<TMedium, "alt_text" | "decorative">,
-) => !medium.decorative && !medium.alt_text?.trim();
+) => !medium.decorative && !hasAltText(medium);
 
 export type TMissingAltText = {
   medium: TMedium;

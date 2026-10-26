@@ -34,7 +34,7 @@ const TourSelect = ({
   );
   const selectRef = useRef<HTMLSelectElement>(null);
   const revalidator = useRevalidator();
-  const [reassigned, setReassigned] = useState<boolean>(false);
+  const [_, setReassigned] = useState<boolean>(false);
 
   useEffect(() => {
     const reassign = async () => {

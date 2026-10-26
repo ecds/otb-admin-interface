@@ -51,7 +51,7 @@ const UserPendingAccessRequest = ({ request, index }: Props) => {
         });
       }
     },
-    [setFeedback, revalidator, tourSet, selectedTour],
+    [setFeedback, revalidator, tourSet, request],
   );
 
   return (

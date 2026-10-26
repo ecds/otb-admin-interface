@@ -17,6 +17,8 @@ interface Props {
   title: string;
   description?: string;
   closable?: boolean;
+  // Why the modal can't be closed yet, shown by the Close button.
+  notClosableReason?: string;
 }
 
 const ScrollableModal = ({
@@ -26,6 +28,7 @@ const ScrollableModal = ({
   description,
   children,
   closable = true,
+  notClosableReason,
 }: Props) => {
   const openRef = useRef<boolean | undefined>(undefined);
   const revalidator = useRevalidator();
@@ -60,6 +63,14 @@ const ScrollableModal = ({
               <FontAwesomeIcon icon={faCircleXmark} className="text-base" />
               Close
             </button>
+            {!closable && notClosableReason && (
+              <p
+                role="status"
+                className="col-span-2 mt-2 rounded-md bg-amber-50 p-3 text-sm text-amber-900"
+              >
+                {notClosableReason}
+              </p>
+            )}
             {description && (
               <Description className="capitalize">{description}</Description>
             )}

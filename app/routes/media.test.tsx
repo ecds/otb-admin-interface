@@ -163,7 +163,8 @@ describe("media route", () => {
     await waitFor(() =>
       expect(lastPath()).toBe("ecds/v4/admin/media?page=1&per=20&tour_id=9"),
     );
-    expect(select).toHaveValue("9");
+    // The dropdown follows the reloaded page data, which lands just after.
+    await waitFor(() => expect(select).toHaveValue("9"));
     fireEvent.change(select, { target: { value: "0" } });
     await waitFor(() =>
       expect(lastPath()).toBe("ecds/v4/admin/media?page=1&per=20"),

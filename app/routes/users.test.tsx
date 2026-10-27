@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AuthContext } from "~/contexts";
@@ -22,7 +28,19 @@ const user = (email: string, joined: string) =>
 
 const users = [
   user("bravo@x.org", "Feb 01, 2025"),
-  user("alpha@x.org", "Mar 01, 2025"),
+  {
+    ...user("alpha@x.org", "Mar 01, 2025"),
+    authored_tours: [
+      {
+        site: "Emory Campus",
+        subdir: "emory",
+        tours: [
+          { id: 11, title: "Library Tour", student: true },
+          { id: 10, title: "Quad Walk", student: false },
+        ],
+      },
+    ],
+  },
   user("charlie@x.org", "Jan 01, 2025"),
 ];
 
@@ -102,6 +120,28 @@ describe("shouldRevalidate", () => {
       nextUrl: new URL(`http://x${to}`),
       defaultShouldRevalidate: true,
     }) as Parameters<typeof shouldRevalidate>[0];
+
+  it("lists each user's tours in the table and in their details", async () => {
+    renderUsers();
+    expect(
+      await screen.findByText("Emory Campus: Library Tour, Quad Walk"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "alpha@x.org" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByRole("link", { name: "Library Tour" }),
+    ).toHaveAttribute("href", "/emory/edit/11");
+    expect(within(dialog).getByText(/Student author/)).toBeInTheDocument();
+  });
+
+  it("says when a user has no tours", async () => {
+    renderUsers();
+    fireEvent.click(await screen.findByRole("button", { name: "bravo@x.org" }));
+    expect(
+      await screen.findByText("Not an author on any tours."),
+    ).toBeInTheDocument();
+  });
 
   it("skips reloading when only the sort params change", () => {
     expect(

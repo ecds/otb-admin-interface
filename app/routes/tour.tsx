@@ -16,6 +16,7 @@ import Preview from "~/components/Preview";
 import TravelModes from "~/components/TravelModes";
 import SaveButton from "~/components/buttons/SaveButton";
 import PublishToggle from "~/components/PublishToggle";
+import TourTime from "~/components/TourTime";
 import VoiceOverUpload from "~/components/voice_overs/VoiceOverUpload";
 import VoiceOverList from "~/components/voice_overs/VoiceOverList";
 import TourAuthors from "~/components/TourAuthors";
@@ -83,6 +84,7 @@ const TourRoute = () => {
             </p>
           )}
         </div>
+        <TourTime />
         <TextInput
           itemId={tour.id}
           type="rich-text"

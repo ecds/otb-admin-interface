@@ -20,6 +20,7 @@ import {
   hasAltText,
   needsAltText,
 } from "~/utils/altText";
+import { useRemovalBlocked } from "~/utils/tourAccess";
 import type { TMedium } from "~/types";
 
 interface Props {
@@ -41,6 +42,7 @@ const SortableMedium = ({
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const applySavedField = useTourStore((s) => s.applySavedField);
   const missingAlt = needsAltText(medium);
+  const removalBlocked = useRemovalBlocked("medium", medium.id);
   const words = altTextWords(medium.alt_text);
   const notClosableReason = `This image can't be closed until it has alt text of at least ${MIN_ALT_TEXT_WORDS} words, or is marked decorative. Screen reader users rely on it, and the tour can't be published without it.`;
 
@@ -101,7 +103,15 @@ const SortableMedium = ({
         </div>
         <div className="mb-6 flex space-x-2 justify-around items-end text-sm">
           <EditButton onClick={setModalOpen} />
-          <DeleteButton removing="image or video" onDelete={onDelete} />
+          {/* Short on the card; the full reason is read out and on hover. */}
+          {removalBlocked ? (
+            <span className="text-xs text-black/70" title={removalBlocked}>
+              Can&apos;t remove
+              <span className="sr-only">. {removalBlocked}</span>
+            </span>
+          ) : (
+            <DeleteButton removing="image or video" onDelete={onDelete} />
+          )}
         </div>
       </div>
       <ScrollableModal

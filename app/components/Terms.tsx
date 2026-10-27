@@ -29,7 +29,13 @@ const Terms = () => {
     });
 
     if (response.ok) {
+      // Agreeing is the last step of signing up, so only new users get here.
       setCurrentUser(data);
+      setFeedback({
+        type: "success",
+        message: "You have created an OpenTour account!",
+        dismissable: true,
+      });
     } else {
       setFeedback({
         type: "error",

@@ -68,10 +68,14 @@ const HomeRoute = () => {
       <>
         <Navbar />
         <div className="mt-24 w-3xl mx-auto text-black/75 flex flex-col space-y-4">
-          <p>You have not been added to any tour sites.*</p>
+          <h1 className="text-2xl text-black">Welcome to OpenTour!</h1>
+          <p>
+            Your account is ready. You haven&apos;t been added to any tour sites
+            yet.* Ask for access to a site to start building tours.
+          </p>
           <p className="flex w-full items-center justify-center">
             <a
-              href="/admin/access-request"
+              href="/admin/profile#request-access"
               className="bg-blue-500 hover:bg-blue-800 text-white px-2 py-1 rounded-md drop-shadow-2xl uppercase font-light tracking-wide"
             >
               Request access and see any pending requests

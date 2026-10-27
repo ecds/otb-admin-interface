@@ -10,7 +10,20 @@ export type TAccessRequest = {
   date: string;
 };
 
-export type TTourAuthor = { tour_set: TTourSet; tours: TTour[] };
+export type TTourAuthor = {
+  tour_set: TTourSet;
+  tours: TTour[];
+  // Tours here the user is a student author on.
+  student_tour_ids?: number[];
+};
+
+// An author of one tour, as the tour authors endpoint lists them.
+export type TTourAuthorEntry = {
+  id: number;
+  display_name: string | null;
+  email: string;
+  student: boolean;
+};
 
 export type TUser = {
   id: number;
@@ -19,11 +32,18 @@ export type TUser = {
   super: boolean;
   current_tenant_admin: boolean;
   tours: TTourAuthor[];
-  tour_sets: TTourSet[];
+  // Sites the user belongs to, with their role there ("Tour Admin", ...).
+  tour_sets: (TTourSet & { role?: string })[];
   terms_accepted: boolean;
   access_requests: TAccessRequest[];
   date_joined: string;
   last_sign_in: string;
+  // Only in the Users list: the tours they're an author on, by site.
+  authored_tours?: {
+    site: string;
+    subdir: string;
+    tours: { id: number; title: string; student: boolean }[];
+  }[];
 };
 
 type TBounds = {
@@ -162,7 +182,23 @@ export type TStop = TPositionedRecord & {
   voice_overs: TVoiceOver[];
 };
 
+// What the signed-in user may do to a tour, from the API. Removable ids are
+// only sent for student authors.
+export type TTourAccess = {
+  student: boolean;
+  publish: boolean;
+  delete_tour: boolean;
+  removable_stop_ids: number[] | null;
+  removable_medium_ids: number[] | null;
+};
+
 export type TTour = {
+  access?: TTourAccess;
+  // Why parts of the travel time couldn't be worked out (admin only).
+  duration_problems?: string[];
+  // In words with the mode or "reading", e.g. "About 1 hour walking".
+  travel_duration?: string;
+  read_duration?: string;
   blank_map: boolean;
   bounds: TBounds;
   default_lng: string;
@@ -215,7 +251,7 @@ export type TTourSet = {
   name: string;
   notes: string;
   subdir: string;
-  tour_authors: { id: number; user: string; tour: string }[];
+  tour_authors: { id: number; user: string; tour: string; student: boolean }[];
   tours: TTour[];
 };
 

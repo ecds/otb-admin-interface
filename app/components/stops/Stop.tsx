@@ -9,12 +9,14 @@ import MediaGrid from "../media_grid/MediaGrid";
 import DeleteButton from "../buttons/DeleteButton";
 import VoiceOverUpload from "../voice_overs/VoiceOverUpload";
 import VoiceOverList from "../voice_overs/VoiceOverList";
+import { useRemovalBlocked } from "~/utils/tourAccess";
 import type { TStop } from "~/types";
 
 const Stop = ({ stop, onDelete }: { stop: TStop; onDelete: () => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: stop.id });
 
+  const removalBlocked = useRemovalBlocked("stop", stop.id);
   const detailsRef = useRef<HTMLDetailsElement>(null);
   // Each map holds a WebGL context and browsers only keep about 16, so a
   // stop's map only exists while the stop is open.
@@ -86,7 +88,11 @@ const Stop = ({ stop, onDelete }: { stop: TStop; onDelete: () => void }) => {
               model="stop"
             />
             <MediaGrid recordModel="stop" recordId={stop.id} />
-            <DeleteButton removing="Stop for the tour" onDelete={onDelete} />
+            {removalBlocked ? (
+              <p className="text-sm text-black/70">{removalBlocked}</p>
+            ) : (
+              <DeleteButton removing="Stop for the tour" onDelete={onDelete} />
+            )}
           </div>
         </details>
         <FontAwesomeIcon

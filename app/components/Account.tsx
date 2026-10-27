@@ -1,6 +1,6 @@
 import { Button } from "@headlessui/react";
 import { useContext } from "react";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { AuthContext } from "~/contexts";
 import { signOut } from "~/utils/requests";
 import SignIn from "./SignIn.client";
@@ -21,6 +21,17 @@ const Account = () => {
     return (
       <>
         {currentUser && !currentUser.super && <SignIn />}
+        {currentUser && (
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `hover:underline ${isActive ? "underline" : ""}`
+            }
+          >
+            {currentUser.display_name || currentUser.email}
+            <span className="sr-only">, your profile</span>
+          </NavLink>
+        )}
         <Button
           className="cursor-pointer capitalize border-black/45 text-black/75 border-2 rounded-md px-2 py-1"
           onClick={handelSignOut}

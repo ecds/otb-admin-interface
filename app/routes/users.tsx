@@ -6,7 +6,12 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
-import { useLoaderData, useRevalidator, useSearchParams } from "react-router";
+import {
+  Link,
+  useLoaderData,
+  useRevalidator,
+  useSearchParams,
+} from "react-router";
 import { AuthContext } from "~/contexts";
 import { request } from "~/utils/requests";
 import Navbar from "~/components/Navbar";
@@ -193,7 +198,7 @@ const UsersRoute = () => {
     <>
       <Navbar />
       <div className="mt-24 h-screen overflow-y auto">
-        <table className="w-11/12 lg:w-3/4 max-w-7xl p-8 m-auto table-fixed mb-24 bg-white">
+        <table className="w-11/12 lg:w-3/4 max-w-7xl p-8 m-auto table-fixed pb-24 bg-white">
           <thead className="sticky top-12 mb-8 bg-white w-full z-10">
             <tr className="w-full">
               <th className="relative w-auto pt-4" colSpan={2}>
@@ -214,7 +219,7 @@ const UsersRoute = () => {
                   <FontAwesomeIcon icon={faX} />
                 </button>
               </th>
-              <th className="pt-4" colSpan={4}></th>
+              <th className="pt-4" colSpan={5}></th>
             </tr>
             <tr className="text-left">
               <th className="ps-2 w-64 py-3">
@@ -228,6 +233,7 @@ const UsersRoute = () => {
                 </button>
               </th>
               <th className="ps-2 hidden md:table-cell py-3">Sites</th>
+              <th className="ps-2 hidden md:table-cell py-3">Tours</th>
               <th className="ps-2 w-32 hidden md:table-cell">
                 <button onClick={() => updateSort("date_joined")}>
                   Joined <SortIcon type="number" name="date_joined" />
@@ -270,6 +276,14 @@ const UsersRoute = () => {
                   <td className="px-2 hidden md:table-cell">
                     {user.tour_sets.map((ts) => ts.name).join(", ")}
                   </td>
+                  <td className="px-2 hidden md:table-cell text-sm">
+                    {user.authored_tours
+                      ?.map(
+                        ({ site, tours }) =>
+                          `${site}: ${tours.map((tour) => tour.title).join(", ")}`,
+                      )
+                      .join("; ")}
+                  </td>
                   <td className="px-2 hidden md:table-cell">
                     {user.date_joined}
                   </td>
@@ -295,6 +309,7 @@ const UsersRoute = () => {
             })}
           </tbody>
         </table>
+        <div className="h-24"></div>
       </div>
       <Dialog
         open={modalOpen}
@@ -324,6 +339,33 @@ const UsersRoute = () => {
                   )}
                 </div>
               </Description>
+              <section aria-labelledby="user-tours-heading">
+                <h4 id="user-tours-heading" className="font-medium text-black">
+                  Tours
+                </h4>
+                {activeUser?.authored_tours?.length ? (
+                  activeUser.authored_tours.map(({ site, subdir, tours }) => (
+                    <div key={subdir} className="mt-2">
+                      <h5 className="text-sm font-medium">{site}</h5>
+                      <ul className="ms-6 list-disc text-sm">
+                        {tours.map((tour) => (
+                          <li key={tour.id}>
+                            <Link
+                              to={`/${subdir}/edit/${tour.id}`}
+                              className="text-blue-700 underline hover:text-blue-900"
+                            >
+                              {tour.title}
+                            </Link>{" "}
+                            ({tour.student ? "Student author" : "Author"})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm">Not an author on any tours.</p>
+                )}
+              </section>
               <div>
                 {tour_sets.map((tourSet) => {
                   if (activeUser) {

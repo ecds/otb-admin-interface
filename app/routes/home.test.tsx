@@ -154,9 +154,7 @@ describe("HomeRoute — tour author (no tour_sets, has tours)", () => {
 
   it("does not render the access-request prompt", () => {
     renderHome(tourAuthorUser);
-    expect(
-      screen.queryByText(/You have not been added to any tour sites/),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Welcome to OpenTour!")).not.toBeInTheDocument();
   });
 });
 
@@ -235,5 +233,20 @@ describe("HomeRoute — super user", () => {
   it("does not show the Tours heading", () => {
     renderHome(superUser, []);
     expect(screen.queryByText("Tours")).not.toBeInTheDocument();
+  });
+});
+
+describe("HomeRoute — new user (no sites or tours yet)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("welcomes them and says how to get started", () => {
+    renderHome({ ...tourAuthorUser, tours: [] });
+    expect(
+      screen.getByRole("heading", { name: "Welcome to OpenTour!" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Your account is ready/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /request access/i }),
+    ).toHaveAttribute("href", "/admin/profile#request-access");
   });
 });

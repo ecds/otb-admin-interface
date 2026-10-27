@@ -17,9 +17,51 @@ import {
 } from "@headlessui/react";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { FeedbackContext, TourSetContext } from "~/contexts";
-import { request, sendDelete } from "~/utils/requests";
+import { request, sendDelete, sendUpdate } from "~/utils/requests";
 import { getErrorMessage } from "~/utils/errors";
 import { useRevalidator } from "react-router";
+
+// Marks a tour author as a student: they can edit the tour, but can't
+// publish it, and can remove only what they added, before it's published.
+const StudentToggle = ({
+  authorId,
+  student,
+  label,
+}: {
+  authorId: number;
+  student: boolean;
+  label: string;
+}) => {
+  const { tourSet } = useContext(TourSetContext);
+  const { setFeedback } = useContext(FeedbackContext);
+  const [checked, setChecked] = useState<boolean>(student);
+
+  const change = async (next: boolean) => {
+    setChecked(next);
+    const { response, data } = await sendUpdate({
+      tenant: tourSet.subdir,
+      record: authorId,
+      body: { model: "tour_author", tour_author: { student: next } },
+    });
+    if (!response.ok) {
+      setChecked(!next);
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(data, "Could not change the author type."),
+      });
+    }
+  };
+
+  return (
+    <input
+      type="checkbox"
+      className="size-4 cursor-pointer"
+      checked={checked}
+      onChange={(event) => change(event.target.checked)}
+      aria-label={label}
+    />
+  );
+};
 
 const TourSelect = ({
   adminId,
@@ -207,6 +249,20 @@ const ManageSiteAccess = () => {
                                     </li>
                                   </ul>
                                 </div>
+                                <div>
+                                  <h3 className="text-lg">
+                                    Student authors can do the same, except:
+                                  </h3>
+                                  <ul className="ms-4">
+                                    <li>Publish or unpublish the tour</li>
+                                    <li>
+                                      Remove stops or media someone else added
+                                    </li>
+                                    <li>
+                                      Remove anything once the tour is published
+                                    </li>
+                                  </ul>
+                                </div>
                               </div>
                             </motion.div>
                           </DisclosurePanel>
@@ -265,6 +321,7 @@ const ManageSiteAccess = () => {
                   <tr>
                     <td className="px-2">Author</td>
                     <td>Tour</td>
+                    <td className="text-center">Student</td>
                     <td className="text-center">Revoke</td>
                   </tr>
                 </thead>
@@ -278,6 +335,13 @@ const ManageSiteAccess = () => {
                       >
                         <td className="p-2">{author.user}</td>
                         <td className="p-2">{author.tour}</td>
+                        <td className="text-center">
+                          <StudentToggle
+                            authorId={author.id}
+                            student={author.student}
+                            label={`${author.user} is a student author on ${author.tour}`}
+                          />
+                        </td>
                         <td className="text-center">
                           <Button
                             aria-label="Deny access request"

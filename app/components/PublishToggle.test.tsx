@@ -62,3 +62,27 @@ describe("PublishToggle", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
+
+describe("PublishToggle for student authors", () => {
+  it("shows the setting without letting them change it", () => {
+    useTourStore.getState().setTour({
+      id: 1,
+      published: true,
+      media: [],
+      stops: [],
+      access: {
+        student: true,
+        publish: false,
+        delete_tour: false,
+        removable_stop_ids: [],
+        removable_medium_ids: [],
+      },
+    } as unknown as TTour);
+    render(<PublishToggle />);
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Student authors can't publish or unpublish/),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Published.")).toBeInTheDocument();
+  });
+});

@@ -13,6 +13,7 @@ import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import { useTourStore } from "~/store/tourStore";
 import { missingAltText } from "~/utils/altText";
+import { useMayPublish } from "~/utils/tourAccess";
 import ToolTip from "./inputs/ToolTip";
 
 // The tour's Published setting. A tour can't be published while any image
@@ -22,6 +23,7 @@ const PublishToggle = () => {
   const published = useTourStore((s) => Boolean(s.tour?.published));
   const updateTourField = useTourStore((s) => s.updateTourField);
   const [missing, setMissing] = useState<ReturnType<typeof missingAltText>>([]);
+  const mayPublish = useMayPublish();
 
   const toggle = (next: boolean) => {
     const tour = useTourStore.getState().tour;
@@ -30,6 +32,19 @@ const PublishToggle = () => {
     if (needing.length > 0) setMissing(needing);
     else updateTourField("published", next);
   };
+
+  // Student authors see the setting but can't change it.
+  if (!mayPublish) {
+    return (
+      <p className="mb-8 text-black/75">
+        <span className="font-medium">
+          {published ? "Published" : "Not published"}.
+        </span>{" "}
+        Student authors can&apos;t publish or unpublish a tour. Ask a tour
+        author or site admin.
+      </p>
+    );
+  }
 
   return (
     <>

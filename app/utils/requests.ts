@@ -7,6 +7,9 @@ type Reindex = {
 };
 
 type AllowedAttributes = {
+  tour_author?: {
+    student: boolean;
+  };
   flat_page?: {
     title: string;
   };
@@ -75,6 +78,7 @@ export type UpdateBody = AllowedAttributes & {
   tour_id?: number | string;
   user_id?: number | string;
   username?: string;
+  student?: boolean;
 };
 
 type CreateBody = AllowedAttributes & {

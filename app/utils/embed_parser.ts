@@ -1,3 +1,4 @@
+import { API_URL } from "~/utils/apiUrl";
 import type { TEmbedProvider } from "~/types";
 
 interface EmbedParser {
@@ -11,7 +12,7 @@ const resolveUrl = (url: string): string => {
   const xhr = new XMLHttpRequest();
   xhr.open(
     "GET",
-    `https://api.opentour.site/public/v4/admin/resolve_url?url=${encodeURIComponent(url)}`,
+    `${API_URL}/public/v4/admin/resolve_url?url=${encodeURIComponent(url)}`,
     false,
   );
   xhr.send();

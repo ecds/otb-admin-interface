@@ -1,3 +1,4 @@
+import { API_URL } from "~/utils/apiUrl";
 import {
   Description,
   Dialog,
@@ -31,7 +32,7 @@ const IconModal = ({ target, onSelect, open, setOpen }: Props) => {
   useEffect(() => {
     const fetchIcons = async () => {
       const response = await fetch(
-        `https://api.opentour.site/${tenant}/map-icons`,
+        `${API_URL}/${tenant}/map-icons`,
       );
       if (response.ok) {
         const data: TV3MapIconResponse = await response.json();

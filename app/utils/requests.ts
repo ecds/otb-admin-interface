@@ -1,3 +1,4 @@
+import { API_URL } from "~/utils/apiUrl";
 import type { TourPatch } from "~/store/tourPatch";
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -123,7 +124,7 @@ export const request = async ({
 }: FetchOptions) => {
   try {
     const response: Response = await fetch(
-      `https://api.opentour.site/${path}`,
+      `${API_URL}/${path}`,
       {
         referrerPolicy: "strict-origin-when-cross-origin",
         body: body ? JSON.stringify(body) : null,
@@ -226,7 +227,7 @@ export const sendUpload = async ({
   body: FormData;
 }) => {
   const response = await fetch(
-    `https://api.opentour.site/${tenant}/v4/admin/crud`,
+    `${API_URL}/${tenant}/v4/admin/crud`,
     {
       body,
       method: "POST",
@@ -249,7 +250,7 @@ export const sendUpdateUpload = async ({
   recordId: number;
 }) => {
   const response = await fetch(
-    `https://api.opentour.site/${tenant}/v4/admin/crud/${recordId}`,
+    `${API_URL}/${tenant}/v4/admin/crud/${recordId}`,
     {
       body,
       method: "PUT",

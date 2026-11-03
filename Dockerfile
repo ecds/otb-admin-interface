@@ -1,5 +1,12 @@
 FROM node:24.15.0-slim
 WORKDIR /src
+# Vite bakes these into the build. Left unset, the defaults in the code apply.
+ARG VITE_API_URL
+ARG VITE_SIGN_IN_REDIRECT
+ARG VITE_GOOGLE_MAPS_API_KEY
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SIGN_IN_REDIRECT=$VITE_SIGN_IN_REDIRECT
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
 COPY . .
 RUN npm install
 RUN npm run build

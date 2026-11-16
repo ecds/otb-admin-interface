@@ -1,11 +1,12 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TextInput from "../inputs/TextInput";
 import { useRef } from "react";
 import type { TFlatPage } from "~/types";
 import DeleteButton from "../buttons/DeleteButton";
+import { useTourStore } from "~/store/tourStore";
 
 const FlatPage = ({
   flatPage,
@@ -16,6 +17,8 @@ const FlatPage = ({
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: flatPage.id });
+  const tenant = useTourStore((s) => s.tour?.tenant);
+  const tourSlug = useTourStore((s) => s.tour?.slug);
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
@@ -51,6 +54,18 @@ const FlatPage = ({
             </div>
           </summary>
           <div className="bg-white mt-4 p-4 mx-auto w-full text-black/75">
+            <p className="mb-4 text-base">
+              <span>Link:</span>{" "}
+              <a
+                href={`https://${tenant}.opentour.site/${tourSlug}/${flatPage.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-800 underline cursor-pointer"
+              >
+                https://{tenant}.opentour.site/{tourSlug}/{flatPage.id}{" "}
+                <FontAwesomeIcon icon={faExternalLink} />
+              </a>
+            </p>
             <TextInput
               itemId={flatPage.id}
               valueType="text"

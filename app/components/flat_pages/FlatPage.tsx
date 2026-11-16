@@ -57,12 +57,12 @@ const FlatPage = ({
             <p className="mb-4 text-base">
               <span>Link:</span>{" "}
               <a
-                href={`https://${tenant}.opentour.site/${tourSlug}/${flatPage.id}`}
+                href={`https://${tenant}.opentour.site/${tourSlug}/page/${flatPage.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-800 underline cursor-pointer"
               >
-                https://{tenant}.opentour.site/{tourSlug}/{flatPage.id}{" "}
+                https://{tenant}.opentour.site/{tourSlug}/page/{flatPage.id}{" "}
                 <FontAwesomeIcon icon={faExternalLink} />
               </a>
             </p>
